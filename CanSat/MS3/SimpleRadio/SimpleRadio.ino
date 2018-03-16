@@ -1,33 +1,18 @@
+// Adapte from LibAPRS to SimpleRadioV2 By:
+// Julian Galvez Serna, 
+
+// -----------------------------Librerias-----------------------------------
 // Include LibAPRS
 #include <LibAPRS.h>
-
-// You must define what reference voltage the ADC
-// of your device is running at. If you bought a
-// MicroModem from unsigned.io, it will be running
-// at 3.3v if the "hw rev" is greater than 2.0.
-// This is the most common. If you build your own
-// modem, you should know this value yourself :)
-//#define ADC_REFERENCE REF_3V3
-// OR
 #define ADC_REFERENCE REF_5V
-
-// You can also define whether your modem will be
-// running with an open squelch radio:
+// You can also define whether your modem will be running with an open squelch radio:
 #define OPEN_SQUELCH false
 
-// You always need to include this function. It will
-// get called by the library every time a packet is
-// received, so you can process incoming packets.
-//
-// If you are only interested in receiving, you should
-// just leave this function empty.
-// 
-// IMPORTANT! This function is called from within an
-// interrupt. That means that you should only do things
-// here that are FAST. Don't print out info directly
-// from this function, instead set a flag and print it
-// from your main loop, like this:
 
+
+// -----------------------------APRS Packet Decoder-----------------------------------
+
+// called from within an interrupt.  FAST
 boolean gotPacket = false;
 AX25Msg incomingPacket;
 uint8_t *packetData;
@@ -58,38 +43,37 @@ void aprs_msg_callback(struct AX25Msg *msg) {
   }
 }
 
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Setup zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+
 void setup() {
   // Set up serial port
   Serial.begin(115200);
+
+  // Radio Ports Configurations
+  pinMode(RxSelection,INPUT);
+  pinMode(TxSelection,INPUT);
+  pinMode(RxD,INPUT);
+  pinMode(A6,INPUT);
+
+
+  // APRS lib Setup
+  APRS_init(ADC_REFERENCE, OPEN_SQUELCH);     // Initialise APRS library - This starts the modem
+  APRS_setCallsign("5K4MS3", 1);              // Minimum configure, callsign and SSID
+  // Others configurations
+  APRS_setDestination("APZMDM", 0);           // Destination identifier
+  APRS_setPath1("WIDE1", 1);                  // Path parameters are set to sensible values by
+  APRS_setPath2("WIDE2", 2);                  //  default, but this is how you can configure them:
+  APRS_setPreamble(350);                      // Preamble
+  APRS_setTail(50);                           // Tail
+  APRS_useAlternateSymbolTable(false);        // Normal or alternate symbol table
+  APRS_setSymbol('n');                        // Symbol you want to use
   
-  // Initialise APRS library - This starts the modem
-  APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
+  APRS_printSettings(); // We can print out all the settings
   
-  // You must at a minimum configure your callsign and SSID
-  APRS_setCallsign("5K4MS3", 1);
-  
-  // You don't need to set the destination identifier, but
-  // if you want to, this is how you do it:
-  // APRS_setDestination("APZMDM", 0);
-  
-  // Path parameters are set to sensible values by
-  // default, but this is how you can configure them:
-  // APRS_setPath1("WIDE1", 1);
-  // APRS_setPath2("WIDE2", 2);
-  
-  // You can define preamble and tail like this:
-  // APRS_setPreamble(350);
-  // APRS_setTail(50);
-  
-  // You can use the normal or alternate symbol table:
-  // APRS_useAlternateSymbolTable(false);
-  
-  // And set what symbol you want to use:
-  // APRS_setSymbol('n');
-  
-  // We can print out all the settings
-  APRS_printSettings();
-  Serial.print(F("Free RAM:     ")); Serial.println(freeMemory());
+  Serial.print(F("Free RAM:     ")); 
+  Serial.println(freeMemory());
 }
 
 void locationUpdateExample() {
