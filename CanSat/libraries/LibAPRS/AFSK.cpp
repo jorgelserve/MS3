@@ -55,6 +55,9 @@ void AFSK_hw_init(void) {
     AFSK_DAC_INIT();
     LED_TX_INIT();
     LED_RX_INIT();
+
+    RAD_TX_INIT();
+    RAD_RX_INIT();
 }
 
 void AFSK_init(Afsk *afsk) {
@@ -84,6 +87,7 @@ static void AFSK_txStart(Afsk *afsk) {
         afsk->bitstuffCount = 0;
         afsk->sending = true;
         LED_TX_ON();
+        RAD_TX_ON();
         afsk->preambleLength = DIV_ROUND(custom_preamble * BITRATE, 8000);
         AFSK_DAC_IRQ_START();
     }
@@ -121,6 +125,7 @@ uint8_t AFSK_dac_isr(Afsk *afsk) {
                 AFSK_DAC_IRQ_STOP();
                 afsk->sending = false;
                 LED_TX_OFF();
+                RAD_RX_ON();
                 return 0;
             } else {
                 if (!afsk->bitStuff) afsk->bitstuffCount = 0;
@@ -141,6 +146,7 @@ uint8_t AFSK_dac_isr(Afsk *afsk) {
                         AFSK_DAC_IRQ_STOP();
                         afsk->sending = false;
                         LED_TX_OFF();
+                        RAD_RX_ON();
                         return 0;
                     } else {
                         afsk->currentOutputByte = fifo_pop(&afsk->txFifo);

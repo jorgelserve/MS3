@@ -1,7 +1,7 @@
 // Adapte from LibAPRS to SimpleRadioV2 By:
-// Julian Galvez Serna, 
+// Julian Galvez Serna,
 
-// -----------------------------Librerias-----------------------------------
+// ----------------------------- Librerias -----------------------------------
 // Include LibAPRS
 #include <LibAPRS.h>
 #define ADC_REFERENCE REF_5V
@@ -10,8 +10,7 @@
 
 
 
-// -----------------------------APRS Packet Decoder-----------------------------------
-
+// ----------------------------- APRS Packet Decoder -----------------------------------
 // called from within an interrupt.  FAST
 boolean gotPacket = false;
 AX25Msg incomingPacket;
@@ -43,6 +42,20 @@ void aprs_msg_callback(struct AX25Msg *msg) {
   }
 }
 
+
+// ----------------------------- Ports Definitions -----------------------------------
+/*#define RxS_pin 12   // Pin RX Selection (MISO) PB4
+  #define TxS_pin 11   // Pin TX Selection (MOSI) PB3
+  #define RxD_pin 8   // Pin Digital RX PB0
+  #define A6_pin A6   // Pin RSSI Radio
+  (RAD-TX-LED: PB1, RAD-RX-LED: PB2) */
+
+// ----------------------------- Global variables -----------------------------------
+char *message = "";
+
+// ----------------------------- Definitions -----------------------------------
+#define DebugOn 0    //On(1)/Off(0) Serial Debuggin Data
+
 //zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 //zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Setup zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 //zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
@@ -51,14 +64,11 @@ void setup() {
   // Set up serial port
   Serial.begin(115200);
 
-  // Radio Ports Configurations
-  pinMode(RxSelection,INPUT);
-  pinMode(TxSelection,INPUT);
-  pinMode(RxD,INPUT);
-  pinMode(A6,INPUT);
+  // --------------------- To Do
+  /* Add Rssi to control de Rx led to Turn On only whit strong signals
+  */
 
-
-  // APRS lib Setup
+  // --------------------- APRS lib Setup
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);     // Initialise APRS library - This starts the modem
   APRS_setCallsign("5K4MS3", 1);              // Minimum configure, callsign and SSID
   // Others configurations
@@ -69,19 +79,23 @@ void setup() {
   APRS_setTail(50);                           // Tail
   APRS_useAlternateSymbolTable(false);        // Normal or alternate symbol table
   APRS_setSymbol('n');                        // Symbol you want to use
-  
+
+#if DebugOn
   APRS_printSettings(); // We can print out all the settings
-  
-  Serial.print(F("Free RAM:     ")); 
+  Serial.print(F("Free RAM:     "));
   Serial.println(freeMemory());
-}
+#endif
+
+  // SimpleRadio V2 Ready message to vital
+  Serial.println("RR");
+} // End Setup
 
 void locationUpdateExample() {
   // Let's first set our latitude and longtitude.
   // These should be in NMEA format!
   APRS_setLat("5530.80N");
   APRS_setLon("01143.89E");
-  
+
   // We can optionally set power/height/gain/directivity
   // information. These functions accept ranges
   // from 0 to 10, directivity 0 to 9.
@@ -93,43 +107,37 @@ void locationUpdateExample() {
   APRS_setHeight(4);
   APRS_setGain(7);
   APRS_setDirectivity(0);
-  
+
   // We'll define a comment string
-  char *comment = "LibAPRS location update";
-    
+  char *comment = " - LibAPRS location update";
+
   // And send the update
   APRS_sendLoc(comment, strlen(comment));
-  
 }
 
 void messageExample() {
-  // We first need to set the message recipient
-  APRS_setMessageDestination("AA3BBB", 0);
-  
-  // And define a string to send
-  char *message = "Hi there! This is a message.";
-  APRS_sendMsg(message, strlen(message));
-  
+  APRS_sendSMsg(message, strlen(message)); // Send Message
 }
 
 // Here's a function to process incoming packets
 // Remember to call this function often, so you
 // won't miss any packets due to one already
 // waiting to be processed
+
 void processPacket() {
   if (gotPacket) {
     gotPacket = false;
-    
-    Serial.print(F("Received APRS packet. SRC: "));
-    Serial.print(incomingPacket.src.call);
-    Serial.print(F("-"));
-    Serial.print(incomingPacket.src.ssid);
-    Serial.print(F(". DST: "));
-    Serial.print(incomingPacket.dst.call);
-    Serial.print(F("-"));
-    Serial.print(incomingPacket.dst.ssid);
-    Serial.print(F(". Data: "));
-
+    /*
+      Serial.print(F("Received APRS packet. SRC: "));
+      Serial.print(incomingPacket.src.call);
+      Serial.print(F("-"));
+      Serial.print(incomingPacket.src.ssid);
+      Serial.print(F(". DST: "));
+      Serial.print(incomingPacket.dst.call);
+      Serial.print(F("-"));
+      Serial.print(incomingPacket.dst.ssid);
+      Serial.print(F(". Data: "));
+    */
     for (int i = 0; i < incomingPacket.len; i++) {
       Serial.write(incomingPacket.info[i]);
     }
@@ -146,16 +154,63 @@ void processPacket() {
 }
 
 boolean whichExample = false;
-void loop() {
-  
-  delay(1000);
-  if (whichExample) {
-    locationUpdateExample();
-  } else {
-    messageExample();
-  }
-  whichExample ^= true;
 
-  delay(500);
-  processPacket();
-}
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Loop (Main code) zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+unsigned long TimeR = 0;
+
+void loop() {
+
+  //delay(1000);
+  /*if (TimeR + 5000 < millis()) {
+    TimeR = millis();
+    // Trasmision
+    if (whichExample) {
+      locationUpdateExample();
+    } else {
+      messageExample();
+    }
+    whichExample ^= true;
+  }
+  */
+  processPacket(); // Print in console the incoming data
+  
+  // Check for Serial Comunication
+  if (Serial.available() > 0) {
+    char c = Serial.read();  //gets one byte from serial buffer
+    //readString += c; //makes the string readString
+    if (c == 'M'){
+      String data2Send = Serial.readString();
+      // A message will be send, capture de string data
+      /*while (Serial.available() > 0){
+        c = Serial.readString();
+        data2Send += c; //makes the string readString
+      //Serial.println(data2Send);
+      // /225151h0611.91N/07534.72WO073/000A1526B417C4115D27E27636F13189G-7520H2228I3091J3422K5599L3350M9366 
+      // /225201h0611.91N/07534.72WO073/000A1526T323P19210A1481V0 
+      
+     //data2Send.toCharArray(message,80);
+      message = data2Send.c_str();
+      APRS_sendSMsg(message, strlen(message)); // Send Message
+    }
+  }
+
+} // fin loop
+
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Funciones Principales zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+/*
+  void RadioInTx() {
+  pinMode(RxS_pin, INPUT);
+  pinMode(TxS_pin, OUTPUT);
+  digitalWrite(TxS_pin, LOW);
+  }
+
+  void RadioInRx() {
+  pinMode(TxS_pin, INPUT);
+  pinMode(RxS_pin, OUTPUT);
+  digitalWrite(RxS_pin, LOW);
+  }
+*/

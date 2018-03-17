@@ -68,19 +68,27 @@ int voltajeBateria0 = 0;
 #define clockPin 7                // SHT11 serial clock
 #define Led_RAD 8
 
-#define Simple 2          // Seleccionamos la simple con la estamos trabajando
+#define Simple 3          // Seleccionamos la simple con la estamos trabajando
+#define RadioSerial 1     // Radio Serial/analogo
 
 //////////////////////////////////////////////////////////////// Setup ////////////////////////////////////////////////////////////////
 
 void setup() {
   //# importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado), bug de pcb vital fabricado.
-  
-  #if Simple == 2
-    pinMode(8, INPUT);
-  #else if Simple == 3
-    pinMode(8, OUTPUT);
-  #endif
-  
+
+#if Simple == 2
+  pinMode(8, INPUT);
+#else if Simple == 3
+  pinMode(8, OUTPUT);
+#endif
+
+#if RadioSerial
+  pinMode(4, OUTPUT);
+  // reset Radio
+  digitalWrite(4, LOW);
+  delay(50);
+  pinMode(4, INPUT);
+#endif
   pinMode(7, INPUT);
 
   // Pitido inicial
@@ -108,6 +116,10 @@ void setup() {
   // Serial Port Configuration
   Serial.begin(DEBUG_SERIAL_SPEED);
   Serial3.begin(GPS_BAUDRATE);
+  
+#if RadioSerial
+  Serial2.begin(115200);
+#endif
 
 #if DEBUG < 2
   Serial.println("Serial Debuggin Started - Hi from SimpleVital");
@@ -176,17 +188,17 @@ void setup() {
   Serial.println(" OK.");
 #endif
 
-///////////////////////////////////////////// Se realiza
+  ///////////////////////////////////////////// Se realiza
 
-// Se resetea el GPS
-  pinMode(gpsRESET_PIN,OUTPUT);
-  digitalWrite(gpsRESET_PIN,HIGH);
+  // Se resetea el GPS
+  pinMode(gpsRESET_PIN, OUTPUT);
+  digitalWrite(gpsRESET_PIN, HIGH);
   delay(50);
-  digitalWrite(gpsRESET_PIN,LOW);
+  digitalWrite(gpsRESET_PIN, LOW);
   delay(50);
-  
+
   // Se congura pin PPS en el GPS
-  pinMode(gpsPPS_PIN,INPUT);
+  pinMode(gpsPPS_PIN, INPUT);
 
 
   // Do not start until we get a valid time reference for slotted transmissions.
@@ -225,8 +237,13 @@ void setup() {
   if (SD.begin(chipSelect)) {
     sd_ok = true;
   }
-#endif  
-    
+#endif
+
+#if RadioSerial
+Serial.print("Initializing Radio...");
+  Serial2.println("MSimple3-ON");
+#endif
+
   // Pitido final
   pitar(100);
 }
@@ -234,22 +251,30 @@ void setup() {
 //////////////////////////////////////////////////////////////// Loop ////////////////////////////////////////////////////////////////
 
 void loop() {
-  
+  // verificamos mensajes seriales del radio y los mostramos en pantalla:
+  if (Serial2.available() > 0) {
+    String data2Send = Serial2.readString();
+    Serial.println(data2Send);
+    Serial2.print("M");
+    Serial2.print(data2Send);
+  }
+
+
   ////////////////////////////// Apogeo del sistema //////////////////////////////////////
   /*if (gps_altitude > alt_apogeo && altitud > alt_apogeo) {
     if (band_apogeo == 0) {
       fall_time = millis();
       band_apogeo = 1;
     }
-  }
-  if (band_apogeo == 1) {
+    }
+    if (band_apogeo == 1) {
     if ((millis() - fall_time) > apogeo_time) {
       if (gps_altitude < alt_apogeo && altitud < alt_apogeo) {
         ban_apogeo_active = 1;
       }
     }
-  }
-  if (ban_apogeo_active == 1) {
+    }
+    if (ban_apogeo_active == 1) {
     if (band_buzzer == 1) {
       digitalWrite(pinbuzzer, HIGH);
       band_buzzer = 0;
@@ -257,12 +282,11 @@ void loop() {
       digitalWrite(pinbuzzer, LOW);
       band_buzzer = 1;
     }
-  }*/
+    }*/
 
   /////////////////////////////// Liberación de paneles /////////////////////////////////////
-
   if (band_paneles == 0) {
-   
+
     weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
     weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;
     weight = (altitud > alt_paneles) ? weight + 1 : weight;
@@ -293,12 +317,11 @@ void loop() {
   }//*/
 
   ////////////////////////////////////////////////////////Temperatura y Humedad //////////////////////////////////////////////
-
   ////// Sensor i2C /////////////
   float tempi2c = PCBTemperature();
   load_tempi2c(tempi2c);
   tempi2cSD = (float)tempi2c * 100;
-  
+
 
   ///// Sensor SHT11 //////////
   float tempC = sht1x.readTemperatureC();
@@ -362,7 +385,7 @@ void loop() {
 #if DEBUG <1
   Serial.print("RI");
 #endif
-  
+
   getAccel_Data();
   getGyro_Data();
   getCompassData_calibrated(); // compass data has been calibrated here
@@ -439,9 +462,9 @@ void loop() {
   tempext1SD = tempext1;
   tempext2SD = tempext2;
   tempext3SD = tempext3;
-  
+
   float prom = tempext1SD + tempext2SD + tempext3SD;
-  
+
   prom = prom / 3;
 
   load_tempADC(prom);
@@ -468,9 +491,13 @@ void loop() {
   Serial.print(gps_altitude);
 #endif
 
+
+
   // Time for another APRS frame
   if ((int32_t) (millis() - next_aprs) >= 0) {
     //digitalWrite(LedTX_PIN, HIGH);
+
+#if not RadioSerial
     if (band_transmission == 0) {
       aprs_send();
       band_transmission = 1;
@@ -478,6 +505,7 @@ void loop() {
       aprs_send_variables();
       band_transmission = 0;
     }
+#endif
 
     //digitalWrite(LedTX_PIN, LOW);
 
@@ -487,13 +515,14 @@ void loop() {
       next_aprs += APRS_PERIOD * 1000L;
     }
 
+#if not RadioSerial
     while (afsk_flush()) {
       power_save();
     }
-
 #ifdef DEBUG_MODEM
     // Show modem ISR stats from the previous transmission
     afsk_debug();
+#endif
 #endif
 
   } else {
@@ -515,6 +544,10 @@ void loop() {
 
   //power_save(); // Incoming GPS data or interrupts will wake us up
 
+  // Enviamos Paquete a al radio:
+
+  
+  
 }
 
 //////////////////////////////////////////////////////////////// Sub Funciones ////////////////////////////////////////////////////////////////
@@ -639,10 +672,10 @@ void guardarDatosSD() {
       // print to the serial port too:
       //Serial.print(datos);
       Serial.print("ON SD .. ");
-      
-    if(altitud < alt_apogeo && gps_altitude < alt_apogeo){
-      pitar(50);  
-    }
+
+      if (altitud < alt_apogeo && gps_altitude < alt_apogeo) {
+        pitar(50);
+      }
     }
     // if the file isn't open, pop up an error:
     else {
@@ -852,14 +885,13 @@ void getCompassData_calibrated ()
   Mxyz[2] = Mxyz[2] - mz_centre;
 }
 
-
 void iniciarSd() {
   pinMode(chipSelect, OUTPUT);
   Serial.print(" ini.. ");
   if (SD.begin(chipSelect)) {
     Serial.println("OK ");
     sd_ok = true;
-    
+
   } else {
     Serial.println("Err ");
   }

@@ -32,6 +32,7 @@ void APRS_setDirectivity(int s);
 void APRS_sendPkt(void *_buffer, size_t length);
 void APRS_sendLoc(void *_buffer, size_t length);
 void APRS_sendMsg(void *_buffer, size_t length);
+void APRS_sendSMsg(void *_buffer, size_t length);
 void APRS_msgRetry();
 
 void APRS_printSettings();

@@ -128,6 +128,12 @@ typedef struct Afsk
 #define LED_RX_ON()   do { LED_PORT |= _BV(2); } while (0)
 #define LED_RX_OFF()  do { LED_PORT &= ~_BV(2); } while (0)
 
+// Radio NiM2 Tx/Rx control (SimpleRadioV2 PCB)
+#define RAD_TX_INIT() do { LED_DDR &= ~_BV(3); } while (0) // Ports defined as imputs
+#define RAD_RX_INIT() do { LED_DDR &= ~_BV(4); } while (0)
+#define RAD_RX_ON()   do { LED_DDR &= ~_BV(3); LED_PORT &= ~_BV(4); LED_DDR |= _BV(4);} while (0)
+#define RAD_TX_ON()   do { LED_DDR &= ~_BV(4); LED_PORT &= ~_BV(3); LED_DDR |= _BV(3);} while (0)
+
 void AFSK_init(Afsk *afsk);
 void AFSK_transmit(char *buffer, size_t size);
 void AFSK_poll(Afsk *afsk);

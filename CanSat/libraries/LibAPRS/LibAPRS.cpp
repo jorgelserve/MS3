@@ -308,6 +308,65 @@ void APRS_sendMsg(void *_buffer, size_t length) {
     free(packet);
 }
 
+// Simple Message
+void APRS_sendSMsg(void *_buffer, size_t length) {
+    if (length > 67) length = 67;
+    size_t payloadLength = length; 
+    uint8_t *packet = (uint8_t*)malloc(payloadLength);
+    uint8_t *ptr = packet;
+
+    /*
+    size_t payloadLength = 11+length+4;
+
+    uint8_t *packet = (uint8_t*)malloc(payloadLength);
+    uint8_t *ptr = packet;
+    packet[0] = ':';
+    int callSize = 6;
+    int count = 0;
+    while (callSize--) {
+        if (message_recip[count] != 0) {
+            packet[1+count] = message_recip[count];
+            count++;
+        }
+    }
+    if (message_recip_ssid != -1) {
+        packet[1+count] = '-'; count++;
+        if (message_recip_ssid < 10) {
+            packet[1+count] = message_recip_ssid+48; count++;
+        } else {
+            packet[1+count] = 49; count++;
+            packet[1+count] = message_recip_ssid-10+48; count++;
+        }
+    }
+    while (count < 9) {
+        packet[1+count] = ' '; count++;
+    }
+    packet[1+count] = ':';
+    ptr += 11;
+    */
+    if (length > 0) {
+        uint8_t *buffer = (uint8_t *)_buffer;
+        memcpy(ptr, buffer, length);
+        memcpy(lastMessage, buffer, length);
+        lastMessageLen = length;
+    }
+    /*
+    message_seq++;
+    if (message_seq > 999) message_seq = 0;
+
+    packet[11+length] = '{';
+    int n = message_seq % 10;
+    int d = ((message_seq % 100) - n)/10;
+    int h = (message_seq - d - n) / 100;
+
+    packet[12+length] = h+48;
+    packet[13+length] = d+48;
+    packet[14+length] = n+48;
+    */
+    APRS_sendPkt(packet, payloadLength);
+    free(packet);
+}
+
 void APRS_msgRetry() {
     message_seq--;
     APRS_sendMsg(lastMessage, lastMessageLen);
