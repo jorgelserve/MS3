@@ -186,11 +186,13 @@ void loop() {
       /*while (Serial.available() > 0){
         c = Serial.readString();
         data2Send += c; //makes the string readString
+      }
       //Serial.println(data2Send);
       // /225151h0611.91N/07534.72WO073/000A1526B417C4115D27E27636F13189G-7520H2228I3091J3422K5599L3350M9366 
       // /225201h0611.91N/07534.72WO073/000A1526T323P19210A1481V0 
       
      //data2Send.toCharArray(message,80);
+      //message = "hola";.c_str()*/
       message = data2Send.c_str();
       APRS_sendSMsg(message, strlen(message)); // Send Message
     }
