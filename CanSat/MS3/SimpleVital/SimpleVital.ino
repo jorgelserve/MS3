@@ -65,16 +65,20 @@ char band_transmission = 0;
 //#define AnalogosExt // 144
 
 int voltajeBateria0 = 0;
-#define clockPin 7                // SHT11 serial clock
-#define Led_RAD 8
 
+
+#define clockPin 7                // SHT11 serial clock
+
+#define Led_RAD 8
 #define Simple 3          // Seleccionamos la simple con la estamos trabajando
 #define RadioSerial 1     // Radio Serial/analogo
+#define Silencio  1       // Cambia el buzzer(0) por led(1)
 
-//////////////////////////////////////////////////////////////// Setup ////////////////////////////////////////////////////////////////
-
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Setup zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 void setup() {
-  //# importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado), bug de pcb vital fabricado.
+  //# importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado), bug de pcb vital MS2 fabricado.
 
 #if Simple == 2
   pinMode(8, INPUT);
@@ -89,6 +93,7 @@ void setup() {
   delay(50);
   pinMode(4, INPUT);
 #endif
+
   pinMode(7, INPUT);
 
   // Pitido inicial
@@ -116,7 +121,7 @@ void setup() {
   // Serial Port Configuration
   Serial.begin(DEBUG_SERIAL_SPEED);
   Serial3.begin(GPS_BAUDRATE);
-  
+
 #if RadioSerial
   Serial2.begin(115200);
 #endif
@@ -240,7 +245,7 @@ void setup() {
 #endif
 
 #if RadioSerial
-Serial.print("Initializing Radio...");
+  Serial.print("Initializing Radio...");
   Serial2.println("MSimple3-ON");
 #endif
 
@@ -253,10 +258,12 @@ Serial.print("Initializing Radio...");
 void loop() {
   // verificamos mensajes seriales del radio y los mostramos en pantalla:
   if (Serial2.available() > 0) {
+    digitalWrite(Led_RAD, HIGH);
     String data2Send = Serial2.readString();
     Serial.println(data2Send);
     Serial2.print("M");
     Serial2.print(data2Send);
+    digitalWrite(Led_RAD, LOW);
   }
 
 
@@ -425,7 +432,7 @@ void loop() {
 
   ///////////////////////////////////////////////////// Se lee Voltaje Bateria /////////////////////////////////////////////////
   int volBat1 = analogRead(pinVolBat1);
-  voltajeBateria0 = 5.0 * volBat1 / 1024 * 100;
+  voltajeBateria0 = 5.0 * volBat1 / 1024 * 1000;
   //Serial.print("VoltBat: ");Serial.print(voltajeBateria0);
   load_volt(voltajeBateria0);
 
@@ -505,6 +512,8 @@ void loop() {
       aprs_send_variables();
       band_transmission = 0;
     }
+#else
+    enviarTramaCRadio();
 #endif
 
     //digitalWrite(LedTX_PIN, LOW);
@@ -516,6 +525,7 @@ void loop() {
     }
 
 #if not RadioSerial
+
     while (afsk_flush()) {
       power_save();
     }
@@ -523,6 +533,7 @@ void loop() {
     // Show modem ISR stats from the previous transmission
     afsk_debug();
 #endif
+
 #endif
 
   } else {
@@ -546,16 +557,22 @@ void loop() {
 
   // Enviamos Paquete a al radio:
 
-  
-  
+
+
 }
 
 //////////////////////////////////////////////////////////////// Sub Funciones ////////////////////////////////////////////////////////////////
 
 void pitar(int tiempo) {
+#if Silencio
   digitalWrite(Led_RAD, HIGH);
   delay(tiempo);
   digitalWrite(Led_RAD, LOW);
+#else
+  digitalWrite(pinbuzzer, HIGH);
+  delay(tiempo);
+  digitalWrite(pinbuzzer, LOW);
+#endif
 }
 
 void guardarDatosSD() {
@@ -689,6 +706,55 @@ void guardarDatosSD() {
   //*/
   digitalWrite(LedSD_PIN, LOW);
   Serial.print(datos);
+}
+
+void enviarTramaCRadio() {
+  // A - GPS - Tiempo
+  // B - GPS - Latitud
+  // C - GPS - Longitud
+  // D - GPS - Altitud
+  // E - GPS - Curso
+  // F - GPS - Velocidad
+
+  char sep [] = {'/', 'h', '/', 'O', '/', 'A', 'T', 'P', 'A', 'V', ' '};
+  // datos GPS
+  String datos = String(sep[0]);
+  datos += String(gps_time);
+  datos += sep[1];
+  datos += String(gps_aprs_lat);
+  datos += sep[2];
+  datos += String(gps_aprs_lon);
+  datos += sep[3];
+  char text[] ="";
+  snprintf(text, 4, "%03d", (int)(gps_course + 0.5));
+  datos += text;
+  datos += sep[4];
+  snprintf(text, 4, "%03d", (int)(gps_speed + 0.5));
+  datos += text;
+  datos += sep[5];
+  snprintf(text, 7, "%d", (int)(gps_altitude));
+  datos += text;
+  datos += sep[6];
+  snprintf(text, 6, "%d", (int)(tempSD));
+  datos += text;
+  datos += sep[7];
+  snprintf(text, 6, "%d", (int)pressure);
+  datos += text;
+  datos += sep[8];
+  snprintf(text, 6, "%d", (int)altitud);
+  datos += text;
+  datos += sep[9];
+  snprintf(text, 6, "%d", (int)(voltajeBateria0));
+  datos += text;
+  //datos += sep[10];
+  // fin trama
+
+  digitalWrite(Led_RAD, HIGH);
+  Serial.print("Enviando... ");
+  Serial.println(datos);
+  Serial2.print("M");
+  Serial2.print(datos);
+  digitalWrite(Led_RAD, LOW);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
