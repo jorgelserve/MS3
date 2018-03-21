@@ -114,7 +114,8 @@ boolean buzzer_est = false;
 //////////////////////////// IMU
 // Imu Inicialization
 MPU9250 accelgyro;
-BMP180 Barometer;
+//BMP180 Barometer;
+
 // Puerto I2C
 I2Cdev   I2C_M;
 

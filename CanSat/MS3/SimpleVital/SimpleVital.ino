@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////// Codigo Simple Vital ////////////////////////////////////////////////////////////////
-
 /* Pendientes
   - Agregar sensor analogo radio trama
   - Sensor analogo pcb trama
@@ -7,24 +6,23 @@
 */
 
 //////////////////////////////////////////////////////////////// Librerias ////////////////////////////////////////////////////////////////
-
-// se incluyen lbrerias
+// se incluyen librerias
 #include "ConfiVital.h"
 #include "MutichannelGasSensor.h"
 #include "SHT1x.h"
-
+#include <Adafruit_BMP280.h>
+Adafruit_BMP280 baro_BMP280;
 
 //////////////////////////////////////////////////////////////// Declaraciones ////////////////////////////////////////////////////////////////
-
-// Gases
+// ----------------------------- Gases
 char band_gas = 0;
 int dim;
-float c[8] = {0, 0, 0, 0, 0, 0, 0, 0}; //
+float c[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int cSD[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 byte error;
 byte error_gas = 0;
 
-// Humedad y Temperatura (SHT11)
+// ----------------------------- Humedad y Temperatura (SHT11)
 #define dataPin 6                 // SHT11 serial data
 #define clockPin 7                // SHT11 serial clock
 //---
@@ -33,18 +31,19 @@ int humSD;
 //---
 SHT1x sht1x(dataPin, clockPin);
 
-// Tempertura PCB (I2C)
+
+// ----------------------------- Tempertura PCB (I2C)
 #define i2cAddress 0x18
 #define add_reg 0x05
 //---
 int tempi2cSD;
 
-// Temperatura Externa
+// ----------------------------- Temperatura Externa
 int tempext1SD;
 int tempext2SD;
 int tempext3SD;
 
-// Apogeo
+// ----------------------------- Apogeo
 #define alt_apogeo 4000    // altura por encima de la que inicia el conteo
 #define apogeo_time 360000  // tiempo en mili-segundos desde que pasa altura
 //---
@@ -53,7 +52,7 @@ long int fall_time = 0;
 byte band_apogeo = 0;
 byte ban_apogeo_active = 0;
 
-// liberacion Paneles
+// ----------------------------- liberacion Paneles
 #define panel_time 24      // Tiempo en segundos
 #define alt_paneles 80      // Altura en metros antes de despliegue 
 //---
@@ -66,13 +65,14 @@ char band_transmission = 0;
 
 int voltajeBateria0 = 0;
 
-
+// ----------------------------- 
 #define clockPin 7                // SHT11 serial clock
 
 #define Led_RAD 8
 #define Simple 3          // Seleccionamos la simple con la estamos trabajando
 #define RadioSerial 1     // Radio Serial/analogo
 #define Silencio  1       // Cambia el buzzer(0) por led(1)
+
 
 //zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 //zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Setup zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
@@ -158,7 +158,12 @@ void setup() {
   Serial.print("Initializing Barometer...");
 #endif
 
-  Barometer.init();
+  //Barometer.init();
+  Serial.println("BMP280 test");
+  
+  if (!baro_BMP280.begin()) {  
+    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+  }
 
 #if DEBUG < 2
   Serial.println(" OK.");
@@ -369,11 +374,14 @@ void loop() {
 
   ///////////////////////////////////////////////////// Se lee el Barometro /////////////////////////////////////////////////
 
-  temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
+  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
+  temperature = baro_BMP280.readTemperature(); // Get the temperature, bmp180ReadUT MUST be called first
 
-  pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
+  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
+  pressure = baro_BMP280.readPressure();
 
-  altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
+  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
+  altitud = baro_BMP280.readAltitude(1013.25);
 
   load_temp(temperature);
   load_pres(pressure);
