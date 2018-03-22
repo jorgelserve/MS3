@@ -56,53 +56,115 @@
 ////////////////////////////////////////////// SimpleVital Libraries //////////////////////////////////////////////
 //////////////////////////// Imu libraries
 #include "MPU9250.h"
-#include "BMP180.h"
+
+//////////////////////////// Gas libraries
+#include "MutichannelGasSensor.h"
+
+//////////////////////////// SHT11 libraries
+#include "SHT1x.h"
+
+//////////////////////////// Barometro libraries
+#include <Adafruit_BMP280.h>
+Adafruit_BMP280 baro_BMP280;
 
 //////////////////////////// SD librarie
 #include <SD.h>
 
 
-////////////////////////////////////////////// SimpleVital Pin Distribution //////////////////////////////////////////////
-////////////////////////////////////////////// Trackduino PinOut
+////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
+#define Simple 3          // Seleccionamos la simple con la estamos trabajando
+#define RadioSerial 1     // Radio Serial/analogo
+#define Silencio  0       // Cambia el buzzer(0) por led(1)
 
-////////////////////////////////////////////// SimpleVital PinOut
+
+////////////////////////////////////////////// SimpleVital Pin Distribution //////////////////////////////////////////////
 //////////////////////////// SD
-const int chipSelect = 38;
+#define chipSelect 38
 
 //////////////////////////// GPS
-const int gpsPPS_PIN = 25;
-const int gpsRESET_PIN = 24;
+#define gpsForceOn_PIN 25
+#define gpsRESET_PIN 24
 
 //////////////////////////// Buzzer
-const int pinbuzzer = 26;
+#define buzzer_PIN 26
+
+//////////////////////////// SHT11
+#define dataPin 6     // SHT11 serial data
+#define clockPin 7    // SHT11 serial clock
 
 //////////////////////////// Info Leds
-const int LedSD_PIN = 13;
-//const int LedRUN_PIN = 12;
-//const int LedTX_PIN = 9;  // el pin 9 es usado por el radio
+#define LedSD_PIN 13 // PH7(T4)
+//#define Led13 13
+#define LedRUN_PIN 12
+#define LedRAD_PIN 8
 
 //////////////////////////// Despliegue paneles
-const byte pinPanel0 = 30;
-const byte pinPanel1 = 32;
+#define pinPanel0 30
+#define pinPanel1 32
 
-//////////////////////////// Voltaje Bateria
-const byte pinVolBat1 = 3;    //analogo
+//////////////////////////// Analogos //////////////////////////// 
 //////////////////////////// Temperatura Radio
-const byte pinTempRad = 0;    //analogo
+#define pinTempRad 0    //analogo
 //////////////////////////// Temperatura PCB
-const byte pinTempPCB = 1;    //analogo
+#define pinTempPCB 1    //analogo
+//////////////////////////// Voltaje Bateria
+#define pinVolBat1 3    //analogo
 
-///////////////////////// pin analogo temperatura
-const byte pinTemp1 = 13;
-const byte pinTemp2 = 12;
-const byte pinTemp3 = 15;
-
-
+///////////////////////// Pines Temperaturas Externas
+#define pinTemp1 13
+#define pinTemp2 12
+#define pinTemp3 15
 
 ////////////////////////////////////////////// SimpleVital Variables //////////////////////////////////////////////
-//////////////////////////// FreeRTOS
-// Declare a semaphore handle.
-//SemaphoreHandle_t sem;
+// ----------------------------- Gases
+char band_gas = 0;
+int dim;
+float c[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int cSD[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+byte error;
+byte error_gas = 0;
+
+// ----------------------------- Humedad y Temperatura (SHT11)
+
+//---
+int tempSD;
+int humSD;
+//---
+SHT1x sht1x(dataPin, clockPin);
+
+
+// ----------------------------- Tempertura PCB (I2C)
+#define i2cAddress 0x18
+#define add_reg 0x05
+//---
+int tempi2cSD;
+
+// ----------------------------- Temperatura Externa
+int tempext1SD;
+int tempext2SD;
+int tempext3SD;
+
+// ----------------------------- Apogeo
+#define alt_apogeo 4000    // altura por encima de la que inicia el conteo
+#define apogeo_time 360000  // tiempo en mili-segundos desde que pasa altura
+//---
+byte band_buzzer = 0;
+long int fall_time = 0;
+byte band_apogeo = 0;
+byte ban_apogeo_active = 0;
+
+// ----------------------------- liberacion Paneles
+#define panel_time 24      // Tiempo en segundos
+#define alt_paneles 80      // Altura en metros antes de despliegue 
+//---
+float weight = 0;
+byte band_paneles = 0;
+char band_transmission = 0;
+
+//Configuracion Simple 144/434
+//#define AnalogosExt // 144
+
+int voltajeBateria0 = 0;
 
 //////////////////////////// SD
 bool sd_ok = false;
@@ -182,8 +244,6 @@ static int32_t next_aprs = 0;
 // time outs (milliseconds)
 uint32_t GPS_timeout = 5000;
 int APRS_PERIOD = 10;  // tiempo en segundos entre transmision
-const int pinPeriodo = 23;
+//#define pinPeriodo 23
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////// Setup /////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+

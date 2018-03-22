@@ -1,89 +1,26 @@
 //////////////////////////////////////////////////////////////// Codigo Simple Vital ////////////////////////////////////////////////////////////////
 /* Pendientes
+  - Organizar codigo
+  - Agregar rutina de chequeo inicial
   - Agregar sensor analogo radio trama
   - Sensor analogo pcb trama
   - vector puertos mediciones analogas
 */
-
 //////////////////////////////////////////////////////////////// Librerias ////////////////////////////////////////////////////////////////
 // se incluyen librerias
 #include "ConfiVital.h"
-#include "MutichannelGasSensor.h"
-#include "SHT1x.h"
-#include <Adafruit_BMP280.h>
-Adafruit_BMP280 baro_BMP280;
 
-//////////////////////////////////////////////////////////////// Declaraciones ////////////////////////////////////////////////////////////////
-// ----------------------------- Gases
-char band_gas = 0;
-int dim;
-float c[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int cSD[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-byte error;
-byte error_gas = 0;
-
-// ----------------------------- Humedad y Temperatura (SHT11)
-#define dataPin 6                 // SHT11 serial data
-#define clockPin 7                // SHT11 serial clock
-//---
-int tempSD;
-int humSD;
-//---
-SHT1x sht1x(dataPin, clockPin);
-
-
-// ----------------------------- Tempertura PCB (I2C)
-#define i2cAddress 0x18
-#define add_reg 0x05
-//---
-int tempi2cSD;
-
-// ----------------------------- Temperatura Externa
-int tempext1SD;
-int tempext2SD;
-int tempext3SD;
-
-// ----------------------------- Apogeo
-#define alt_apogeo 4000    // altura por encima de la que inicia el conteo
-#define apogeo_time 360000  // tiempo en mili-segundos desde que pasa altura
-//---
-byte band_buzzer = 0;
-long int fall_time = 0;
-byte band_apogeo = 0;
-byte ban_apogeo_active = 0;
-
-// ----------------------------- liberacion Paneles
-#define panel_time 24      // Tiempo en segundos
-#define alt_paneles 80      // Altura en metros antes de despliegue 
-//---
-float weight = 0;
-byte band_paneles = 0;
-char band_transmission = 0;
-
-//Configuracion Simple 144/434
-//#define AnalogosExt // 144
-
-int voltajeBateria0 = 0;
-
-// ----------------------------- 
-#define clockPin 7                // SHT11 serial clock
-
-#define Led_RAD 8
-#define Simple 3          // Seleccionamos la simple con la estamos trabajando
-#define RadioSerial 1     // Radio Serial/analogo
-#define Silencio  1       // Cambia el buzzer(0) por led(1)
-
-
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Setup zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//////////////////////////////////////////////////////////////// Setup ////////////////////////////////////////////////////////////////
 void setup() {
-  //# importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado), bug de pcb vital MS2 fabricado.
-
-#if Simple == 2
-  pinMode(8, INPUT);
-#else if Simple == 3
-  pinMode(8, OUTPUT);
+  //////////////////////////////////////////// Comunication
+  Serial.begin(DEBUG_SERIAL_SPEED);
+#if RadioSerial
+  Serial2.begin(115200);
+#endif
+  Serial3.begin(GPS_BAUDRATE);
+  //////////////////////////////////////////// Serial init
+#if DEBUG < 2
+  Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
 #endif
 
 #if RadioSerial
@@ -97,7 +34,7 @@ void setup() {
   pinMode(7, INPUT);
 
   // Pitido inicial
-  pinMode(pinbuzzer, OUTPUT);
+  pinMode(buzzer_PIN, OUTPUT);
   pitar(500);
 
   // se configura sistema despligue paneles
@@ -117,24 +54,11 @@ void setup() {
   //pinMode(LedRUN_PIN, OUTPUT);
   //pinMode(LedTX_PIN, OUTPUT);
 
-  //////////////////////////////////////////// Comunication
-  // Serial Port Configuration
-  Serial.begin(DEBUG_SERIAL_SPEED);
-  Serial3.begin(GPS_BAUDRATE);
 
-#if RadioSerial
-  Serial2.begin(115200);
-#endif
-
-#if DEBUG < 2
-  Serial.println("Serial Debuggin Started - Hi from SimpleVital");
-#endif
 
 #if DEBUG < 2
   Serial.print("Initializing I2C Bus...");
 #endif
-
-  //join I2C bus (I2Cdev library doesn't do this automatically)
   Wire.begin();
 
 #if DEBUG < 2
@@ -160,8 +84,8 @@ void setup() {
 
   //Barometer.init();
   Serial.println("BMP280 test");
-  
-  if (!baro_BMP280.begin()) {  
+
+  if (!baro_BMP280.begin()) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
   }
 
@@ -207,8 +131,6 @@ void setup() {
   digitalWrite(gpsRESET_PIN, LOW);
   delay(50);
 
-  // Se congura pin PPS en el GPS
-  pinMode(gpsPPS_PIN, INPUT);
 
 
   // Do not start until we get a valid time reference for slotted transmissions.
@@ -263,12 +185,12 @@ void setup() {
 void loop() {
   // verificamos mensajes seriales del radio y los mostramos en pantalla:
   if (Serial2.available() > 0) {
-    digitalWrite(Led_RAD, HIGH);
+    digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
     Serial.println(data2Send);
     Serial2.print("M");
     Serial2.print(data2Send);
-    digitalWrite(Led_RAD, LOW);
+    digitalWrite(LedRAD_PIN, LOW);
   }
 
 
@@ -288,10 +210,10 @@ void loop() {
     }
     if (ban_apogeo_active == 1) {
     if (band_buzzer == 1) {
-      digitalWrite(pinbuzzer, HIGH);
+      digitalWrite(buzzer_PIN, HIGH);
       band_buzzer = 0;
     } else {
-      digitalWrite(pinbuzzer, LOW);
+      digitalWrite(buzzer_PIN, LOW);
       band_buzzer = 1;
     }
     }*/
@@ -568,489 +490,6 @@ void loop() {
 
 
 }
-
-//////////////////////////////////////////////////////////////// Sub Funciones ////////////////////////////////////////////////////////////////
-
-void pitar(int tiempo) {
-#if Silencio
-  digitalWrite(Led_RAD, HIGH);
-  delay(tiempo);
-  digitalWrite(Led_RAD, LOW);
-#else
-  digitalWrite(pinbuzzer, HIGH);
-  delay(tiempo);
-  digitalWrite(pinbuzzer, LOW);
-#endif
-}
-
-void guardarDatosSD() {
-  // A - GPS - Tiempo
-  // B - GPS - Latitud
-  // C - GPS - Longitud
-  // D - GPS - Altitud
-  // E - GPS - Curso
-  // F - GPS - Velocidad
-
-  char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'};
-  // datos GPS
-  String datos = String(sep[0]);
-  datos += String(gps_time);
-  datos += sep[1];
-  datos += String(gps_lat * 10000);
-  datos += sep[2];
-  datos += String(gps_lon * 10000);
-  datos += sep[3];
-  datos += String(gps_altitude);
-  datos += sep[4];
-  datos += String(gps_course);
-  datos += sep[5];
-  datos += String(gps_speed);
-
-  // datos IMU
-  // ACC
-  datos += sep[6];
-  datos += String(Axyz[0]);
-  datos += sep[7];
-  datos += String(Axyz[1]);
-  datos += sep[8];
-  datos += String(Axyz[2]);
-  //Serial.println("Gyro(degress/s) of X,Y,Z:");
-  datos += sep[9];
-  datos += String(Gxyz[0]);
-  datos += sep[10];
-  datos += String(Gxyz[1]);
-  datos += sep[11];
-  datos += String(Gxyz[2]);
-  //Serial.println("Compass Value of X,Y,Z:");
-  datos += sep[12];
-  datos += String(Mxyz[0]);
-  datos += sep[13];
-  datos += String(Mxyz[1]);
-  datos += sep[14];
-  datos += String(Mxyz[2]);
-  // datos Barometro
-  datos += sep[15];
-  datos += String(temperature);
-  datos += sep[16];
-  datos += String(pressure);
-  datos += sep[17];
-  datos += String(altitud);
-  // datos tiempo
-  datos += sep[18];
-  datos += String(millis());
-  //Gas NH3
-  datos += sep[19];
-  datos += String(cSD[0]);
-  //Gas CO
-  datos += sep[20];
-  datos += String(cSD[1]);
-  //Gas NO2
-  datos += sep[21];
-  datos += String(cSD[2]);
-  //Gas C3H8
-  datos += sep[22];
-  datos += String(cSD[3]);
-  //Gas C4H10
-  datos += sep[23];
-  datos += String(cSD[4]);
-  //Gas CH4
-  datos += sep[24];
-  datos += String(cSD[5]);
-  //GAS H2
-  datos += sep[25];
-  datos += String(cSD[6]);
-  //Gas C2H5OH
-  datos += sep[26];
-  datos += String(cSD[7]);
-  //Temperatura
-  datos += sep[27];
-  datos += String(tempSD);
-  //Humedad
-  datos += sep[28];
-  datos += String(humSD);
-  //Tempi2c
-  datos += sep[29];
-  datos += String(tempi2cSD);
-  //Temp exterior
-  datos += sep[30];
-  datos += String(tempext1SD);
-  datos += sep[31];
-  datos += String(tempext2SD);
-  datos += sep[32];
-  datos += String(tempext3SD);
-  datos += sep[33];
-  datos += String(voltajeBateria0);
-  datos += sep[34];
-  // fin trama
-
-  if (sd_ok) {
-    digitalWrite(LedSD_PIN, HIGH);
-    // se guarda en la SD
-    dataFile = SD.open("datalog.txt", FILE_WRITE);
-    // if the file is available, write to it:
-    if (dataFile) {
-      dataFile.println(datos);
-      dataFile.flush();
-      dataFile.close();
-      // led indicador guardado en SD
-
-      // print to the serial port too:
-      //Serial.print(datos);
-      Serial.print("ON SD .. ");
-
-      if (altitud < alt_apogeo && gps_altitude < alt_apogeo) {
-        pitar(50);
-      }
-    }
-    // if the file isn't open, pop up an error:
-    else {
-      Serial.println("error opening datalog.txt");
-      dataFile.close();
-      sd_ok =  false;
-    }
-  } else {
-    iniciarSd();
-  }
-  //*/
-  digitalWrite(LedSD_PIN, LOW);
-  Serial.print(datos);
-}
-
-void enviarTramaCRadio() {
-  // A - GPS - Tiempo
-  // B - GPS - Latitud
-  // C - GPS - Longitud
-  // D - GPS - Altitud
-  // E - GPS - Curso
-  // F - GPS - Velocidad
-
-  char sep [] = {'/', 'h', '/', 'O', '/', 'A', 'T', 'P', 'A', 'V', ' '};
-  // datos GPS
-  String datos = String(sep[0]);
-  datos += String(gps_time);
-  datos += sep[1];
-  datos += String(gps_aprs_lat);
-  datos += sep[2];
-  datos += String(gps_aprs_lon);
-  datos += sep[3];
-  char text[] ="";
-  snprintf(text, 4, "%03d", (int)(gps_course + 0.5));
-  datos += text;
-  datos += sep[4];
-  snprintf(text, 4, "%03d", (int)(gps_speed + 0.5));
-  datos += text;
-  datos += sep[5];
-  snprintf(text, 7, "%d", (int)(gps_altitude));
-  datos += text;
-  datos += sep[6];
-  snprintf(text, 6, "%d", (int)(tempSD));
-  datos += text;
-  datos += sep[7];
-  snprintf(text, 6, "%d", (int)pressure);
-  datos += text;
-  datos += sep[8];
-  snprintf(text, 6, "%d", (int)altitud);
-  datos += text;
-  datos += sep[9];
-  snprintf(text, 6, "%d", (int)(voltajeBateria0));
-  datos += text;
-  //datos += sep[10];
-  // fin trama
-
-  digitalWrite(Led_RAD, HIGH);
-  Serial.print("Enviando... ");
-  Serial.println(datos);
-  Serial2.print("M");
-  Serial2.print(datos);
-  digitalWrite(Led_RAD, LOW);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-void read_gps2() {
-  // Get a valid position from the GPS
-  int valid_pos = 0;
-  //uint32_t timeout = millis();
-
-#ifdef DEBUG_GPS
-  Serial.println("RGPS");
-#endif
-  // si hay datos en el puerto se procesan todos
-  if (Serial3.available()) {
-    while (Serial3.available()) {
-      valid_pos = gps_decode(Serial3.read());
-    }
-  }
-  //if ((millis() > VALID_POS_TIMEOUT + timeout) && !valid_pos) {
-  //  gps_reset_parser();
-  //}
-
-  if (valid_pos) {
-    gps_reset_parser();
-    if (gps_altitude > BUZZER_ALTITUDE) {
-      //buzzer_off();   // In space, no one can hear you buzz
-    } else {
-      //buzzer_on();
-    }
-  }
-}
-
-void read_gps() {
-  // Get a valid position from the GPS
-  int valid_pos = 0;
-  uint32_t timeout = millis();
-  char lecturagps;
-#ifdef DEBUG_GPS
-  Serial.println("RGPS");
-#endif
-
-  gps_reset_parser();
-
-  do {
-    if (Serial3.available()) {
-      lecturagps = Serial3.read();
-#ifdef DEBUG_GPS
-      Serial.print(lecturagps);
-#endif
-      valid_pos = gps_decode(lecturagps);
-    }
-  } while ( (millis() - timeout < VALID_POS_TIMEOUT) && ! valid_pos) ;
-
-
-
-  if (valid_pos) {
-    if (gps_altitude > BUZZER_ALTITUDE) {
-      //buzzer_off();   // In space, no one can hear you buzz
-    } else {
-      //buzzer_on();
-    }
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-void getHeading(void)
-{
-  heading = 180 * atan2(Mxyz[1], Mxyz[0]) / PI;
-  if (heading < 0) heading += 360;
-}
-
-void getTiltHeading(void)
-{
-  float pitch = asin(-Axyz[0]);
-  float roll = asin(Axyz[1] / cos(pitch));
-
-  float xh = Mxyz[0] * cos(pitch) + Mxyz[2] * sin(pitch);
-  float yh = Mxyz[0] * sin(roll) * sin(pitch) + Mxyz[1] * cos(roll) - Mxyz[2] * sin(roll) * cos(pitch);
-  float zh = -Mxyz[0] * cos(roll) * sin(pitch) + Mxyz[1] * sin(roll) + Mxyz[2] * cos(roll) * cos(pitch);
-  tiltheading = 180 * atan2(yh, xh) / PI;
-  if (yh < 0)    tiltheading += 360;
-}
-
-void Mxyz_init_calibrated ()
-{
-
-  Serial.println(F("Before using 9DOF,we need to calibrate the compass frist,It will takes about 2 minutes."));
-  Serial.print("  ");
-  Serial.println(F("During  calibratting ,you should rotate and turn the 9DOF all the time within 2 minutes."));
-  Serial.print("  ");
-  Serial.println(F("If you are ready ,please sent a command data 'ready' to start sample and calibrate."));
-  while (!Serial.find("ready"));
-  Serial.println("  ");
-  Serial.println("ready");
-  Serial.println("Sample starting......");
-  Serial.println("waiting ......");
-
-  get_calibration_Data ();
-
-  Serial.println("     ");
-  Serial.println("compass calibration parameter ");
-  Serial.print(mx_centre);
-  Serial.print("     ");
-  Serial.print(my_centre);
-  Serial.print("     ");
-  Serial.println(mz_centre);
-  Serial.println("    ");
-}
-
-void get_calibration_Data ()
-{
-  for (int i = 0; i < sample_num_mdate; i++)
-  {
-    get_one_sample_date_mxyz();
-    /*
-      Serial.print(mx_sample[2]);
-      Serial.print(" ");
-      Serial.print(my_sample[2]);                            //you can see the sample data here .
-      Serial.print(" ");
-      Serial.println(mz_sample[2]);
-    */
-
-
-
-    if (mx_sample[2] >= mx_sample[1])mx_sample[1] = mx_sample[2];
-    if (my_sample[2] >= my_sample[1])my_sample[1] = my_sample[2]; //find max value
-    if (mz_sample[2] >= mz_sample[1])mz_sample[1] = mz_sample[2];
-
-    if (mx_sample[2] <= mx_sample[0])mx_sample[0] = mx_sample[2];
-    if (my_sample[2] <= my_sample[0])my_sample[0] = my_sample[2]; //find min value
-    if (mz_sample[2] <= mz_sample[0])mz_sample[0] = mz_sample[2];
-
-  }
-
-  mx_max = mx_sample[1];
-  my_max = my_sample[1];
-  mz_max = mz_sample[1];
-
-  mx_min = mx_sample[0];
-  my_min = my_sample[0];
-  mz_min = mz_sample[0];
-
-
-
-  mx_centre = (mx_max + mx_min) / 2;
-  my_centre = (my_max + my_min) / 2;
-  mz_centre = (mz_max + mz_min) / 2;
-
-}
-
-void get_one_sample_date_mxyz()
-{
-  getCompass_Data();
-  mx_sample[2] = Mxyz[0];
-  my_sample[2] = Mxyz[1];
-  mz_sample[2] = Mxyz[2];
-}
-
-void getAccel_Data(void)
-{
-  accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-  Axyz[0] = (double) ax / 16384;
-  Axyz[1] = (double) ay / 16384;
-  Axyz[2] = (double) az / 16384;
-}
-
-void getGyro_Data(void)
-{
-  accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-  Gxyz[0] = (double) gx * 250 / 32768;
-  Gxyz[1] = (double) gy * 250 / 32768;
-  Gxyz[2] = (double) gz * 250 / 32768;
-}
-
-void getCompass_Data(void)
-{
-  I2C_M.writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-  delay(10);
-  I2C_M.readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer_m);
-
-  mx = ((int16_t)(buffer_m[1]) << 8) | buffer_m[0] ;
-  my = ((int16_t)(buffer_m[3]) << 8) | buffer_m[2] ;
-  mz = ((int16_t)(buffer_m[5]) << 8) | buffer_m[4] ;
-
-  Mxyz[0] = (double) mx * 1200 / 4096;
-  Mxyz[1] = (double) my * 1200 / 4096;
-  Mxyz[2] = (double) mz * 1200 / 4096;
-}
-
-void getCompassData_calibrated ()
-{
-  getCompass_Data();
-  Mxyz[0] = Mxyz[0] - mx_centre;
-  Mxyz[1] = Mxyz[1] - my_centre;
-  Mxyz[2] = Mxyz[2] - mz_centre;
-}
-
-void iniciarSd() {
-  pinMode(chipSelect, OUTPUT);
-  Serial.print(" ini.. ");
-  if (SD.begin(chipSelect)) {
-    Serial.println("OK ");
-    sd_ok = true;
-
-  } else {
-    Serial.println("Err ");
-  }
-}
-
-byte iniciarGases() {
-  Wire.beginTransmission(0x04);
-  error = Wire.endTransmission();
-  if (error == 0) {
-    gas.begin(0x04);//the default I2C address of the slave is 0x04
-
-    band_gas = gas.powerOn();
-
-    if (band_gas == 1) {
-      band_gas = 0;
-      Serial.println("Gas Sensor Initialized");
-      error_gas = 1;
-      return error_gas;
-
-    }
-  } else {
-    Serial.println("Gas Sensor not found");
-    error_gas = 0;
-    return error_gas;
-  }
-}
-
-float PCBTemperature() {
-
-  char raw[2] = {0, 0};
-  int count = 0;
-  unsigned int total = 0;
-  int bitre = 0;
-  float temp_vector[12] = {0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128, -1};
-  int count_data = 0;
-  int count_temp = 0;
-  float temp = 0;
-
-  Wire.beginTransmission(i2cAddress);
-
-  Wire.write(add_reg);
-
-  Wire.endTransmission();
-  Wire.requestFrom(i2cAddress, 2);
-
-  while (Wire.available())
-  {
-
-    raw[count] = Wire.read();
-    count++;
-
-
-  }
-  count = 0;
-  while (count_data < 16) {
-    if (count_data > 7 && count_data < 12) {
-
-      bitre = bitRead(raw[0], (count_data - 8));
-      if (bitre == 1) {
-        temp = temp + temp_vector[count_temp];
-      }
-      count_temp++;
-    }
-    if (count_data == 12) {
-      bitre = bitRead(raw[0], (count_data - 8));
-      if (bitre == 1) {
-        temp = temp * temp_vector[count_temp];
-      }
-      count_temp++;
-    }
-    if (count_data > 0 && count_data < 8) {
-
-      bitre = bitRead(raw[1], count_data);
-      if (bitre == 1) {
-        temp = temp + temp_vector[count_temp];
-      }
-      count_temp++;
-    }
-    count_data++;
-  }
-  count_data = 0;
-  count_temp = 0;
-  return temp;
-}
-
 
 
 
