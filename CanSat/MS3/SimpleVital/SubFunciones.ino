@@ -1,5 +1,17 @@
 //////////////////////////////////////////////////////////////// Sub Funciones ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+void revisarRadio(){
+if (Serial2.available() > 0) {
+    digitalWrite(LedRAD_PIN, HIGH);
+    String data2Send = Serial2.readString();
+    Serial.println(data2Send);
+    Serial2.print("M");
+    Serial2.print(data2Send);
+    digitalWrite(LedRAD_PIN, LOW);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 void pitar(int tiempo) {
 #if Silencio
   digitalWrite(LedRAD_PIN, HIGH);
@@ -21,6 +33,42 @@ void guardarDatosSD() {
   // E - GPS - Curso
   // F - GPS - Velocidad
 
+  /* Trama SD:
+  A TiempoGPS 
+  B Latitud*10000 
+  C Longitud*10000 
+  D AltitudGPS
+  E CursoGPS
+  F VelocidadGPS
+  G ACC-X
+  H ACC-Y
+  I ACC-Z
+  J GYR-X
+  K GYR-Y
+  L GYR-Z
+  M MAG-X
+  O MAG-Y
+  P MAG-Z
+  Q BAR-TEMP
+  R BAR-PRES
+  S BAR-ALTI
+  T TiempoMsDesdeInicio
+  U NH3
+  V CO
+  W NO2
+  X C3H8
+  Y C4H10
+  Z CH4
+  a H2
+  b C2H5OH
+  c SHT11-TEMP
+  d SHT11-HUME
+  e TempPcbI2C
+  f TempExt1
+  g TempExt2
+  h TempExt3
+  i VoltBat
+  */
   char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'};
   // datos GPS
   String datos = String(sep[0]);

@@ -18,6 +18,7 @@ void setup() {
   Serial2.begin(115200);
 #endif
   Serial3.begin(GPS_BAUDRATE);
+  
   //////////////////////////////////////////// Serial init
 #if DEBUG < 2
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
@@ -172,27 +173,36 @@ void setup() {
 #endif
 
 #if RadioSerial
-  Serial.print("Initializing Radio...");
+  Serial.println("Initializing Radio...");
   Serial2.println("MSimple3-ON");
 #endif
 
   // Pitido final
   pitar(100);
+
+  // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
+  Serial.println("Presione c para iniciar modo carga");
+  unsigned long tiempoConfCarga = millis()+ 5000;
+  while(tiempoConfCarga > millis()){
+    char comando = Serial.read();
+    if (comando == 'c'){
+      Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
+      while(Serial.available()<1){
+        //delay(500);
+        power_save();
+        revisarRadio();
+      }
+    }
+  }
+
+  
 }
 
 //////////////////////////////////////////////////////////////// Loop ////////////////////////////////////////////////////////////////
 
 void loop() {
   // verificamos mensajes seriales del radio y los mostramos en pantalla:
-  if (Serial2.available() > 0) {
-    digitalWrite(LedRAD_PIN, HIGH);
-    String data2Send = Serial2.readString();
-    Serial.println(data2Send);
-    Serial2.print("M");
-    Serial2.print(data2Send);
-    digitalWrite(LedRAD_PIN, LOW);
-  }
-
+  revisarRadio();
 
   ////////////////////////////// Apogeo del sistema //////////////////////////////////////
   /*if (gps_altitude > alt_apogeo && altitud > alt_apogeo) {

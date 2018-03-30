@@ -8,13 +8,12 @@
 // You can also define whether your modem will be running with an open squelch radio:
 #define OPEN_SQUELCH false
 
-
-
 // ----------------------------- APRS Packet Decoder -----------------------------------
 // called from within an interrupt.  FAST
 boolean gotPacket = false;
 AX25Msg incomingPacket;
 uint8_t *packetData;
+
 void aprs_msg_callback(struct AX25Msg *msg) {
   // If we already have a packet waiting to be
   // processed, we must drop the new one.
@@ -70,7 +69,7 @@ void setup() {
 
   // --------------------- APRS lib Setup
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);     // Initialise APRS library - This starts the modem
-  APRS_setCallsign("5K4MS3", 1);              // Minimum configure, callsign and SSID
+  APRS_setCallsign("5K4MS3", 11);              // Minimum configure, callsign and SSID
   // Others configurations
   APRS_setDestination("APZMDM", 0);           // Destination identifier
   APRS_setPath1("WIDE1", 1);                  // Path parameters are set to sensible values by

@@ -141,20 +141,20 @@ void aprs_send()
   ax25_send_string("A");            // Altitude (feet). Goes anywhere in the comment area
   snprintf(temp, 7, "%d", (int)(gps_altitude));
   ax25_send_string(temp);
-  ax25_send_string("T");
-  snprintf(temp, 6, "%d", (int)(temperatura * 10));
-  ax25_send_string(temp);
-  ax25_send_string("P");
+  ax25_send_string("B");
   snprintf(temp, 6, "%d", (int)pressur);
   ax25_send_string(temp);
-  ax25_send_string("A");
-  snprintf(temp, 6, "%d", (int)altitu);
+  ax25_send_string("C");
+  snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
   ax25_send_string(temp);
-  ax25_send_string("V");
+  ax25_send_string("D");
   snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
   ax25_send_string(temp);
-  ax25_send_byte(' ');
-  ax25_send_string(APRS_COMMENT);     // Comment
+  // Fin comentario Corto
+  ax25_send_byte('E');
+  snprintf(temp, 7, "%d", (int)(tempC * 100)); // Temp SHT11
+  ax25_send_string(temp);
+  //ax25_send_string(APRS_COMMENT);     // Comment
   ax25_send_footer();
 
   ax25_flush_frame();                 // Tell the modem to go
@@ -195,43 +195,59 @@ void aprs_send_variables()
   snprintf(temp, 7, "%d", (int)(gps_altitude));
   ax25_send_string(temp);
   ax25_send_string("B");
-  snprintf(temp, 7, "%d", (int)(NH3 * 100));
+  snprintf(temp, 6, "%d", (int)pressur);
   ax25_send_string(temp);
   ax25_send_string("C");
-  snprintf(temp, 7, "%d", (int)(CO * 100));
+  snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
   ax25_send_string(temp);
   ax25_send_string("D");
-  snprintf(temp, 7, "%d", (int)(NO2 * 100));
+  snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
   ax25_send_string(temp);
+
+  // Datos Trama larga1
   ax25_send_string("E");
-  snprintf(temp, 7, "%d", (int)(C3H8 * 100));
-  ax25_send_string(temp);
-  ax25_send_string("F");
-  snprintf(temp, 7, "%d", (int)(C4H10 * 100));
-  ax25_send_string(temp);
-  ax25_send_string("G");
-  snprintf(temp, 7, "%d", (int)(CH4 * 100));
-  ax25_send_string(temp);
-  ax25_send_string("H");
-  snprintf(temp, 7, "%d", (int)(H2 * 100));
-  ax25_send_string(temp);
-  ax25_send_string("I");
-  snprintf(temp, 7, "%d", (int)(C2H5OH * 100));
-  ax25_send_string(temp);
-  ax25_send_string("J");
   snprintf(temp, 7, "%d", (int)(tempC * 100));
   ax25_send_string(temp);
-  ax25_send_string("K");
+  ax25_send_string("F");
   snprintf(temp, 7, "%d", (int)(humidity * 100));
   ax25_send_string(temp);
+
+  // Sensor Gases
+  ax25_send_string("G");
+  snprintf(temp, 7, "%d", (int)(NH3 * 100));
+  ax25_send_string(temp);
+  ax25_send_string("H");
+  snprintf(temp, 7, "%d", (int)(CO * 100));
+  ax25_send_string(temp);
+  ax25_send_string("I");
+  snprintf(temp, 7, "%d", (int)(NO2 * 100));
+  ax25_send_string(temp);
+  ax25_send_string("J");
+  snprintf(temp, 7, "%d", (int)(C3H8 * 100));
+  ax25_send_string(temp);
+  ax25_send_string("K");
+  snprintf(temp, 7, "%d", (int)(C4H10 * 100));
+  ax25_send_string(temp);
   ax25_send_string("L");
-  snprintf(temp, 7, "%d", (int)(tempi2c * 100));
+  snprintf(temp, 7, "%d", (int)(CH4 * 100));
   ax25_send_string(temp);
   ax25_send_string("M");
+  snprintf(temp, 7, "%d", (int)(H2 * 100));
+  ax25_send_string(temp);
+  ax25_send_string("N");
+  snprintf(temp, 7, "%d", (int)(C2H5OH * 100));
+  ax25_send_string(temp);
+
+  // Temp
+  ax25_send_string("O");
+  snprintf(temp, 7, "%d", (int)(tempi2c * 100));
+  ax25_send_string(temp);
+  ax25_send_string("P");
   snprintf(temp, 7, "%d", (int)(tempADC * 100));
   ax25_send_string(temp);
-  ax25_send_byte(' ');
-  ax25_send_string(APRS_COMMENT);     // Comment
+  
+  //ax25_send_byte(' ');
+  //ax25_send_string(APRS_COMMENT);     // Comment
   ax25_send_footer();
 
   ax25_flush_frame();                 // Tell the modem to go
