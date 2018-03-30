@@ -35,6 +35,7 @@ static void parse_lon(const char *token);
 static void parse_lon_hemi(const char *token);
 static void parse_speed(const char *token);
 static void parse_course(const char *token);
+static void parse_date(const char *token);
 static void parse_altitude(const char *token);
 
 // Module types
@@ -80,7 +81,7 @@ static const t_nmea_parser rmc_parsers[] = {
   parse_lon_hemi,   // E/W
   parse_speed,      // Speed over ground in knots
   parse_course,     // Track angle in degrees (true)
-  NULL,             // Date (DDMMYY)
+  parse_date,       // Date (DDMMYY)
   NULL,             // Magnetic variation
   NULL,              // E/W
   NULL              // Estado GPS (para el modulo L80)
@@ -108,6 +109,7 @@ static char new_aprs_lat[9];
 static char new_aprs_lon[10];
 static float new_course;
 static float new_speed;
+static char new_date[7];
 static float new_altitude;
 
 // Public (extern) variables, readable from other modules
@@ -119,6 +121,7 @@ char gps_aprs_lat[9];
 char gps_aprs_lon[10];
 float gps_course = 0;
 float gps_speed = 0;
+char gps_date[7];       // DDMMAA
 float gps_altitude = 0;
 
 // Module functions
@@ -224,6 +227,14 @@ void parse_course(const char *token)
   new_course = atof(token);
 }
 
+void parse_date(const char *token)
+{
+  // date only take DDMMYY
+  strncpy(new_date, token, 6);
+  // Terminate string
+  new_date[6] = '\0';
+}
+
 void parse_altitude(const char *token)
 {
   new_altitude = atof(token);
@@ -305,6 +316,7 @@ bool gps_decode(char c){
           strcpy(gps_aprs_lon, new_aprs_lon);
           gps_course = new_course;
           gps_speed = new_speed;
+          strcpy(gps_date, new_date);
           gps_altitude = new_altitude;
           ret = true;
 #ifdef DEBUG_GPS
