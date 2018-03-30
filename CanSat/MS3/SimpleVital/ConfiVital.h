@@ -125,8 +125,6 @@ byte error;
 byte error_gas = 0;
 
 // ----------------------------- Humedad y Temperatura (SHT11)
-
-//---
 int tempSD;
 int humSD;
 //---
@@ -134,10 +132,18 @@ SHT1x sht1x(dataPin, clockPin);
 
 
 // ----------------------------- Tempertura PCB (I2C)
-#define i2cAddress 0x18
+// Sensor PCB Vital
+#define i2cAddressV 0x18
 #define add_reg 0x05
 //---
-int tempi2cSD;
+int tempi2cSDV;
+
+// Sensor PCB Gases
+#define i2cAddressG 0x19
+//#define add_regG 0x05
+//---
+int tempi2cSDG;
+
 
 // ----------------------------- Temperatura Externa
 int tempext1SD;

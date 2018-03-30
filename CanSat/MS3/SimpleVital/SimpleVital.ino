@@ -14,11 +14,12 @@
 void setup() {
   //////////////////////////////////////////// Comunication
   Serial.begin(DEBUG_SERIAL_SPEED);
+
 #if RadioSerial
   Serial2.begin(115200);
 #endif
   Serial3.begin(GPS_BAUDRATE);
-  
+
   //////////////////////////////////////////// Serial init
 #if DEBUG < 2
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
@@ -182,12 +183,12 @@ void setup() {
 
   // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
   Serial.println("Presione c para iniciar modo carga");
-  unsigned long tiempoConfCarga = millis()+ 5000;
-  while(tiempoConfCarga > millis()){
+  unsigned long tiempoConfCarga = millis() + 5000;
+  while (tiempoConfCarga > millis()) {
     char comando = Serial.read();
-    if (comando == 'c'){
+    if (comando == 'c') {
       Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
-      while(Serial.available()<1){
+      while (Serial.available() < 1) {
         //delay(500);
         power_save();
         revisarRadio();
@@ -195,7 +196,7 @@ void setup() {
     }
   }
 
-  
+
 }
 
 //////////////////////////////////////////////////////////////// Loop ////////////////////////////////////////////////////////////////
@@ -205,73 +206,29 @@ void loop() {
   revisarRadio();
 
   ////////////////////////////// Apogeo del sistema //////////////////////////////////////
-  /*if (gps_altitude > alt_apogeo && altitud > alt_apogeo) {
-    if (band_apogeo == 0) {
-      fall_time = millis();
-      band_apogeo = 1;
-    }
-    }
-    if (band_apogeo == 1) {
-    if ((millis() - fall_time) > apogeo_time) {
-      if (gps_altitude < alt_apogeo && altitud < alt_apogeo) {
-        ban_apogeo_active = 1;
-      }
-    }
-    }
-    if (ban_apogeo_active == 1) {
-    if (band_buzzer == 1) {
-      digitalWrite(buzzer_PIN, HIGH);
-      band_buzzer = 0;
-    } else {
-      digitalWrite(buzzer_PIN, LOW);
-      band_buzzer = 1;
-    }
-    }*/
+  apogeoSistema();
 
   /////////////////////////////// Liberación de paneles /////////////////////////////////////
-  if (band_paneles == 0) {
-
-    weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
-    weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;
-    weight = (altitud > alt_paneles) ? weight + 1 : weight;
-
-    if (weight == 2) {
-      Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
-      int conteo = 10;
-      for (int i = conteo; i > 0; i--) {
-        delay(1000);
-        Serial.print("T-0");
-        Serial.println(i);
-      }
-      Serial.print("Desplegando...");
-      digitalWrite(pinPanel0, HIGH);
-      digitalWrite(pinPanel1, HIGH);
-      delay(5000);
-      digitalWrite(pinPanel0, LOW);
-      digitalWrite(pinPanel1, LOW);
-      Serial.print("OK");
-      //Serial.println("Simple Pregunta: Desplego?");
-      band_paneles = 1;
-      pitar(5000);
-    } else {
-      weight = 0;
-    }
-    // si, que chimba, no bueno, intentemos de nuevo
-
-  }//*/
+  //liberarPaneles();
 
   ////////////////////////////////////////////////////////Temperatura y Humedad //////////////////////////////////////////////
   ////// Sensor i2C /////////////
-  float tempi2c = PCBTemperature();
-  load_tempi2c(tempi2c);
-  tempi2cSD = (float)tempi2c * 100;
+  float tempi2cV = PCBTemperature(0); // lectura Temp PCB Vital
+  tempi2cSDV = (float)tempi2cV * 100;
 
+  float tempi2cG = PCBTemperature(1); // lectura Temp PCB Gases
+  tempi2cSDG = (float)tempi2cG * 100;
+
+  // se carga temp I2C a Trama radio
+  load_tempi2c(tempi2cV);
 
   ///// Sensor SHT11 //////////
   float tempC = sht1x.readTemperatureC();
   float humidity = sht1x.readHumidity();
+
   load_tempC(tempC);
   load_humidity(humidity);
+
   tempSD = (int)(tempC * 100);
   humSD = (int)(humidity * 100);
 
@@ -319,15 +276,6 @@ void loop() {
   load_pres(pressure);
   load_alti(altitud);
 
-#if DEBUG <1
-  Serial.print("T");
-  Serial.print(temperature);
-  Serial.print("P");
-  Serial.print(pressure);
-  Serial.print("A");
-  Serial.print(altitud);
-#endif
-
   ///////////////////////////////////////////////////// Se lee la IMU /////////////////////////////////////////////////
 #if DEBUG <1
   Serial.print("RI");
@@ -338,37 +286,6 @@ void loop() {
   getCompassData_calibrated(); // compass data has been calibrated here
   getHeading();               //before we use this function we should run 'getCompassDate_calibrated()' frist, so that we can get calibrated data ,then we can get correct angle .
   getTiltHeading();
-
-#if DEBUG <1
-  Serial.print("A");
-  Serial.print(Axyz[0]);
-  Serial.print(",");
-  Serial.print(Axyz[1]);
-  Serial.print(",");
-  Serial.print(Axyz[2]);
-  //Serial.println("Gyro(degress/s) of X,Y,Z:");
-  Serial.print("G");
-  Serial.print(Gxyz[0]);
-  Serial.print(",");
-  Serial.print(Gxyz[1]);
-  Serial.print(",");
-  Serial.print(Gxyz[2]);
-  //Serial.println("Compass Value of X,Y,Z:");
-  Serial.print("M");
-  Serial.print(Mxyz[0]);
-  Serial.print(",");
-  Serial.print(Mxyz[1]);
-  Serial.print(",");
-  Serial.print(Mxyz[2]);
-
-  //Serial.println("The clockwise angle between the magnetic north and X-Axis:");
-  Serial.print("B");
-  Serial.print(heading);
-  //Serial.print(" ");
-  //Serial.println("The clockwise angle between the magnetic north and the projection of the positive X-Axis in the horizontal plane:");
-  Serial.print("D");
-  Serial.print(tiltheading);
-#endif
 
   ///////////////////////////////////////////////////// Se lee Voltaje Bateria /////////////////////////////////////////////////
   int volBat1 = analogRead(pinVolBat1);
@@ -497,9 +414,7 @@ void loop() {
 
   // Enviamos Paquete a al radio:
 
+  mostrarMediciones();
 
-
-}
-
-
+} // fin loop
 

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////// Sub Funciones ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-void revisarRadio(){
-if (Serial2.available() > 0) {
+void revisarRadio() {
+  if (Serial2.available() > 0) {
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
     Serial.println(data2Send);
@@ -34,40 +34,40 @@ void guardarDatosSD() {
   // F - GPS - Velocidad
 
   /* Trama SD:
-  A TiempoGPS 
-  B Latitud*10000 
-  C Longitud*10000 
-  D AltitudGPS
-  E CursoGPS
-  F VelocidadGPS
-  G ACC-X
-  H ACC-Y
-  I ACC-Z
-  J GYR-X
-  K GYR-Y
-  L GYR-Z
-  M MAG-X
-  O MAG-Y
-  P MAG-Z
-  Q BAR-TEMP
-  R BAR-PRES
-  S BAR-ALTI
-  T TiempoMsDesdeInicio
-  U NH3
-  V CO
-  W NO2
-  X C3H8
-  Y C4H10
-  Z CH4
-  a H2
-  b C2H5OH
-  c SHT11-TEMP
-  d SHT11-HUME
-  e TempPcbI2C
-  f TempExt1
-  g TempExt2
-  h TempExt3
-  i VoltBat
+    A TiempoGPS
+    B Latitud*10000
+    C Longitud*10000
+    D AltitudGPS
+    E CursoGPS
+    F VelocidadGPS
+    G ACC-X
+    H ACC-Y
+    I ACC-Z
+    J GYR-X
+    K GYR-Y
+    L GYR-Z
+    M MAG-X
+    O MAG-Y
+    P MAG-Z
+    Q BAR-TEMP
+    R BAR-PRES
+    S BAR-ALTI
+    T TiempoMsDesdeInicio
+    U NH3
+    V CO
+    W NO2
+    X C3H8
+    Y C4H10
+    Z CH4
+    a H2
+    b C2H5OH
+    c SHT11-TEMP
+    d SHT11-HUME
+    e TempPcbI2C
+    f TempExt1
+    g TempExt2
+    h TempExt3
+    i VoltBat
   */
   char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'};
   // datos GPS
@@ -148,7 +148,9 @@ void guardarDatosSD() {
   datos += String(humSD);
   //Tempi2c
   datos += sep[29];
-  datos += String(tempi2cSD);
+  datos += String(tempi2cSDV);
+  //datos += sep[30];
+  //datos += String(tempi2cSDG);
   //Temp exterior
   datos += sep[30];
   datos += String(tempext1SD);
@@ -175,10 +177,8 @@ void guardarDatosSD() {
       // print to the serial port too:
       //Serial.print(datos);
       Serial.print("ON SD .. ");
-
-      if (altitud < alt_apogeo && gps_altitude < alt_apogeo) {
-        pitar(50);
-      }
+      Serial.print(datos);
+      pitar(50);
     }
     // if the file isn't open, pop up an error:
     else {
@@ -191,8 +191,104 @@ void guardarDatosSD() {
   }
   //*/
   digitalWrite(LedSD_PIN, LOW);
-  Serial.print(datos);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+void mostrarMediciones() {
+  Serial.println();
+  Serial.println("---------------------------------------------------------------------------------");
+  Serial.print("Tiempo en milisegundos desde inicio: ");
+  Serial.println(millis());
+
+  Serial.print("Datos GPS       : Tiemp: ");
+  Serial.print(gps_time);
+  Serial.print("\t Lat: ");
+  Serial.print(gps_lat * 1000);
+  Serial.print("\t Lon: ");
+  Serial.print(gps_lon * 1000);
+  Serial.print("\t Alt: ");
+  Serial.print(gps_altitude);
+  Serial.print("\t Curso: ");
+  Serial.print(gps_course);
+  Serial.print("\t Fecha: ");
+  Serial.print(gps_date);
+  Serial.print("\t Vel: ");
+  Serial.println(gps_speed);
+
+  Serial.print("Aceleracion(s^2): X: ");
+  Serial.print(Axyz[0]);
+  Serial.print("\t Y: ");
+  Serial.print(Axyz[1]);
+  Serial.print("\t Z: ");
+  Serial.println(Axyz[2]);
+
+  Serial.print("Giroscopo(mm/s) : X: ");
+  Serial.print(Gxyz[0]);
+  Serial.print("\t Y: ");
+  Serial.print(Gxyz[1]);
+  Serial.print("\t Z: ");
+  Serial.println(Gxyz[2]);
+
+  Serial.print("Magnetometro()  : X: ");
+  Serial.print(Mxyz[0]);
+  Serial.print("\t Y: ");
+  Serial.print(Mxyz[1]);
+  Serial.print("\t Z: ");
+  Serial.println(Mxyz[2]);
+
+  Serial.print("Calculos IMU    : Azm: ");
+  Serial.print(heading); // The clockwise angle between the magnetic north and X-Axis
+  //Serial.println("The clockwise angle between the magnetic north and the projection of the positive X-Axis in the horizontal plane:");
+  Serial.print("\t til: ");
+  Serial.println(tiltheading); // The clockwise angle between the magnetic north and the projection of the positive X-Axis in the horizontal plane
+
+  Serial.print("Datos Barometro : Temp: ");
+  Serial.print(temperature);
+  Serial.print("\t Pre: ");
+  Serial.print(pressure);
+  Serial.print("\t Alt: ");
+  Serial.println(altitud);
+
+  Serial.print("Sensor Gases(04): NH3: ");    //
+  Serial.print(cSD[0]);
+  Serial.print("\t CO: ");
+  Serial.print(cSD[1]);
+  Serial.print("\t NO2: ");
+  Serial.print(cSD[2]);
+  Serial.print("\t C3H8: ");
+  Serial.print(cSD[3]);
+  Serial.print("\t C4H10: ");
+  Serial.print(cSD[4]);
+  Serial.print("\t CH4: ");
+  Serial.print(cSD[5]);
+  Serial.print("\t H2: ");
+  Serial.print(cSD[6]);
+  Serial.print("\t C2H5OH: ");
+  Serial.println(cSD[7]);
+
+  Serial.print("Sensor SHT11    : Temp: ");
+  Serial.print(tempSD); // Temperatura
+  Serial.print("\t Hum: ");
+  Serial.println(humSD); // Humedad
+
+  Serial.print("Temperatura PCBs: Vital: ");
+  Serial.print(tempi2cSDV); // Temp i2c Vital
+  Serial.print("\t Gases: ");
+  Serial.println(tempi2cSDG); // Temp i2c Gases
+
+  Serial.print("Temperatura Ext : T1: ");
+  Serial.print(tempext1SD); //Temp exterior
+  Serial.print("\t T2: ");
+  Serial.print(tempext2SD);
+  Serial.print("\t T3: ");
+  Serial.println(tempext3SD);
+
+  Serial.print("Voltaje Bateria : ");
+  Serial.println(voltajeBateria0);
+
+  Serial.println("---------------------------------------------------------------------------------");
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 void enviarTramaCRadio() {
@@ -340,36 +436,49 @@ byte iniciarGases() {
   }
 }
 
-float PCBTemperature() {
+float PCBTemperature(byte PCB) {
 
   char raw[2] = {0, 0};
-  int count = 0;
-  unsigned int total = 0;
-  int bitre = 0;
+  float temp = 0;
   float temp_vector[12] = {0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128, -1};
+  int count = 0;
+  int bitre = 0;
   int count_data = 0;
   int count_temp = 0;
-  float temp = 0;
+  unsigned int total = 0;
 
-  Wire.beginTransmission(i2cAddress);
+
+  if (PCB == 0) {
+    Wire.beginTransmission(i2cAddressV);
+  }
+  else if (PCB == 1) {
+    Wire.beginTransmission(i2cAddressG);
+  }
+  else {
+    return 0;
+  }
 
   Wire.write(add_reg);
-
   Wire.endTransmission();
-  Wire.requestFrom(i2cAddress, 2);
 
-  while (Wire.available())
-  {
+  if (PCB == 0) {
+    Wire.requestFrom(i2cAddressV, 2);
+  }
+  else if (PCB == 1) {
+    Wire.requestFrom(i2cAddressG, 2);
+  }
+  else {
+    return 0;
+  }
 
+  while (Wire.available()) {
     raw[count] = Wire.read();
     count++;
+  } // fin while (datos disponibles en puerto I2C)
 
-
-  }
   count = 0;
   while (count_data < 16) {
     if (count_data > 7 && count_data < 12) {
-
       bitre = bitRead(raw[0], (count_data - 8));
       if (bitre == 1) {
         temp = temp + temp_vector[count_temp];
@@ -392,9 +501,65 @@ float PCBTemperature() {
       count_temp++;
     }
     count_data++;
-  }
-  count_data = 0;
-  count_temp = 0;
+  } // fin while (revisar en detalle posible paro por while infinito?)
+
   return temp;
+}
+
+inline void liberarPaneles() {
+  if (band_paneles == 0) {
+
+    weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
+    weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;
+    weight = (altitud > alt_paneles) ? weight + 1 : weight;
+
+    if (weight == 2) {
+      Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
+      int conteo = 10;
+      for (int i = conteo; i > 0; i--) {
+        delay(1000);
+        Serial.print("T-0");
+        Serial.println(i);
+      }
+      Serial.print("Desplegando...");
+      digitalWrite(pinPanel0, HIGH);
+      digitalWrite(pinPanel1, HIGH);
+      delay(5000);
+      digitalWrite(pinPanel0, LOW);
+      digitalWrite(pinPanel1, LOW);
+      Serial.print("OK");
+      //Serial.println("Simple Pregunta: Desplego?");
+      band_paneles = 1;
+      pitar(5000);
+    } else {
+      weight = 0;
+    }
+    // si, que chimba, no bueno, intentemos de nuevo
+  }
+}
+
+inline void apogeoSistema() {
+  /*if (gps_altitude > alt_apogeo && altitud > alt_apogeo) {
+    if (band_apogeo == 0) {
+      fall_time = millis();
+      band_apogeo = 1;
+    }
+    }
+    if (band_apogeo == 1) {
+    if ((millis() - fall_time) > apogeo_time) {
+      if (gps_altitude < alt_apogeo && altitud < alt_apogeo) {
+        ban_apogeo_active = 1;
+      }
+    }
+    }
+    if (ban_apogeo_active == 1) {
+    if (band_buzzer == 1) {
+      digitalWrite(buzzer_PIN, HIGH);
+      band_buzzer = 0;
+    } else {
+      digitalWrite(buzzer_PIN, LOW);
+      band_buzzer = 1;
+    }
+    }*/
 }
 
