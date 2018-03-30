@@ -81,19 +81,23 @@ void setup() {
 
 
 #if DEBUG < 2
-  Serial.print("Initializing Barometer...");
+  Serial.println("Initializing Barometers");
 #endif
 
   //Barometer.init();
-  Serial.println("BMP280 test");
-
-  if (!baro_BMP280.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+  Serial.print("BMP280B test... ");
+  if (!baro_BMP280B.begin()) { // default dir 0x77
+    Serial.println("Could not find a valid BMP280B sensor, check wiring!");
+  } else {
+    Serial.println(" OK.");
   }
-
-#if DEBUG < 2
-  Serial.println(" OK.");
-#endif
+  
+  Serial.print("BMP280T test... ");
+  if (!baro_BMP280T.begin(0x76)) {
+    Serial.println("Could not find a valid BMP280T sensor, check wiring!");
+  } else {
+    Serial.println(" OK.");
+  }
 
 #if DEBUG < 2
   Serial.print("Testing IMU Conection...");
@@ -233,48 +237,12 @@ void loop() {
   humSD = (int)(humidity * 100);
 
   ////////////////////////////////////////////////////////Sensor de Gases //////////////////////////////////////////////
-  if (error_gas == 0) {
-    error_gas = iniciarGases();
-  }
-
-  c[0] = gas.measure_NH3();
-  load_NH3(c[0]);
-  c[1] = gas.measure_CO();
-  load_CO(c[1]);
-  c[2] = gas.measure_NO2();
-  load_NO2(c[2]);
-  c[3] = gas.measure_C3H8();
-  load_C3H8(c[3]);
-  c[4] = gas.measure_C4H10();
-  load_C4H10(c[4]);
-  c[5] = gas.measure_CH4();
-  load_CH4(c[5]);
-  c[6] = gas.measure_H2();
-  load_H2(c[6]);
-  c[7] = gas.measure_C2H5OH();
-  load_C2H5OH(c[7]);
-
-
-  dim = (sizeof(c) / sizeof(float));
-
-  for (int i = 0; i < (dim); i++) {
-    cSD[i] = (int) (c[i] * 100);
-  }
+  medirGases04();
+  medirGases05();
 
   ///////////////////////////////////////////////////// Se lee el Barometro /////////////////////////////////////////////////
-
-  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
-  temperature = baro_BMP280.readTemperature(); // Get the temperature, bmp180ReadUT MUST be called first
-
-  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
-  pressure = baro_BMP280.readPressure();
-
-  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
-  altitud = baro_BMP280.readAltitude(1013.25);
-
-  load_temp(temperature);
-  load_pres(pressure);
-  load_alti(altitud);
+  medirBarometroB();
+  medirBarometroT();
 
   ///////////////////////////////////////////////////// Se lee la IMU /////////////////////////////////////////////////
 #if DEBUG <1

@@ -108,38 +108,66 @@ void guardarDatosSD() {
   datos += String(Mxyz[2]);
   // datos Barometro
   datos += sep[15];
-  datos += String(temperature);
+  datos += String(BarB_temp);
   datos += sep[16];
-  datos += String(pressure);
+  datos += String(BarB_pres);
   datos += sep[17];
-  datos += String(altitud);
+  datos += String(BarB_alti);
   // datos tiempo
   datos += sep[18];
   datos += String(millis());
   //Gas NH3
   datos += sep[19];
-  datos += String(cSD[0]);
+  datos += String(cSD04[0]);
   //Gas CO
   datos += sep[20];
-  datos += String(cSD[1]);
+  datos += String(cSD04[1]);
   //Gas NO2
   datos += sep[21];
-  datos += String(cSD[2]);
+  datos += String(cSD04[2]);
   //Gas C3H8
   datos += sep[22];
-  datos += String(cSD[3]);
+  datos += String(cSD04[3]);
   //Gas C4H10
   datos += sep[23];
-  datos += String(cSD[4]);
+  datos += String(cSD04[4]);
   //Gas CH4
   datos += sep[24];
-  datos += String(cSD[5]);
+  datos += String(cSD04[5]);
   //GAS H2
   datos += sep[25];
-  datos += String(cSD[6]);
+  datos += String(cSD04[6]);
   //Gas C2H5OH
   datos += sep[26];
-  datos += String(cSD[7]);
+  datos += String(cSD04[7]);
+
+  /*
+  //Gas NH3
+  datos += sep[19];
+  datos += String(cSD05[0]);
+  //Gas CO
+  datos += sep[20];
+  datos += String(cSD05[1]);
+  //Gas NO2
+  datos += sep[21];
+  datos += String(cSD05[2]);
+  //Gas C3H8
+  datos += sep[22];
+  datos += String(cSD05[3]);
+  //Gas C4H10
+  datos += sep[23];
+  datos += String(cSD05[4]);
+  //Gas CH4
+  datos += sep[24];
+  datos += String(cSD05[5]);
+  //GAS H2
+  datos += sep[25];
+  datos += String(cSD05[6]);
+  //Gas C2H5OH
+  datos += sep[26];
+  datos += String(cSD05[7]);
+   */
+  
   //Temperatura
   datos += sep[27];
   datos += String(tempSD);
@@ -242,29 +270,53 @@ void mostrarMediciones() {
   Serial.print("\t til: ");
   Serial.println(tiltheading); // The clockwise angle between the magnetic north and the projection of the positive X-Axis in the horizontal plane
 
-  Serial.print("Datos Barometro : Temp: ");
-  Serial.print(temperature);
+  Serial.print("Datos BarometroB: Temp: ");
+  Serial.print(BarB_temp);
   Serial.print("\t Pre: ");
-  Serial.print(pressure);
+  Serial.print(BarB_pres);
   Serial.print("\t Alt: ");
-  Serial.println(altitud);
+  Serial.println(BarB_alti);
+
+  Serial.print("Datos BarometroT: Temp: ");
+  Serial.print(BarT_temp);
+  Serial.print("\t Pre: ");
+  Serial.print(BarT_pres);
+  Serial.print("\t Alt: ");
+  Serial.println(BarT_alti);
 
   Serial.print("Sensor Gases(04): NH3: ");    //
-  Serial.print(cSD[0]);
+  Serial.print(cSD04[0]);
   Serial.print("\t CO: ");
-  Serial.print(cSD[1]);
+  Serial.print(cSD04[1]);
   Serial.print("\t NO2: ");
-  Serial.print(cSD[2]);
+  Serial.print(cSD04[2]);
   Serial.print("\t C3H8: ");
-  Serial.print(cSD[3]);
+  Serial.print(cSD04[3]);
   Serial.print("\t C4H10: ");
-  Serial.print(cSD[4]);
+  Serial.print(cSD04[4]);
   Serial.print("\t CH4: ");
-  Serial.print(cSD[5]);
+  Serial.print(cSD04[5]);
   Serial.print("\t H2: ");
-  Serial.print(cSD[6]);
+  Serial.print(cSD04[6]);
   Serial.print("\t C2H5OH: ");
-  Serial.println(cSD[7]);
+  Serial.println(cSD04[7]);
+
+  Serial.print("Sensor Gases(05): NH3: ");    //
+  Serial.print(cSD05[0]);
+  Serial.print("\t CO: ");
+  Serial.print(cSD05[1]);
+  Serial.print("\t NO2: ");
+  Serial.print(cSD05[2]);
+  Serial.print("\t C3H8: ");
+  Serial.print(cSD05[3]);
+  Serial.print("\t C4H10: ");
+  Serial.print(cSD05[4]);
+  Serial.print("\t CH4: ");
+  Serial.print(cSD05[5]);
+  Serial.print("\t H2: ");
+  Serial.print(cSD05[6]);
+  Serial.print("\t C2H5OH: ");
+  Serial.println(cSD05[7]);
 
   Serial.print("Sensor SHT11    : Temp: ");
   Serial.print(tempSD); // Temperatura
@@ -321,10 +373,10 @@ void enviarTramaCRadio() {
   snprintf(text, 6, "%d", (int)(tempSD));
   datos += text;
   datos += sep[7];
-  snprintf(text, 6, "%d", (int)pressure);
+  snprintf(text, 6, "%d", (int)BarB_pres);
   datos += text;
   datos += sep[8];
-  snprintf(text, 6, "%d", (int)altitud);
+  snprintf(text, 6, "%d", (int)BarB_alti);
   datos += text;
   datos += sep[9];
   snprintf(text, 6, "%d", (int)(voltajeBateria0));
@@ -414,27 +466,50 @@ void iniciarSd() {
   }
 }
 
-byte iniciarGases() {
+byte iniciarGases04() {
   Wire.beginTransmission(0x04);
-  error = Wire.endTransmission();
-  if (error == 0) {
-    gas.begin(0x04);//the default I2C address of the slave is 0x04
+  error04 = Wire.endTransmission();
+  if (error04 == 0) {
+    gas04.begin(0x04);//the default I2C address of the slave is 0x04
 
-    band_gas = gas.powerOn();
+    band_gas04 = gas04.powerOn();
 
-    if (band_gas == 1) {
-      band_gas = 0;
+    if (band_gas04 == 1) {
+      band_gas04 = 0;
       Serial.println("Gas Sensor Initialized");
-      error_gas = 1;
-      return error_gas;
+      error_gas04 = 1;
+      return error_gas04;
 
     }
   } else {
     Serial.println("Gas Sensor not found");
-    error_gas = 0;
-    return error_gas;
+    error_gas04 = 0;
+    return error_gas04;
   }
 }
+
+byte iniciarGases05() {
+  Wire.beginTransmission(0x05);
+  error05 = Wire.endTransmission();
+  if (error05 == 0) {
+    gas05.begin(0x05);//the default I2C address of the slave is 0x05
+
+    band_gas05 = gas05.powerOn();
+
+    if (band_gas05 == 1) {
+      band_gas05 = 0;
+      Serial.println("Gas Sensor Initialized");
+      error_gas05 = 1;
+      return error_gas05;
+
+    }
+  } else {
+    Serial.println("Gas Sensor not found");
+    error_gas05 = 0;
+    return error_gas05;
+  }
+}
+
 
 float PCBTemperature(byte PCB) {
 
@@ -511,7 +586,7 @@ inline void liberarPaneles() {
 
     weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
     weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;
-    weight = (altitud > alt_paneles) ? weight + 1 : weight;
+    weight = (BarB_alti > alt_paneles) ? weight + 1 : weight;
 
     if (weight == 2) {
       Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
@@ -561,5 +636,97 @@ inline void apogeoSistema() {
       band_buzzer = 1;
     }
     }*/
+}
+
+
+inline void medirGases04() {
+  if (error_gas04 == 0) {
+    error_gas04 = iniciarGases04();
+  }
+
+  c04[0] = gas04.measure_NH3();
+  load_NH3(c04[0]);
+  c04[1] = gas04.measure_CO();
+  load_CO(c04[1]);
+  c04[2] = gas04.measure_NO2();
+  load_NO2(c04[2]);
+  c04[3] = gas04.measure_C3H8();
+  load_C3H8(c04[3]);
+  c04[4] = gas04.measure_C4H10();
+  load_C4H10(c04[4]);
+  c04[5] = gas04.measure_CH4();
+  load_CH4(c04[5]);
+  c04[6] = gas04.measure_H2();
+  load_H2(c04[6]);
+  c04[7] = gas04.measure_C2H5OH();
+  load_C2H5OH(c04[7]);
+
+
+  dim04 = (sizeof(c04) / sizeof(float));
+
+  for (int i = 0; i < (dim04); i++) {
+    cSD04[i] = (int) (c04[i] * 100);
+  }
+}
+
+inline void medirGases05() {
+  if (error_gas05 == 0) {
+    error_gas05 = iniciarGases05();
+  }
+
+  c05[0] = gas05.measure_NH3();
+  load_NH3(c05[0]);
+  c05[1] = gas05.measure_CO();
+  load_CO(c05[1]);
+  c05[2] = gas05.measure_NO2();
+  load_NO2(c05[2]);
+  c05[3] = gas05.measure_C3H8();
+  load_C3H8(c05[3]);
+  c05[4] = gas05.measure_C4H10();
+  load_C4H10(c05[4]);
+  c05[5] = gas05.measure_CH4();
+  load_CH4(c05[5]);
+  c05[6] = gas05.measure_H2();
+  load_H2(c05[6]);
+  c05[7] = gas05.measure_C2H5OH();
+  load_C2H5OH(c05[7]);
+
+
+  dim05 = (sizeof(c05) / sizeof(float));
+
+  for (int i = 0; i < (dim05); i++) {
+    cSD05[i] = (int) (c05[i] * 100);
+  }
+}
+
+inline void medirBarometroB(){
+  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
+  BarB_temp = baro_BMP280T.readTemperature(); // Get the temperature, bmp180ReadUT MUST be called first
+
+  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
+  BarB_pres = baro_BMP280T.readPressure();
+
+  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
+  BarB_alti = baro_BMP280T.readAltitude(1013.25);
+
+  load_temp(BarB_temp);
+  load_pres(BarB_pres);
+  load_alti(BarB_alti);
+}
+
+inline void medirBarometroT(){
+  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
+  BarT_temp = baro_BMP280T.readTemperature(); // Get the temperature, bmp180ReadUT MUST be called first
+
+  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
+  BarT_pres = baro_BMP280T.readPressure();
+
+  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
+  BarT_alti = baro_BMP280T.readAltitude(1013.25);
+  /*
+  load_temp(BarT_temp);
+  load_pres(BarT_pres);
+  load_alti(BarT_alti);
+  */
 }
 

@@ -59,13 +59,16 @@
 
 //////////////////////////// Gas libraries
 #include "MutichannelGasSensor.h"
+MutichannelGasSensor gas04;
+MutichannelGasSensor gas05;
 
 //////////////////////////// SHT11 libraries
 #include "SHT1x.h"
 
 //////////////////////////// Barometro libraries
 #include <Adafruit_BMP280.h>
-Adafruit_BMP280 baro_BMP280;
+Adafruit_BMP280 baro_BMP280B;
+Adafruit_BMP280 baro_BMP280T;
 
 //////////////////////////// SD librarie
 #include <SD.h>
@@ -116,13 +119,20 @@ Adafruit_BMP280 baro_BMP280;
 #define pinTemp3 15
 
 ////////////////////////////////////////////// SimpleVital Variables //////////////////////////////////////////////
-// ----------------------------- Gases
-char band_gas = 0;
-int dim;
-float c[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int cSD[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-byte error;
-byte error_gas = 0;
+// ----------------------------- Gases 04
+char band_gas04 = 0;
+int dim04;
+float c04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int cSD04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+byte error04;
+byte error_gas04 = 0;
+// ----------------------------- Gases 05
+char band_gas05 = 0;
+int dim05;
+float c05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int cSD05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+byte error05;
+byte error_gas05 = 0;
 
 // ----------------------------- Humedad y Temperatura (SHT11)
 int tempSD;
@@ -218,10 +228,15 @@ volatile int my_min = 0;
 volatile int mz_min = 0;
 
 // barometer Variables
-float temperature;
-float pressure;
-float atm;
-float altitud;
+float BarB_temp;
+float BarB_pres;
+float BarB_atmo;
+float BarB_alti;
+
+float BarT_temp;
+float BarT_pres;
+float BarT_atmo;
+float BarT_alti;
 
 ////////////////////////////////////////////// SimpleVital Parameters //////////////////////////////////////////////
 
