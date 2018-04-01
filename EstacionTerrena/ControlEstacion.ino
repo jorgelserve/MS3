@@ -172,9 +172,6 @@ void lecturaPuertoProcesa(){
   }
     if (receivedCommand.length() == 19 ){
       datoRecibido = false;
-      if (receivedCommand == "ESTALISTO0000000000"){
-        Serial.println("listo");
-      }
       if (receivedCommand.substring(0,1) == "T"){
         suma += 84;
         moduloTheta = receivedCommand.substring(2,7).toInt();
@@ -208,8 +205,15 @@ void lecturaPuertoProcesa(){
         }
      }
      suma_recibida = receivedCommand.substring(14,19).toInt();
+     //Serial.println(suma_recibida);
      //Serial.println(suma);
-     if (suma == suma_recibida){
+     if (suma_recibida == 99999){
+        Serial.println("SET");
+        omega = ((double)omega_prima_int)/100; 
+        theta = ((double)theta_prima_int)/100;
+     }else if (suma_recibida == 90909){
+        Serial.println("listo");
+     }else if (suma == suma_recibida){
         Serial.println("entendido");
         digitalWrite(datoEntendido, HIGH);
         iniciar = true;
@@ -297,12 +301,12 @@ void autonomo_O_manual(){
 
   if (iniciar == true && modoManual == false){
     digitalWrite(autonomoFuncionando, HIGH);
-    Serial.println("IC");
+    //Serial.println("IC");
     omega_prima = ((double)omega_prima_int)/100; 
     theta_prima = ((double)theta_prima_int)/100; 
     controlReal();
     iniciar = false;
-    Serial.println("FC");
+    //Serial.println("FC");
     digitalWrite(autonomoFuncionando, LOW);
   }
 }
