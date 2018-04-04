@@ -1,0 +1,38 @@
+from rest_framework import serializers
+from .models import JsonModel
+
+class JSONSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = JsonModel
+        fields = ('gps_time',
+                  "gps_latitude",
+                  "gps_longitude",
+                  "gps_altitude",
+                  "gps_course",
+                  "gps_speed",
+                  "IMU_Ax",
+                  "IMU_Ay",
+                  "IMU_Az",
+                  "IMU_Cx",
+                  "IMU_Cy",
+                  "IMU_Cz",
+                  "IMU_Gx",
+                  "IMU_Gy",
+                  "IMU_Gz",
+                  "Barometer_Temperature",
+                  "Barometer_Pressure",
+                  "Barometer_Altitude",
+                  "Time_Milisenconds",
+                  "Gas_NH3",
+                  "Gas_CO",
+                  "Gas_NO2",
+                  "Gas_C3H8",
+                  "Gas_C4H10",
+                  "Gas_CH4",
+                  "GAS_H2",
+                  "Gas_C2H5OH",
+                  "Temperature_SHT11",
+                  "Humidity_SHT11",
+                  "Temperature_i2c",
+                  "Promedio_temperatura",
+                  'gps_latitude',)
