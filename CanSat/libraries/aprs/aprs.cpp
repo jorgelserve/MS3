@@ -84,7 +84,7 @@ void load_humidity(float humidity_){
 void load_temp(float temp)
 {
   // 10000 ft = 3048 m
-  temperatura =  temp;
+  temperatura =  temp; // Temperatura Barometro
 }
 
 void load_pres(float pres) {
@@ -115,6 +115,9 @@ void aprs_send()
   const struct s_address addresses[] = {
     {D_CALLSIGN, D_CALLSIGN_ID},  // Destination callsign
     {S_CALLSIGN, S_CALLSIGN_ID},  // Source callsign (-11 = balloon, -9 = car)
+
+
+
 #ifdef DIGI_PATH1
     {DIGI_PATH1, DIGI_PATH1_TTL}, // Digi1 (first digi in the chain)
 #endif
@@ -142,19 +145,17 @@ void aprs_send()
   snprintf(temp, 7, "%d", (int)(gps_altitude));
   ax25_send_string(temp);
   ax25_send_string("B");
-  snprintf(temp, 6, "%d", (int)pressur);
-  ax25_send_string(temp);
-  ax25_send_string("C");
   snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
   ax25_send_string(temp);
-  ax25_send_string("D");
-  snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
+  ax25_send_string("C");
+  snprintf(temp, 7, "%d", (int)(temperatura * 100)); // Temp Barometro
   ax25_send_string(temp);
-  // Fin comentario Corto
-  ax25_send_byte('E');
+  ax25_send_string("D");
   snprintf(temp, 7, "%d", (int)(tempC * 100)); // Temp SHT11
   ax25_send_string(temp);
-  //ax25_send_string(APRS_COMMENT);     // Comment
+  ax25_send_string("E");
+  snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
+  ax25_send_string(temp);
   ax25_send_footer();
 
   ax25_flush_frame();                 // Tell the modem to go
@@ -167,6 +168,8 @@ void aprs_send_variables()
   const struct s_address addresses[] = {
     {D_CALLSIGN, D_CALLSIGN_ID},  // Destination callsign
     {S_CALLSIGN, S_CALLSIGN_ID},  // Source callsign (-11 = balloon, -9 = car)
+
+
 #ifdef DIGI_PATH1
     {DIGI_PATH1, DIGI_PATH1_TTL}, // Digi1 (first digi in the chain)
 #endif
@@ -178,7 +181,6 @@ void aprs_send_variables()
   ax25_send_header(addresses, sizeof(addresses) / sizeof(s_address));
   ax25_send_byte('/');                // Report w/ timestamp, no APRS messaging. $ = NMEA raw data
   // ax25_send_string("021709z");     // 021709z = 2nd day of the month, 17:09 zulu (UTC/GMT)
-  //ax25_send_byte('t');
   ax25_send_string(gps_time);         // 170915 = 17h:09m:15s zulu (not allowed in Status Reports)
   ax25_send_byte('h');
   ax25_send_string(gps_aprs_lat);     // Lat: 38deg and 22.20 min (.20 are NOT seconds, but 1/100th of minutes)
@@ -195,24 +197,24 @@ void aprs_send_variables()
   snprintf(temp, 7, "%d", (int)(gps_altitude));
   ax25_send_string(temp);
   ax25_send_string("B");
-  snprintf(temp, 6, "%d", (int)pressur);
-  ax25_send_string(temp);
-  ax25_send_string("C");
   snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
   ax25_send_string(temp);
+  ax25_send_string("C");
+  snprintf(temp, 7, "%d", (int)(temperatura * 100)); // Temp Barometro
+  ax25_send_string(temp);
   ax25_send_string("D");
+  snprintf(temp, 7, "%d", (int)(tempC * 100)); // Temp SHT11
+  ax25_send_string(temp);
+  ax25_send_string("E");
   snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
   ax25_send_string(temp);
 
   // Datos Trama larga1
-  ax25_send_string("E");
-  snprintf(temp, 7, "%d", (int)(tempC * 100));
-  ax25_send_string(temp);
   ax25_send_string("F");
   snprintf(temp, 7, "%d", (int)(humidity * 100));
   ax25_send_string(temp);
 
-  // Sensor Gases
+  // Sensor Gases (Promedio)
   ax25_send_string("G");
   snprintf(temp, 7, "%d", (int)(NH3 * 100));
   ax25_send_string(temp);
@@ -223,29 +225,33 @@ void aprs_send_variables()
   snprintf(temp, 7, "%d", (int)(NO2 * 100));
   ax25_send_string(temp);
   ax25_send_string("J");
-  snprintf(temp, 7, "%d", (int)(C3H8 * 100));
+  /*snprintf(temp, 7, "%d", (int)(C3H8 * 100)); // extraña
   ax25_send_string(temp);
   ax25_send_string("K");
-  snprintf(temp, 7, "%d", (int)(C4H10 * 100));
+  snprintf(temp, 7, "%d", (int)(C4H10 * 100)); // extraña
   ax25_send_string(temp);
   ax25_send_string("L");
-  snprintf(temp, 7, "%d", (int)(CH4 * 100));
+  snprintf(temp, 7, "%d", (int)(CH4 * 100)); // extraña
   ax25_send_string(temp);
-  ax25_send_string("M");
+  ax25_send_string("M");*/
   snprintf(temp, 7, "%d", (int)(H2 * 100));
   ax25_send_string(temp);
-  ax25_send_string("N");
+  ax25_send_string("K");
   snprintf(temp, 7, "%d", (int)(C2H5OH * 100));
   ax25_send_string(temp);
 
   // Temp
-  ax25_send_string("O");
+  ax25_send_string("L");
   snprintf(temp, 7, "%d", (int)(tempi2c * 100));
   ax25_send_string(temp);
-  ax25_send_string("P");
+  ax25_send_string("M");
   snprintf(temp, 7, "%d", (int)(tempADC * 100));
   ax25_send_string(temp);
+  ax25_send_string("O");
+  snprintf(temp, 7, "%d", (int)(pressur * 100));
+  ax25_send_string(temp);
   
+
   //ax25_send_byte(' ');
   //ax25_send_string(APRS_COMMENT);     // Comment
   ax25_send_footer();

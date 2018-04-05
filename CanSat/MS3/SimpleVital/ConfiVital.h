@@ -154,6 +154,8 @@ int tempi2cSDV;
 //---
 int tempi2cSDG;
 
+int tempPromPCB = 0;
+int tempPCB = 0; // Temperatura analoga PCBs
 
 // ----------------------------- Temperatura Externa
 int tempext1SD;

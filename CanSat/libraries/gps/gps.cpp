@@ -248,6 +248,7 @@ void gps_setup() {
   strcpy(gps_time, "000000");
   strcpy(gps_aprs_lat, "0000.00N");
   strcpy(gps_aprs_lon, "00000.00E");
+  strcpy(gps_date, "000000");
 }
 
 void gps_reset_parser() {

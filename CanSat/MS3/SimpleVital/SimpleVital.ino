@@ -224,6 +224,7 @@ void loop() {
   tempi2cSDG = (float)tempi2cG * 100;
 
   // se carga temp I2C a Trama radio
+  tempPromPCB = (tempi2cSDV+tempi2cSDG)/2;
   load_tempi2c(tempi2cV);
 
   ///// Sensor SHT11 //////////
@@ -272,6 +273,7 @@ void loop() {
   ///////////////////////////////////////////////////// Se lee Temperatura PCB /////////////////////////////////////////////////
   int volTP = analogRead(pinTempPCB);
   int tempPCB = (5.0 * volTP / 1024 * 1000 - 500) * 10;
+  tempPCB = (5.0 * volTP / 1024 * 1000 - 500) * 10;
   //Serial.print("TempPCB: ");Serial.print(tempPCB);
   //load_volt(voltajeBateria0);
 
