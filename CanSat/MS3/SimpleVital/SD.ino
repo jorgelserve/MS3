@@ -58,7 +58,7 @@ void guardarDatosSD() {
     h TempExt3
     i VoltBat
   */
-  char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'};
+  char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
   // datos GPS
   String datos = String(sep[0]);
   datos += String(gps_time);
@@ -95,16 +95,20 @@ void guardarDatosSD() {
   datos += String(Mxyz[1]);
   datos += sep[14];
   datos += String(Mxyz[2]);
-  // datos Barometro
+  
+  // datos BarometroB
   datos += sep[15];
   datos += String(BarB_temp);
   datos += sep[16];
   datos += String(BarB_pres);
   datos += sep[17];
   datos += String(BarB_alti);
+  
   // datos tiempo
   datos += sep[18];
   datos += String(millis());
+
+  //Sensore de gases (04)
   //Gas NH3
   datos += sep[19];
   datos += String(cSD04[0]);
@@ -157,17 +161,17 @@ void guardarDatosSD() {
   datos += String(cSD05[7]);
    */
   
-  //Temperatura
+  //Temperatura SHT11
   datos += sep[27];
   datos += String(tempSD);
-  //Humedad
+  //Humedad SHT11
   datos += sep[28];
   datos += String(humSD);
-  //Tempi2c
+  
+  //Tempi2c Vital
   datos += sep[29];
   datos += String(tempi2cSDV);
-  //datos += sep[30];
-  //datos += String(tempi2cSDG);
+  
   //Temp exterior
   datos += sep[30];
   datos += String(tempext1SD);
@@ -175,11 +179,57 @@ void guardarDatosSD() {
   datos += String(tempext2SD);
   datos += sep[32];
   datos += String(tempext3SD);
+
+  // Voltaje Bateria
   datos += sep[33];
   datos += String(voltajeBateria0);
-  datos += sep[34];
-  // fin trama
 
+  // FechaGPS
+  datos += sep[34];
+  datos += String(gps_date);
+
+  // datos BarometroT
+  datos += sep[35];
+  datos += String(BarT_temp);
+  datos += sep[36];
+  datos += String(BarT_pres);
+  datos += sep[37];
+  datos += String(BarT_alti);
+
+  //Sensore de gases (05)
+  //Gas NH3
+  datos += sep[38];
+  datos += String(cSD05[0]);
+  //Gas CO
+  datos += sep[39];
+  datos += String(cSD05[1]);
+  //Gas NO2
+  datos += sep[40];
+  datos += String(cSD05[2]);
+  //Gas C3H8
+  datos += sep[41];
+  datos += String(cSD05[3]);
+  //Gas C4H10
+  datos += sep[42];
+  datos += String(cSD05[4]);
+  //Gas CH4
+  datos += sep[43];
+  datos += String(cSD05[5]);
+  //GAS H2
+  datos += sep[44];
+  datos += String(cSD05[6]);
+  //Gas C2H5OH
+  datos += sep[45];
+  datos += String(cSD05[7]);
+
+  //Tempi2c Vital
+  datos += sep[46];
+  datos += String(tempi2cSDG);
+  
+  // fin trama
+  datos += sep[47];
+  guardarStringSD(datos,"d");
+  /*
   if (sd_ok) {
     digitalWrite(LedSD_PIN, HIGH);
     // se guarda en la SD
@@ -203,10 +253,50 @@ void guardarDatosSD() {
       dataFile.close();
       sd_ok =  false;
     }
+    
   } else {
-    iniciarSd();
+    iniciarSd(); // si sd no esta ok (sd_ok) tratamos de iniciarla nuevamente
   }
-  //*/
-  digitalWrite(LedSD_PIN, LOW);
+  digitalWrite(LedSD_PIN, LOW); // gurdado SD finalizado//*/
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+void guardarStringSD(String Datos, String NombreA) {
+  String nombre = NombreA;
+  nombre += String(gps_date);
+  nombre += ".txt";
+  if (sd_ok) {
+    digitalWrite(LedSD_PIN, HIGH);
+    // se guarda en la SD
+    dataFile = SD.open(nombre, FILE_WRITE);
+    // if the file is available, write to it:
+    if (dataFile) {
+      dataFile.println(Datos);
+      dataFile.flush();
+      dataFile.close();
+      // led indicador guardado en SD
+
+      // print to the serial port too:
+      //Serial.print(datos);
+      Serial.print("On: ");
+      Serial.print(nombre);
+      Serial.print(": ");
+      Serial.print(Datos);
+      pitar(50);   //Pitido indicando que se guardo correctamente la informacion
+    }
+    // if the file isn't open, pop up an error:
+    else {
+      Serial.print("error opening:");
+      Serial.println(nombre);
+      dataFile.close();
+      sd_ok =  false;
+    }
+    
+  } else {
+    iniciarSd(); // si sd no esta ok (sd_ok) tratamos de iniciarla nuevamente
+  }
+  digitalWrite(LedSD_PIN, LOW); // gurdado SD finalizado
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 

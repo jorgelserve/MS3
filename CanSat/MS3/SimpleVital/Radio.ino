@@ -4,7 +4,10 @@ void revisarRadio() {
   if (Serial2.available() > 0) {
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
+    // data2Send.length() max lenght = 63
+    //Serial.println(data2Send.length());
     Serial.println(data2Send);
+    guardarStringSD(data2Send, "r");
     Serial2.print("M");
     Serial2.print(data2Send);
     digitalWrite(LedRAD_PIN, LOW);
