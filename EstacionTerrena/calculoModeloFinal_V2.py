@@ -142,7 +142,17 @@ def transformarTrama(latitud,longitud):
     latitud_geo = latitud_geo[0:9]
     latitud_geo = latitud_geo.strip()
     return [latitud_geo,longitud_geo]
-def enviarWeb(tempo,lati,long,altu,curs,velo,presi,altuba,tempera,volta):
+def enviarWeb(tempo,lati,longi,altu,curs,velo,presi,altuba,tempera,volta):
+    tempoH=tempo[0:2]
+    tempoM=tempo[2:4]
+    tempoS=tempo[4:6]
+    tempo=tempoH+":"+tempoM+":"+tempoS
+
+    curs=str(float(curs)-0.5)
+    if float(velo)>0.5:
+        velo=str(float(velo)-0.5)
+    volta=str(float(volta)/1000)
+
     try:
         mqttmsg='"gps_time":"{}",' \
                 '"gps_latitude":"{}",' \
@@ -153,7 +163,7 @@ def enviarWeb(tempo,lati,long,altu,curs,velo,presi,altuba,tempera,volta):
                 '"barometer_Pressure":"{}",' \
                 '"barometer_Altitude":"{}",' \
                 '"temperature_sht11":"{}",' \
-                '"voltaje_bateria":"{}"'.format(tempo,lati,long,altu,curs,velo,presi,altuba,tempera,volta)
+                '"voltaje_bateria":"{}"'.format(tempo,lati,longi,altu,curs,velo,presi,altuba,tempera,volta)
         mqttmsg = "{" + mqttmsg + "}"
         print(mqttmsg)
         r = requests.post("http://www.cansats3kratos.me/data/", data=mqttmsg,headers = {'content-type':'application/json'})
