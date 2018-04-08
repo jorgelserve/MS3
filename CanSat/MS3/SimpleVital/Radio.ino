@@ -6,8 +6,19 @@ void revisarRadio() {
     String data2Send = Serial2.readString();
     // data2Send.length() max lenght = 63
     //Serial.println(data2Send.length());
-    Serial.println(data2Send);
     guardarStringSD(data2Send, "r");
+    Serial.println("Radio: " + data2Send);
+    if (data2Send.substring(0,2).equals("DP")) {
+      Serial2.print("M");
+      Serial2.print("Desplegando...");
+      Serial.print("Comando Despliegue detectado, ");  
+      liberarPaneles();
+      Serial2.print("M");
+      Serial2.print("Paneles Desplegados");
+      digitalWrite(LedRAD_PIN, LOW);
+      return;
+    }
+    // Repetimos informacion por Radio
     Serial2.print("M");
     Serial2.print(data2Send);
     digitalWrite(LedRAD_PIN, LOW);
@@ -15,7 +26,7 @@ void revisarRadio() {
 }
 
 ///////////////////////////////////////// Trama Ubicacion /////////////////////////////////////////////////////////////
-String GenerarTramaCorta(){
+String GenerarTramaCorta() {
   // A - GPS - Tiempo
   // B - GPS - Latitud
   // C - GPS - Longitud
@@ -95,7 +106,7 @@ void enviarTramaGRadio() {
   char text[] = "";
   snprintf(text, 6, "%d", (unsigned int)BarB_pres);
   datos += text;
-  
+
   digitalWrite(LedRAD_PIN, HIGH);
   Serial.print("Enviando... ");
   Serial.println(datos);
@@ -111,35 +122,35 @@ void enviarTramaIRadio() {
   // datos GPS
   datos += sep[0];
   char text[] = "";
-  snprintf(text, 6, "%d", (int)Axyz[0]*100);
+  snprintf(text, 6, "%d", (int)Axyz[0] * 100);
   datos += text;
   datos += sep[1];
-  snprintf(text, 6, "%d", (int)Axyz[1]*100);
+  snprintf(text, 6, "%d", (int)Axyz[1] * 100);
   datos += text;
   datos += sep[2];
-  snprintf(text, 6, "%d", (int)Axyz[2]*100);
+  snprintf(text, 6, "%d", (int)Axyz[2] * 100);
   datos += text;
 
   datos += sep[3];
-  snprintf(text, 6, "%d", (int)Gxyz[0]*100);
+  snprintf(text, 6, "%d", (int)Gxyz[0] * 100);
   datos += text;
   datos += sep[4];
-  snprintf(text, 6, "%d", (int)Gxyz[1]*100);
+  snprintf(text, 6, "%d", (int)Gxyz[1] * 100);
   datos += text;
   datos += sep[5];
-  snprintf(text, 6, "%d", (int)Gxyz[2]*100);
+  snprintf(text, 6, "%d", (int)Gxyz[2] * 100);
   datos += text;
 
   datos += sep[6];
-  snprintf(text, 6, "%d", (int)Mxyz[0]*100);
+  snprintf(text, 6, "%d", (int)Mxyz[0] * 100);
   datos += text;
   datos += sep[7];
-  snprintf(text, 6, "%d", (int)Mxyz[1]*100);
+  snprintf(text, 6, "%d", (int)Mxyz[1] * 100);
   datos += text;
   datos += sep[8];
-  snprintf(text, 6, "%d", (int)Mxyz[2]*100);
+  snprintf(text, 6, "%d", (int)Mxyz[2] * 100);
   datos += text;
-  
+
   digitalWrite(LedRAD_PIN, HIGH);
   Serial.print("Enviando... ");
   Serial.println(datos);

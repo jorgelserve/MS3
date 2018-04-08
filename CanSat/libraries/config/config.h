@@ -81,7 +81,7 @@
 // respectively. The first balloon will transmit at 00:00:00, 00:01:00,
 // 00:02:00, etc. and the second balloon will transmit at 00:00:30, 00:01:30,
 // 00:02:30, etc.
-#define APRS_SLOT     0     // seconds. -1 disables slotted transmissions
+#define APRS_SLOT     -1    // seconds. -1 disables slotted transmissions
 //#define APRS_PERIOD   2    // seconds (mayor a 2 segundos)  // se paso al programa principal
 
 // GPS baud rate (in bits per second). This is also the baud rate at which

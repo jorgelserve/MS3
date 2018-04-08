@@ -204,7 +204,6 @@ void setup() {
 }
 
 //////////////////////////////////////////////////////////////// Loop ////////////////////////////////////////////////////////////////
-
 void loop() {
   // verificamos mensajes seriales del radio y los mostramos en pantalla:
   revisarRadio();
@@ -272,7 +271,6 @@ void loop() {
 
   ///////////////////////////////////////////////////// Se lee Temperatura PCB /////////////////////////////////////////////////
   int volTP = analogRead(pinTempPCB);
-  int tempPCB = (5.0 * volTP / 1024 * 1000 - 500) * 10;
   tempPCB = (5.0 * volTP / 1024 * 1000 - 500) * 10;
   //Serial.print("TempPCB: ");Serial.print(tempPCB);
   //load_volt(voltajeBateria0);
@@ -340,7 +338,7 @@ void loop() {
       band_transmission = 0;
     }
 #else
-    enviarTramaCRadio();
+    enviarTramaIRadio();
 #endif
 
     //digitalWrite(LedTX_PIN, LOW);

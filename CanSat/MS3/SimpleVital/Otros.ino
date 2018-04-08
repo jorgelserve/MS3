@@ -266,7 +266,7 @@ float PCBTemperature(byte PCB) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-inline void liberarPaneles() {
+inline void revisarDesPaneles() {
   if (band_paneles == 0) {
 
     weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
@@ -274,20 +274,7 @@ inline void liberarPaneles() {
     weight = (BarB_alti > alt_paneles) ? weight + 1 : weight;
 
     if (weight == 2) {
-      Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
-      int conteo = 10;
-      for (int i = conteo; i > 0; i--) {
-        delay(1000);
-        Serial.print("T-0");
-        Serial.println(i);
-      }
-      Serial.print("Desplegando...");
-      digitalWrite(pinPanel0, HIGH);
-      digitalWrite(pinPanel1, HIGH);
-      delay(5000);
-      digitalWrite(pinPanel0, LOW);
-      digitalWrite(pinPanel1, LOW);
-      Serial.print("OK");
+      liberarPaneles();
       //Serial.println("Simple Pregunta: Desplego?");
       band_paneles = 1;
       pitar(5000);
@@ -296,6 +283,22 @@ inline void liberarPaneles() {
     }
     // si, que chimba, no bueno, intentemos de nuevo
   }
+}
+
+inline void liberarPaneles() {
+      Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
+      for (int i = 9; i > 0; i--) {
+        delay(1000);
+        Serial.print("T-0");
+        Serial.println(i);
+      }
+      Serial.print("Desplegando...");
+      digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
+      digitalWrite(pinPanel1, HIGH);
+      delay(5000);
+      digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
+      digitalWrite(pinPanel1, LOW);
+      Serial.print("OK");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

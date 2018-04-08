@@ -77,7 +77,7 @@ Adafruit_BMP280 baro_BMP280T;
 ////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
 #define Simple 3          // Seleccionamos la simple con la estamos trabajando
 #define RadioSerial 1     // Radio Serial/analogo
-#define Silencio  0       // Cambia el buzzer(0) por led(1)
+#define Silencio  1       // Cambia el buzzer(0) por led(1)
 
 
 ////////////////////////////////////////////// SimpleVital Pin Distribution //////////////////////////////////////////////
@@ -161,6 +161,7 @@ int tempPCB = 0; // Temperatura analoga PCBs
 int tempext1SD;
 int tempext2SD;
 int tempext3SD;
+//#define ana2tem 0.0048828125
 
 // ----------------------------- Apogeo
 #define alt_apogeo 4000    // altura por encima de la que inicia el conteo
