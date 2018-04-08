@@ -68,12 +68,14 @@ void mostrarMediciones() {
   Serial.print("\t Alt: ");
   Serial.println(BarB_alti);
 
+#if not MS2Compatible
   Serial.print("Datos BarometroT: Temp: ");
   Serial.print(BarT_temp);
   Serial.print("\t Pre: ");
   Serial.print(BarT_pres);
   Serial.print("\t Alt: ");
   Serial.println(BarT_alti);
+#endif
 
   Serial.print("Sensor Gases(04): NH3: ");    //
   Serial.print(cSD04[0]);
@@ -92,6 +94,7 @@ void mostrarMediciones() {
   Serial.print("\t C2H5OH: ");
   Serial.println(cSD04[7]);
 
+#if not MS2Compatible
   Serial.print("Sensor Gases(05): NH3: ");    //
   Serial.print(cSD05[0]);
   Serial.print("\t CO: ");
@@ -108,6 +111,7 @@ void mostrarMediciones() {
   Serial.print(cSD05[6]);
   Serial.print("\t C2H5OH: ");
   Serial.println(cSD05[7]);
+#endif
 
   Serial.print("Sensor SHT11    : Temp: ");
   Serial.print(tempSD); // Temperatura
@@ -116,8 +120,12 @@ void mostrarMediciones() {
 
   Serial.print("Temperatura PCBs: Vital: ");
   Serial.print(tempi2cSDV); // Temp i2c Vital
+#if not MS2Compatible
   Serial.print("\t Gases: ");
   Serial.println(tempi2cSDG); // Temp i2c Gases
+  #else
+  Serial.println();
+#endif
 
   Serial.print("Temperatura Ext : T1: ");
   Serial.print(tempext1SD); //Temp exterior
@@ -286,19 +294,19 @@ inline void revisarDesPaneles() {
 }
 
 inline void liberarPaneles() {
-      Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
-      for (int i = 9; i > 0; i--) {
-        delay(1000);
-        Serial.print("T-0");
-        Serial.println(i);
-      }
-      Serial.print("Desplegando...");
-      digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
-      digitalWrite(pinPanel1, HIGH);
-      delay(5000);
-      digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
-      digitalWrite(pinPanel1, LOW);
-      Serial.print("OK");
+  Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
+  for (int i = 9; i > 0; i--) {
+    delay(1000);
+    Serial.print("T-0");
+    Serial.println(i);
+  }
+  Serial.print("Desplegando...");
+  digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
+  digitalWrite(pinPanel1, HIGH);
+  delay(5000);
+  digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
+  digitalWrite(pinPanel1, LOW);
+  Serial.print("OK");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,15 +336,21 @@ inline void apogeoSistema() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-inline void medirBarometroB(){
+inline void medirBarometroB() {
+#if not MS2Compatible
   //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
-  BarB_temp = baro_BMP280T.readTemperature()*100; // Get the temperature, bmp180ReadUT MUST be called first
+  BarB_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
 
   //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
   BarB_pres = baro_BMP280T.readPressure();
 
   //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
   BarB_alti = baro_BMP280T.readAltitude(1013.25);
+#else
+  BarB_temp = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()) * 100; // Get the temperature, bmp180ReadUT MUST be called first
+  BarB_pres = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
+  BarB_alti = Barometer.calcAltitude(BarB_pres); // Uncompensated caculation - in Meters
+#endif
 
   load_temp(BarB_temp);
   load_pres(BarB_pres);
@@ -344,19 +358,20 @@ inline void medirBarometroB(){
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-inline void medirBarometroT(){
+inline void medirBarometroT() {
   //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
-  BarT_temp = baro_BMP280T.readTemperature(); // Get the temperature, bmp180ReadUT MUST be called first
+#if not MS2Compatible
+  BarT_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
 
   //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
   BarT_pres = baro_BMP280T.readPressure();
 
   //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
   BarT_alti = baro_BMP280T.readAltitude(1013.25);
+#endif
   /*
-  load_temp(BarT_temp);
-  load_pres(BarT_pres);
-  load_alti(BarT_alti);
+    load_temp(BarT_temp);
+    load_pres(BarT_pres);
+    load_alti(BarT_alti);
   */
 }
-

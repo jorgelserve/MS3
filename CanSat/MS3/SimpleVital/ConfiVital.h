@@ -17,6 +17,11 @@
 
 // SimpleVital by SimpleSpace
 
+////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
+#define MS2Compatible 1   // Hace el codigo compatible con el modulo MS2 (Solo radio analogo)
+#define RadioSerial 0     // Radio Serial(1) / analogo(0)
+#define Silencio  0       // Cambia el buzzer(0) por led(1)
+
 // -> based on trackuino
 
 ////////////////////////////////////////////// Check Compiler //////////////////////////////////////////////
@@ -66,19 +71,17 @@ MutichannelGasSensor gas05;
 #include "SHT1x.h"
 
 //////////////////////////// Barometro libraries
+#if not MS2Compatible
 #include <Adafruit_BMP280.h>
 Adafruit_BMP280 baro_BMP280B;
 Adafruit_BMP280 baro_BMP280T;
+#else
+#include "BMP180.h"
+BMP180 Barometer;
+#endif
 
 //////////////////////////// SD librarie
 #include <SD.h>
-
-
-////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
-#define Simple 3          // Seleccionamos la simple con la estamos trabajando
-#define RadioSerial 1     // Radio Serial/analogo
-#define Silencio  1       // Cambia el buzzer(0) por led(1)
-
 
 ////////////////////////////////////////////// SimpleVital Pin Distribution //////////////////////////////////////////////
 //////////////////////////// SD
@@ -105,7 +108,7 @@ Adafruit_BMP280 baro_BMP280T;
 #define pinPanel0 30
 #define pinPanel1 32
 
-//////////////////////////// Analogos //////////////////////////// 
+//////////////////////////// Analogos ////////////////////////////
 //////////////////////////// Temperatura Radio
 #define pinTempRad 0    //analogo
 //////////////////////////// Temperatura PCB
@@ -126,6 +129,7 @@ float c04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int cSD04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 byte error04;
 byte error_gas04 = 0;
+
 // ----------------------------- Gases 05
 char band_gas05 = 0;
 int dim05;

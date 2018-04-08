@@ -12,16 +12,29 @@
 
 //////////////////////////////////////////////////////////////// Setup ////////////////////////////////////////////////////////////////
 void setup() {
+  //////////////////////////////////////////// Pitido inicial
+  pinMode(buzzer_PIN, OUTPUT);
+  pitar(500);
+
+  ////////////////////////////////////////////
+#if MS2Compatible
+  pinMode(8, INPUT); // Importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado)
+  pinMode(7, INPUT); // Bug de pcb vital MS2 fabricado.
+#endif
+
   //////////////////////////////////////////// Comunication
   Serial.begin(DEBUG_SERIAL_SPEED);
 
 #if RadioSerial
   Serial2.begin(115200);
 #endif
+
   Serial3.begin(GPS_BAUDRATE);
 
   //////////////////////////////////////////// Serial init
-#if DEBUG < 2
+#if MS2Compatible
+  Serial.println("Serial Debuggin Started - Hi from SimpleVital 2");
+#else
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
 #endif
 
@@ -33,13 +46,7 @@ void setup() {
   pinMode(4, INPUT);
 #endif
 
-  pinMode(7, INPUT);
-
-  // Pitido inicial
-  pinMode(buzzer_PIN, OUTPUT);
-  pitar(500);
-
-  // se configura sistema despligue paneles
+  // Se configura sistema despligue paneles
   pinMode(pinPanel0, OUTPUT);
   digitalWrite(pinPanel0, LOW);
   pinMode(pinPanel1, OUTPUT);
@@ -69,74 +76,46 @@ void setup() {
 
   //////////////////////////////////////////// Sensors Inicialization
   ///////////////////// initialize IMU
-#if DEBUG < 2
   Serial.print("Initializing IMU...");
-#endif
+  Serial.println(accelgyro.testConnection() ? "OK" : "MPU9255 connection failed");
 
-  accelgyro.initialize();
-
-#if DEBUG < 2
-  Serial.println(" OK.");
-#endif
-
-
-#if DEBUG < 2
+  ///////////////////// initialize Barometers
   Serial.println("Initializing Barometers");
-#endif
-
-  //Barometer.init();
+#if not MS2Compatible
   Serial.print("BMP280B test... ");
   if (!baro_BMP280B.begin()) { // default dir 0x77
     Serial.println("Could not find a valid BMP280B sensor, check wiring!");
   } else {
     Serial.println(" OK.");
   }
-  
+
+
   Serial.print("BMP280T test... ");
   if (!baro_BMP280T.begin(0x76)) {
     Serial.println("Could not find a valid BMP280T sensor, check wiring!");
   } else {
     Serial.println(" OK.");
   }
-
-#if DEBUG < 2
-  Serial.print("Testing IMU Conection...");
-  Serial.println(accelgyro.testConnection() ? "MPU9255 connection successful" : "MPU9255 connection failed");
-#endif
-
-#if DEBUG < 2
+#else
+  Serial.print("BMP180 test... ");
+  Barometer.init();
   Serial.println(" OK.");
 #endif
 
-#if DEBUG < 2
+  ///////////////////// Setup AFSK - Radio analalogo
   Serial.print("Setup Afsk...");
-#endif
-
   afsk_setup();
-
-#if DEBUG < 2
   Serial.println(" OK.");
-#endif
 
-#if DEBUG < 2
+  ///////////////////// Setup GPS
   Serial.print("Setup Gps...");
-#endif
-
   gps_setup();
-
-#if DEBUG < 2
   Serial.println(" OK.");
-#endif
-
-  ///////////////////////////////////////////// Se realiza
-
-  // Se resetea el GPS
+  // Se reseteo del GPS
   pinMode(gpsRESET_PIN, OUTPUT);
   digitalWrite(gpsRESET_PIN, HIGH);
   delay(50);
   digitalWrite(gpsRESET_PIN, LOW);
-  delay(50);
-
 
 
   // Do not start until we get a valid time reference for slotted transmissions.
@@ -165,8 +144,8 @@ void setup() {
   Serial.print("Initializing SD card...");
   bool sd_estado = false;
   sd_estado = SD.begin(chipSelect);
-  Serial.println(sd_estado);
-  Serial.println(sd_estado ? "card initialized." : "Card failed, or not present");
+  //Serial.println(sd_estado);
+  Serial.println(sd_estado ? "OK" : "Card failed, or not present");
   if (sd_estado) {
     sd_ok = true;
   }
@@ -180,6 +159,8 @@ void setup() {
 #if RadioSerial
   Serial.println("Initializing Radio...");
   Serial2.println("MSimple3-ON");
+  delay(1000);
+  revisarRadio();
 #endif
 
   // Pitido final
@@ -223,7 +204,7 @@ void loop() {
   tempi2cSDG = (float)tempi2cG * 100;
 
   // se carga temp I2C a Trama radio
-  tempPromPCB = (tempi2cSDV+tempi2cSDG)/2;
+  tempPromPCB = (tempi2cSDV + tempi2cSDG) / 2;
   load_tempi2c(tempi2cV);
 
   ///// Sensor SHT11 //////////
@@ -238,12 +219,14 @@ void loop() {
 
   ////////////////////////////////////////////////////////Sensor de Gases //////////////////////////////////////////////
   medirGases04();
+#if not MS2Compatible
   medirGases05();
-
+#endif
   ///////////////////////////////////////////////////// Se lee el Barometro /////////////////////////////////////////////////
   medirBarometroB();
+#if not MS2Compatible
   medirBarometroT();
-
+#endif
   ///////////////////////////////////////////////////// Se lee la IMU /////////////////////////////////////////////////
 #if DEBUG <1
   Serial.print("RI");

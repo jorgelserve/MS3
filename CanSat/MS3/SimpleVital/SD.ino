@@ -187,7 +187,8 @@ void guardarDatosSD() {
   // FechaGPS
   datos += sep[34];
   datos += String(gps_date);
-
+  
+  #if not MS2Compatible
   // datos BarometroT
   datos += sep[35];
   datos += String(BarT_temp);
@@ -195,7 +196,7 @@ void guardarDatosSD() {
   datos += String(BarT_pres);
   datos += sep[37];
   datos += String(BarT_alti);
-
+  
   //Sensore de gases (05)
   //Gas NH3
   datos += sep[38];
@@ -225,9 +226,14 @@ void guardarDatosSD() {
   //Tempi2c Vital
   datos += sep[46];
   datos += String(tempi2cSDG);
-  
+
   // fin trama
   datos += sep[47];
+  #else
+  // fin trama
+  datos += sep[35];
+  #endif
+  
   guardarStringSD(datos,"d");
   /*
   if (sd_ok) {
