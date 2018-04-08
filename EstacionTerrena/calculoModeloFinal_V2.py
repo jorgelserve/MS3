@@ -1,8 +1,11 @@
-#/142032h0611.90N/07534.73WO048/000A1534T310P19596A1444V0
-    #tiempo h latitud / longitud O curso / velocidad A altitud B presionbar C alturabar D voltajebater E TEMPSHT11
-#/142041h0611.90N/07534.73WO048/000A1534B514C4115D20E26104F6913G-7520H2228I3091J-3745K634L3200M8800
-    #tiempo h latitud / longitud O curso / velocidad A altitud B presionbar C alturabar D voltajebater E TEMPSHT11 F
-    #HUMESHT11 G NH3 H co I NO2 J C3H8 K C4H10 L CH4 M H2 N C2H5OH O TEMPPCB P TEMPADC
+#trama corta
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+#trama larga IMU
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+    #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
+#trama larga gases
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+    #F humedadDHT11 G NH3 H CO I NO2 J H2 K C2H50H L tempI2C M tempADC N presionbar
 
 import math
 import serial
@@ -11,23 +14,24 @@ import subprocess
 import random
 import requests
 
-nombreArchivoLeer = "PruebaEstaticaJ-180329_1.txt"
-nombreVectorGuardar = "vectorPruebaEstaticaJ-180329_1.txt"
+nombreArchivoLeer = "prueba6abril.txt"
+nombreVectorGuardar = "vectorprueba6abril.txt"
 latitudE = 6.1988333
 longitudE = -75.57933
 altitudE = 1538
 latitudG_1 = 6.20000
 longitudG_1 = -76.00000
 altitudG_1 = 1538
-arduino = serial.Serial('/dev/ttyACM0',9600)
+
+global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
+
+#arduino = serial.Serial('/dev/ttyACM0',9600)
 time.sleep(2)
 
-cont = 0
-global MatrizD
 MatrizD = []
-global vectorTramas
 vectorTramas = ['/0/0/0']
-global cuenta
+cuentatrama = 0
+cuentadesconocida = 0
 
 
 def leerTrama():
@@ -35,8 +39,9 @@ def leerTrama():
     tramaNue = archivo.readlines()
     ultimalinea = len(tramaNue)-1
     returnedValues = str(tramaNue[ultimalinea])
-    #tramaNue = '/000000h0000.00N/00000.00EO000/000A0B19350C1468D0E3140'
     vectorTramas.append(returnedValues)
+    if len(returnedValues) < 20:
+        return 1
     if (vectorTramas[len(vectorTramas)-1] != vectorTramas[len(vectorTramas)-2]):
         return returnedValues
     else:
@@ -47,32 +52,66 @@ def procesarTrama(lineas):
     if (len(valores) == 4):
         print(returnedValues)
         if len(valores[3]) > 50:
-            #trama larga
-            print("trama larga")
-            tramalarga = True
-            tiempo = valores[1][0:6].strip()
-            latitud = valores[1][7:15].strip()
-            longitud = valores[2][0:9].strip()
-            curso = valores[2][10:].strip()
-            velocidad = valores[3].split("A")[0].strip()
-            altitud = valores[3].split("A")[1].split("B")[0].strip()
-            presionbar = valores[3].split("B")[1].split("C")[0].strip()
-            alturabar =  valores[3].split("C")[1].split("D")[0].strip()
-            voltajebater =  valores[3].split("D")[1].split("E")[0].strip()
-            TEMPSHT11 =  valores[3].split("E")[1].split("F")[0].strip()
-            HUMESHT11 =  valores[3].split("F")[1].split("G")[0].strip()
-            NH3 =  valores[3].split("G")[1].split("H")[0].strip()
-            CO =  valores[3].split("H")[1].split("I")[0].strip()
-            NO2 =  valores[3].split("I")[1].split("J")[0].strip()
-            C3H8 =  valores[3].split("J")[1].split("K")[0].strip()
-            C4H10 =  valores[3].split("K")[1].split("L")[0].strip()
-            CH4 =  valores[3].split("L")[1].split("M")[0].strip()
-            H2 =  valores[3].split("M")[1].split("N")[0].strip()
-            C2H50H =  valores[3].split("N")[1].split("O")[0].strip()
-            TEMPPCB =  valores[3].split("O")[1].split("P")[0].strip()
-            TEMPADC =  valores[3].split("P")[1].strip()
+            j = 0
+            tramaIMU = False
+            for i in range(len(valores[3])):
+                j = j + 1
+                bit = valores[3][j-1]
+                if bit == "f":
+                    tramaIMU = True
+            if tramaIMU == True:
+                #trama larga IMU
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+                #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
+                print("trama larga IMU")
+                tramalarga = False
+                tiempo = valores[1][0:6].strip()
+                latitud = valores[1][7:15].strip()
+                longitud = valores[2][0:9].strip()
+                curso = valores[2][10:].strip()
+                velocidad = valores[3].split("A")[0].strip()
+                altitud = valores[3].split("A")[1].split("B")[0].strip()
+                alturabar = valores[3].split("B")[1].split("C")[0].strip()
+                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
+                ACCX =  valores[3].split("f")[1].split("G")[0].strip()
+                ACCY =  valores[3].split("G")[1].split("H")[0].strip()
+                ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
+                GIX =  valores[3].split("I")[1].split("J")[0].strip()
+                GIY =  valores[3].split("J")[1].split("K")[0].strip()
+                GIZ =  valores[3].split("K")[1].split("L")[0].strip()
+                MX =  valores[3].split("L")[1].split("M")[0].strip()
+                MY =  valores[3].split("M")[1].split("N")[0].strip()
+                MZ =  valores[3].split("N")[1].strip()
+            else:
+                #trama larga gases
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+                #F humedadDHT11 G NH3 H CO I NO2 J H2 K C2H50H L tempI2C M tempADC N presionbar
+                print("trama larga gases")
+                tramalarga = False
+                tiempo = valores[1][0:6].strip()
+                latitud = valores[1][7:15].strip()
+                longitud = valores[2][0:9].strip()
+                curso = valores[2][10:].strip()
+                velocidad = valores[3].split("A")[0].strip()
+                altitud = valores[3].split("A")[1].split("B")[0].strip()
+                alturabar = valores[3].split("B")[1].split("C")[0].strip()
+                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
+                humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
+                NH3 =  valores[3].split("G")[1].split("H")[0].strip()
+                CO =  valores[3].split("H")[1].split("I")[0].strip()
+                NO2 =  valores[3].split("I")[1].split("J")[0].strip()
+                H2 =  valores[3].split("J")[1].split("K")[0].strip()
+                C2H50H =  valores[3].split("K")[1].split("L")[0].strip()
+                tempI2C =  valores[3].split("L")[1].split("M")[0].strip()
+                tempADC =  valores[3].split("M")[1].split("N")[0].strip()
+                presionbar =  valores[3].split("N")[1].strip()
         else:
             #trama corta
+            #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
             print("trama corta")
             tramalarga = False
             tiempo = valores[1][0:6].strip()
@@ -81,17 +120,17 @@ def procesarTrama(lineas):
             curso = valores[2][10:].strip()
             velocidad = valores[3].split("A")[0].strip()
             altitud = valores[3].split("A")[1].split("B")[0].strip()
-            presionbar = valores[3].split("B")[1].split("C")[0].strip()
-            alturabar =  valores[3].split("C")[1].split("D")[0].strip()
-            voltajebater =  valores[3].split("D")[1].split("E")[0].strip()
-            TEMPSHT11 =  valores[3].split("E")[1].strip()
+            alturabar = valores[3].split("B")[1].split("C")[0].strip()
+            tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+            TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+            voltajebater =  valores[3].split("E")[1].strip()
+        enviarWeb(tiempo,latitud,longitud,altitud,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
         print("tiempo: " + tiempo)
         print("latitud: " + latitud)
         print("longitud: " + longitud)
         print("curso: " + curso)
         print("velocidad: " + velocidad)
         print("altitud: " + altitud)
-        print("presionbar: " + presionbar)
         print("alturabar: " + alturabar)
         print("voltajebater: " + voltajebater)
         print("temperatura: " +  TEMPSHT11)
@@ -142,17 +181,29 @@ def transformarTrama(latitud,longitud):
     latitud_geo = latitud_geo[0:9]
     latitud_geo = latitud_geo.strip()
     return [latitud_geo,longitud_geo]
-def enviarWeb(tempo,lati,longi,altu,curs,velo,presi,altuba,tempera,volta):
+def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
     tempoH=tempo[0:2]
     tempoM=tempo[2:4]
     tempoS=tempo[4:6]
     tempo=tempoH+":"+tempoM+":"+tempoS
-
+    band_altitudGPS = 0
+    band_altitudBAR = 0
+    offset_GPS = 0
+    offset_BAR = 0
     curs=str(float(curs)-0.5)
     if float(velo)>0.5:
         velo=str(float(velo)-0.5)
-    volta=str(float(volta)/1000)
-
+    volta=str(float(volta)/100)
+    tempera = str(float(tempera)/100)
+    if(band_altitudBAR == 0):
+        offset_BAR = float(altuba)
+        band_altitudBAR = 1
+    altuba = str(float(altuba) - offset_BAR)
+    if(band_altitudGPS == 0):
+        offset_GPS = float(altu)
+        band_altitudGPS = 1
+    altu = str(float(altu) - offset_GPS)
+    temperabar = str(float(temperabar)/100)
     try:
         mqttmsg='"gps_time":"{}",' \
                 '"gps_latitude":"{}",' \
@@ -160,10 +211,10 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,presi,altuba,tempera,volta):
                 '"gps_altitude":"{}",' \
                 '"gps_course":"{}",' \
                 '"gps_speed":"{}",' \
-                '"barometer_Pressure":"{}",' \
                 '"barometer_Altitude":"{}",' \
                 '"temperature_sht11":"{}",' \
-                '"voltaje_bateria":"{}"'.format(tempo,lati,longi,altu,curs,velo,presi,altuba,tempera,volta)
+                '"voltaje_bateria":"{}",'\
+                '"barometer_temperature":"{}"'.format(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar)
         mqttmsg = "{" + mqttmsg + "}"
         print(mqttmsg)
         r = requests.post("http://www.cansats3kratos.me/data/", data=mqttmsg,headers = {'content-type':'application/json'})
@@ -227,7 +278,7 @@ def modelo(lati, longi, alti):
     angulo_omega = omega_prima
     angulo_theta = theta_prima
     return [angulo_theta, angulo_omega]
-def enviarArduino(angulo_theta, angulo_omega, state):
+'''def enviarArduino(angulo_theta, angulo_omega, state):
     SET = state
     arduino.write(str("ESTALISTO0000090909").encode())
     print("arduino listo?")
@@ -325,7 +376,7 @@ def enviarArduino(angulo_theta, angulo_omega, state):
             print(datoRecibido)
             break
         time.sleep(0.01)
-    datoRecibido = ''
+    datoRecibido = '''''
 def estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue):
     Cu = DuNue - DuAnt
     Cv = DvNue - DvAnt
@@ -357,7 +408,7 @@ def modeloVector(Du,Dv,Dw):
     else:
         theta_prima_estimada = math.acos(Dw/math.sqrt(Du*Du+Dw*Dw))*180/3.141592653589793
     return [theta_prima_estimada,omega_prima_estimada]
-def estimacion():
+'''def estimacion():
     DuAnt = MatrizD[len(MatrizD)-2][0]
     DvAnt = MatrizD[len(MatrizD)-2][1]
     DwAnt = MatrizD[len(MatrizD)-2][2]
@@ -372,30 +423,35 @@ def estimacion():
 
     angulosEstim_v2 = modeloVector(coordEstim[3],coordEstim[4],coordEstim[5])
     enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1],False)
-    time.sleep(3)
+    time.sleep(3)'''
 
 angulosSET = modelo(latitudG_1,longitudG_1,altitudG_1)
 thetaSET = angulosSET[0]
 omegaSET = angulosSET[1]
-enviarArduino(thetaSET,omegaSET,True)
+#enviarArduino(thetaSET,omegaSET,True)
 print("__________________________________________")
 time.sleep(3)
 
 while (1):
     trama = leerTrama()
-    if trama != 0:
-        cuenta = 0
+    if trama != 0 and trama != 1:
+        cuentatrama = 0
+        cuentadesconocida = 0
         coordenadas = procesarTrama(trama)
-        #enviarWeb()
         angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-        enviarArduino(angulos[0],angulos[1],False) #theta,omega
+        #enviarArduino(angulos[0],angulos[1],False) #theta,omega
         if len(MatrizD) > 1: #Estimacion
             #estimacion()
             continue
         print("__________________________________________")
-    else:
-        if cuenta < 1:
+    if trama == 0:
+        if cuentatrama < 1:
             print("Esperando trama nueva.....")
             print("__________________________________________")
-        cuenta = cuenta + 1
+        cuentatrama = cuentatrama + 1
+    if trama == 1:
+        if cuentadesconocida < 1:
+            print("Trama leida desconocida")
+            print("__________________________________________")
+        cuentadesconocida = cuentadesconocida + 1
     time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
