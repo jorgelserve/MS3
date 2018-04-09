@@ -52,22 +52,23 @@ inline void medirGases04() {
   }
 
   c04[0] = gas04.measure_NH3();
-  load_NH3(c04[0]);
   c04[1] = gas04.measure_CO();
-  load_CO(c04[1]);
   c04[2] = gas04.measure_NO2();
-  load_NO2(c04[2]);
   c04[3] = gas04.measure_C3H8();
-  load_C3H8(c04[3]);
   c04[4] = gas04.measure_C4H10();
-  load_C4H10(c04[4]);
   c04[5] = gas04.measure_CH4();
-  load_CH4(c04[5]);
   c04[6] = gas04.measure_H2();
-  load_H2(c04[6]);
   c04[7] = gas04.measure_C2H5OH();
+  #if not RadioSerial
+  load_NH3(c04[0]);
+  load_CO(c04[1]);
+  load_NO2(c04[2]);
+  load_C3H8(c04[3]);
+  load_C4H10(c04[4]);
+  load_CH4(c04[5]);
+  load_H2(c04[6]);
   load_C2H5OH(c04[7]);
-
+#endif
 
   dim04 = (sizeof(c04) / sizeof(float));
 
@@ -83,21 +84,13 @@ inline void medirGases05() {
   }
 
   c05[0] = gas05.measure_NH3();
-  load_NH3(c05[0]);
   c05[1] = gas05.measure_CO();
-  load_CO(c05[1]);
   c05[2] = gas05.measure_NO2();
-  load_NO2(c05[2]);
   c05[3] = gas05.measure_C3H8();
-  load_C3H8(c05[3]);
   c05[4] = gas05.measure_C4H10();
-  load_C4H10(c05[4]);
   c05[5] = gas05.measure_CH4();
-  load_CH4(c05[5]);
   c05[6] = gas05.measure_H2();
-  load_H2(c05[6]);
   c05[7] = gas05.measure_C2H5OH();
-  load_C2H5OH(c05[7]);
 
 
   dim05 = (sizeof(c05) / sizeof(float));

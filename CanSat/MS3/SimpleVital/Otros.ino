@@ -123,7 +123,7 @@ void mostrarMediciones() {
 #if not MS2Compatible
   Serial.print("\t Gases: ");
   Serial.println(tempi2cSDG); // Temp i2c Gases
-  #else
+#else
   Serial.println();
 #endif
 
@@ -295,6 +295,7 @@ inline void revisarDesPaneles() {
 
 inline void liberarPaneles() {
   Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
+  pitar(1000);
   for (int i = 9; i > 0; i--) {
     delay(1000);
     Serial.print("T-0");
@@ -303,7 +304,7 @@ inline void liberarPaneles() {
   Serial.print("Desplegando...");
   digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
   digitalWrite(pinPanel1, HIGH);
-  delay(5000);
+  pitar(5000);
   digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
   digitalWrite(pinPanel1, LOW);
   Serial.print("OK");
@@ -352,9 +353,11 @@ inline void medirBarometroB() {
   BarB_alti = Barometer.calcAltitude(BarB_pres); // Uncompensated caculation - in Meters
 #endif
 
+#if not RadioSerial
   load_temp(BarB_temp);
   load_pres(BarB_pres);
   load_alti(BarB_alti);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

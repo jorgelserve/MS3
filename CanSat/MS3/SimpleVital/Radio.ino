@@ -8,10 +8,10 @@ void revisarRadio() {
     //Serial.println(data2Send.length());
     guardarStringSD(data2Send, "r");
     Serial.println("Radio: " + data2Send);
-    if (data2Send.substring(0,2).equals("DP")) {
+    if (data2Send.substring(0, 2).equals("DP")) {
       Serial2.print("M");
       Serial2.print("Desplegando...");
-      Serial.print("Comando Despliegue detectado, ");  
+      Serial.print("Comando Despliegue detectado, ");
       liberarPaneles();
       Serial2.print("M");
       Serial2.print("Paneles Desplegados");

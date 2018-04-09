@@ -18,8 +18,8 @@
 // SimpleVital by SimpleSpace
 
 ////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
-#define MS2Compatible 1   // Hace el codigo compatible con el modulo MS2 (Solo radio analogo)
-#define RadioSerial 0     // Radio Serial(1) / analogo(0)
+#define MS2Compatible 0   // (1)Hace el codigo compatible con el modulo MS2 (Solo radio analogo)
+#define RadioSerial 1     // Radio Serial(1) / analogo(0)
 #define Silencio  0       // Cambia el buzzer(0) por led(1)
 
 // -> based on trackuino
@@ -46,12 +46,13 @@
 #endif
 
 ////////////////////////////////////////////// Trackduino Libraries //////////////////////////////////////////////
-
 // Trackuino custom libs
 #include "config.h"
 
+#if not RadioSerial
 #include "aprs.h"
 #include "afsk_avr.h"
+#endif
 
 #include "I2Cdev.h"
 #include "gps.h"

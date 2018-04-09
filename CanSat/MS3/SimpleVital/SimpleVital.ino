@@ -103,9 +103,11 @@ void setup() {
 #endif
 
   ///////////////////// Setup AFSK - Radio analalogo
+#if MS2Compatible
   Serial.print("Setup Afsk...");
   afsk_setup();
   Serial.println(" OK.");
+#endif
 
   ///////////////////// Setup GPS
   Serial.print("Setup Gps...");
@@ -205,14 +207,19 @@ void loop() {
 
   // se carga temp I2C a Trama radio
   tempPromPCB = (tempi2cSDV + tempi2cSDG) / 2;
+
+#if not RadioSerial
   load_tempi2c(tempi2cV);
+#endif
 
   ///// Sensor SHT11 //////////
   float tempC = sht1x.readTemperatureC();
   float humidity = sht1x.readHumidity();
 
+#if not RadioSerial
   load_tempC(tempC);
   load_humidity(humidity);
+#endif
 
   tempSD = (int)(tempC * 100);
   humSD = (int)(humidity * 100);
@@ -242,8 +249,9 @@ void loop() {
   int volBat1 = analogRead(pinVolBat1);
   voltajeBateria0 = 5.0 * volBat1 / 1024 * 1000;
   //Serial.print("VoltBat: ");Serial.print(voltajeBateria0);
+#if not RadioSerial
   load_volt(voltajeBateria0);
-
+#endif
   ///////////////////////////////////////////////////// Se lee Temperatura Radio /////////////////////////////////////////////////
   int volTR = analogRead(pinTempRad);
   float tempRad = (volTR * 5.0) / 1024.0;
@@ -281,9 +289,9 @@ void loop() {
   float prom = tempext1SD + tempext2SD + tempext3SD;
 
   prom = prom / 3;
-
+#if not RadioSerial
   load_tempADC(prom);
-
+#endif
   ///////////////////////////////////////////////////// Se lee el GPS /////////////////////////////////////////////////
 #if DEBUG <1
   Serial.print("RG");
