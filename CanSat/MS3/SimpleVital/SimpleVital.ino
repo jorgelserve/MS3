@@ -103,7 +103,7 @@ void setup() {
 #endif
 
   ///////////////////// Setup AFSK - Radio analalogo
-#if MS2Compatible
+#if not RadioSerial
   Serial.print("Setup Afsk...");
   afsk_setup();
   Serial.println(" OK.");
