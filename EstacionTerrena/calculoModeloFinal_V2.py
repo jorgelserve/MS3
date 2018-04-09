@@ -124,22 +124,20 @@ def procesarTrama(lineas):
             tempebar =  valores[3].split("C")[1].split("D")[0].strip()
             TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
             voltajebater =  valores[3].split("E")[1].strip()
-        enviarWeb(tiempo,latitud,longitud,altitud,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
-        print("tiempo: " + tiempo)
-        print("latitud: " + latitud)
-        print("longitud: " + longitud)
-        print("curso: " + curso)
-        print("velocidad: " + velocidad)
-        print("altitud: " + altitud)
-        print("alturabar: " + alturabar)
-        print("voltajebater: " + voltajebater)
-        print("temperatura: " +  TEMPSHT11)
         datosTransfor = transformarTrama(latitud,longitud)
         latitud_geo = datosTransfor[0]
         longitud_geo = datosTransfor[1]
+        enviarWeb(tiempo,latitud_geo,longitud_geo,altitud,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
+        print("tiempo: " + tiempo)
         print("latitud_geo: " + latitud_geo)
         print("longitud_geo: " + longitud_geo)
         print("altitud_geo: " + alturabar)
+        print("curso: " + curso)
+        print("velocidad: " + velocidad)
+        print("alturabar: " + alturabar)
+        print("temperaturaSHT11: " +  str(float(TEMPSHT11)/100))
+        print("voltajebater: " + voltajebater)
+        print("temperaturaBar: " +  str(float(tempebar)/100))
         return [latitud_geo,longitud_geo,alturabar]
 def transformarTrama(latitud,longitud):
     longitud_geo = 0
@@ -220,7 +218,7 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
         r = requests.post("http://www.cansats3kratos.me/data/", data=mqttmsg,headers = {'content-type':'application/json'})
         print (r.status_code)
         print (r.headers)
-        print ("trama corta enviada")
+        print ("trama enviada a web")
     except:
         print("******* error, trama no enviada a web******")
 def modelo(lati, longi, alti):
