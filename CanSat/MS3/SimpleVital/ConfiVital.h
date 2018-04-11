@@ -20,7 +20,7 @@
 ////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
 #define MS2Compatible 0   // (1)Hace el codigo compatible con el modulo MS2 (Solo radio analogo)
 #define RadioSerial 1     // Radio Serial(1) / analogo(0)
-#define Silencio  0       // Cambia el buzzer(0) por led(1)
+#define Silencio  1       // Cambia el buzzer(0) por led(1)
 
 // -> based on trackuino
 
@@ -110,6 +110,9 @@ BMP180 Barometer;
 #define pinPanel1 32
 
 //////////////////////////// Analogos ////////////////////////////
+//////////////////////////// Factor de Conversion ADC a  Milivoltios
+const float ADC2Mil = 5.0 * 1000.0 / 1024.0;
+
 //////////////////////////// Temperatura Radio
 #define pinTempRad 0    //analogo
 //////////////////////////// Temperatura PCB
@@ -121,6 +124,7 @@ BMP180 Barometer;
 #define pinTemp1 13
 #define pinTemp2 12
 #define pinTemp3 15
+float promTADC = 0;
 
 ////////////////////////////////////////////// SimpleVital Variables //////////////////////////////////////////////
 // ----------------------------- Gases 04
@@ -159,8 +163,10 @@ int tempi2cSDV;
 //---
 int tempi2cSDG;
 
+// ----------------------------- Temperatura Analoga PCBs
 int tempPromPCB = 0;
-int tempPCB = 0; // Temperatura analoga PCBs
+int tempPCB = 0;            // Temperatura analoga PCBVital
+int tempRad = 0;            // Temperatura analoga Radio analogo
 
 // ----------------------------- Temperatura Externa
 int tempext1SD;
@@ -169,8 +175,8 @@ int tempext3SD;
 //#define ana2tem 0.0048828125
 
 // ----------------------------- Apogeo
-#define alt_apogeo 4000    // altura por encima de la que inicia el conteo
-#define apogeo_time 360000  // tiempo en mili-segundos desde que pasa altura
+#define alt_apogeo 4000       // altura por encima de la que inicia el conteo
+#define apogeo_time 360000    // tiempo en mili-segundos desde que pasa altura
 //---
 byte band_buzzer = 0;
 long int fall_time = 0;
@@ -178,12 +184,12 @@ byte band_apogeo = 0;
 byte ban_apogeo_active = 0;
 
 // ----------------------------- liberacion Paneles
-#define panel_time 24      // Tiempo en segundos
-#define alt_paneles 80      // Altura en metros antes de despliegue 
+#define panel_time 24         // Tiempo en segundos
+#define alt_paneles 80        // Altura en metros antes de despliegue 
 //---
 float weight = 0;
 byte band_paneles = 0;
-char band_transmission = 0;
+byte band_transmission = 0;   // Usamos para cambiar entre Trama Corta, Gases y IMU
 
 //Configuracion Simple 144/434
 //#define AnalogosExt // 144

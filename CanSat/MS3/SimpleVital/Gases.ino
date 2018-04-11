@@ -59,16 +59,6 @@ inline void medirGases04() {
   c04[5] = gas04.measure_CH4();
   c04[6] = gas04.measure_H2();
   c04[7] = gas04.measure_C2H5OH();
-  #if not RadioSerial
-  load_NH3(c04[0]);
-  load_CO(c04[1]);
-  load_NO2(c04[2]);
-  load_C3H8(c04[3]);
-  load_C4H10(c04[4]);
-  load_CH4(c04[5]);
-  load_H2(c04[6]);
-  load_C2H5OH(c04[7]);
-#endif
 
   dim04 = (sizeof(c04) / sizeof(float));
 

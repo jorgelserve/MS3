@@ -339,42 +339,23 @@ inline void apogeoSistema() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void medirBarometroB() {
 #if not MS2Compatible
-  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
   BarB_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
-
-  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
   BarB_pres = baro_BMP280T.readPressure();
-
-  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
   BarB_alti = baro_BMP280T.readAltitude(1013.25);
+  
 #else
   BarB_temp = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()) * 100; // Get the temperature, bmp180ReadUT MUST be called first
   BarB_pres = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
   BarB_alti = Barometer.calcAltitude(BarB_pres); // Uncompensated caculation - in Meters
 #endif
 
-#if not RadioSerial
-  load_temp(BarB_temp);
-  load_pres(BarB_pres);
-  load_alti(BarB_alti);
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void medirBarometroT() {
-  //temperature = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()); // Get the temperature, bmp180ReadUT MUST be called first
-#if not MS2Compatible
+  #if not MS2Compatible
   BarT_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
-
-  //pressure = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
   BarT_pres = baro_BMP280T.readPressure();
-
-  //altitud = Barometer.calcAltitude(pressure); // Uncompensated caculation - in Meters
   BarT_alti = baro_BMP280T.readAltitude(1013.25);
 #endif
-  /*
-    load_temp(BarT_temp);
-    load_pres(BarT_pres);
-    load_alti(BarT_alti);
-  */
 }
