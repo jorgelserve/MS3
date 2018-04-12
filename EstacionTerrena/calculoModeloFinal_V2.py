@@ -14,29 +14,23 @@ import subprocess
 import random
 import requests
 
-nombreArchivoLeer = "prueba6abril.txt"
-nombreVectorGuardar = "vectorprueba6abril.txt"
-latitudE = 6.1988333
-longitudE = -75.57933
-altitudE = 1538
-latitudG_1 = 6.20000
-longitudG_1 = -76.00000
-altitudG_1 = 1538
-
 global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
 
-#arduino = serial.Serial('/dev/ttyACM0',9600)
-time.sleep(2)
-
+nombreArchivoTramasLeer = "prueba9abril.txt"
+nombreVectorGuardar = "vectorprueba9abril.txt"
+nombreArchivoSETLeerEscribir = "SET.txt"
 MatrizD = []
 vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 
+#arduino = serial.Serial('/dev/ttyUSB0',9600)
+time.sleep(2)
 
 def leerTrama():
-    archivo = open(nombreArchivoLeer,"r")
+    archivo = open(nombreArchivoTramasLeer,"r")
     tramaNue = archivo.readlines()
+    archivo.close()
     ultimalinea = len(tramaNue)-1
     returnedValues = str(tramaNue[ultimalinea])
     vectorTramas.append(returnedValues)
@@ -123,11 +117,13 @@ def procesarTrama(lineas):
             alturabar = valores[3].split("B")[1].split("C")[0].strip()
             tempebar =  valores[3].split("C")[1].split("D")[0].strip()
             TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-            voltajebater =  valores[3].split("E")[1].strip()
+            #voltajebater =  valores[3].split("E")[1].strip()
+            voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
         datosTransfor = transformarTrama(latitud,longitud)
         latitud_geo = datosTransfor[0]
         longitud_geo = datosTransfor[1]
-        enviarWeb(tiempo,latitud_geo,longitud_geo,altitud,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
+        altitud_geo = alturabar
+        enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
         print("tiempo: " + tiempo)
         print("latitud_geo: " + latitud_geo)
         print("longitud_geo: " + longitud_geo)
@@ -138,7 +134,15 @@ def procesarTrama(lineas):
         print("temperaturaSHT11: " +  str(float(TEMPSHT11)/100))
         print("voltajebater: " + voltajebater)
         print("temperaturaBar: " +  str(float(tempebar)/100))
-        return [latitud_geo,longitud_geo,alturabar]
+        archivo3 = open(nombreArchivoSETLeerEscribir,"w")
+        archivo3.write("latitudE/" + str(latitudE) + "\n")
+        archivo3.write("longitudE/" + str(longitudE) + "\n")
+        archivo3.write("altitudE/" + str(altitudE) + "\n")
+        archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
+        archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
+        archivo3.write("altitudG_i/" + str(altitud_geo) + "\n")
+        archivo3.close()
+        return [latitud_geo,longitud_geo,altitud_geo]
 def transformarTrama(latitud,longitud):
     longitud_geo = 0
     latitud_geo = 0
@@ -214,10 +218,10 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
                 '"voltaje_bateria":"{}",'\
                 '"barometer_temperature":"{}"'.format(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar)
         mqttmsg = "{" + mqttmsg + "}"
-        print(mqttmsg)
+        #print(mqttmsg)
         r = requests.post("http://www.cansats3kratos.me/data/", data=mqttmsg,headers = {'content-type':'application/json'})
-        print (r.status_code)
-        print (r.headers)
+        #print (r.status_code)
+        #print (r.headers)
         print ("trama enviada a web")
     except:
         print("******* error, trama no enviada a web******")
@@ -254,7 +258,7 @@ def modelo(lati, longi, alti):
     Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
     vectorD = [Duvw_1,Duvw_2,Duvw_3]
     MatrizD.append(vectorD)
-    archivo1 = open(nombreVectorGuardar,"w")
+    archivo1 = open(nombreVectorGuardar,"a")
     archivo1.write(str(MatrizD))
     archivo1.close()
     if abs(Duvw_1) < 1:
@@ -276,7 +280,7 @@ def modelo(lati, longi, alti):
     angulo_omega = omega_prima
     angulo_theta = theta_prima
     return [angulo_theta, angulo_omega]
-'''def enviarArduino(angulo_theta, angulo_omega, state):
+def enviarArduino(angulo_theta, angulo_omega, state):
     SET = state
     arduino.write(str("ESTALISTO0000090909").encode())
     print("arduino listo?")
@@ -374,7 +378,7 @@ def modelo(lati, longi, alti):
             print(datoRecibido)
             break
         time.sleep(0.01)
-    datoRecibido = '''''
+    datoRecibido = ''
 def estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue):
     Cu = DuNue - DuAnt
     Cv = DvNue - DvAnt
@@ -406,7 +410,7 @@ def modeloVector(Du,Dv,Dw):
     else:
         theta_prima_estimada = math.acos(Dw/math.sqrt(Du*Du+Dw*Dw))*180/3.141592653589793
     return [theta_prima_estimada,omega_prima_estimada]
-'''def estimacion():
+def estimacion():
     DuAnt = MatrizD[len(MatrizD)-2][0]
     DvAnt = MatrizD[len(MatrizD)-2][1]
     DwAnt = MatrizD[len(MatrizD)-2][2]
@@ -417,18 +421,28 @@ def modeloVector(Du,Dv,Dw):
 
     angulosEstim_v1 = modeloVector(coordEstim[0],coordEstim[1],coordEstim[2])
     enviarArduino(angulosEstim_v1[0],angulosEstim_v1[1],False)
-    time.sleep(3)
+    time.sleep(2)
 
     angulosEstim_v2 = modeloVector(coordEstim[3],coordEstim[4],coordEstim[5])
     enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1],False)
-    time.sleep(3)'''
+    time.sleep(2)
 
-angulosSET = modelo(latitudG_1,longitudG_1,altitudG_1)
+archivo2 = open(nombreArchivoSETLeerEscribir,"r")
+datoSET = archivo2.readlines()
+latitudE = float(datoSET[0].split("/")[1])
+longitudE = float(datoSET[1].split("/")[1])
+altitudE = float(datoSET[2].split("/")[1])
+latitudG_i = float(datoSET[3].split("/")[1])
+longitudG_i = float(datoSET[4].split("/")[1])
+altitudG_i = float(datoSET[5].split("/")[1])
+angulosSET = modelo(latitudG_i,longitudG_i,altitudG_i)
 thetaSET = angulosSET[0]
 omegaSET = angulosSET[1]
+archivo2.close()
 #enviarArduino(thetaSET,omegaSET,True)
 print("__________________________________________")
-time.sleep(3)
+
+time.sleep(2)
 
 while (1):
     trama = leerTrama()
