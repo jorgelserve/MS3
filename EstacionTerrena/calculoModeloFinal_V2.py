@@ -117,8 +117,7 @@ def procesarTrama(lineas):
             alturabar = valores[3].split("B")[1].split("C")[0].strip()
             tempebar =  valores[3].split("C")[1].split("D")[0].strip()
             TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-            #voltajebater =  valores[3].split("E")[1].strip()
-            voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
+            voltajebater =  valores[3].split("E")[1].strip()
         datosTransfor = transformarTrama(latitud,longitud)
         latitud_geo = datosTransfor[0]
         longitud_geo = datosTransfor[1]
@@ -259,7 +258,7 @@ def modelo(lati, longi, alti):
     vectorD = [Duvw_1,Duvw_2,Duvw_3]
     MatrizD.append(vectorD)
     archivo1 = open(nombreVectorGuardar,"a")
-    archivo1.write(str(MatrizD))
+    archivo1.write(str(vectorD))
     archivo1.close()
     if abs(Duvw_1) < 1:
         Duvw_1 = 0
