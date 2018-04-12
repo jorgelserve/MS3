@@ -18,23 +18,42 @@
 #ifndef __APRS_H__
 #define __APRS_H__
 
-void aprs_send();
-void aprs_send_variables();
-void load_temp(float temp);
-void load_pres(float pres);
-void load_alti(float alti);
-void load_volt(float volt);
-void load_NH3(float NH3);
-void load_CO(float CO);
-void load_NO2(float NO2);
-void load_C3H8(float C3H8);
-void load_C4H10(float C4H10);
-void load_CH4(float CH4);
-void load_H2(float H2);
-void load_C2H5OH(float C2H5OH);
-void load_tempC(float tempC);
-void load_humidity(float humidity);
-void load_tempi2c(float tempi2c);
-void load_tempADC(float tempADC);
+// Trama corta
+void load_alti(int alti);
+void load_temp(int temp);
+void load_tempC(int tempC);
+void load_volt(int volt);
+
+// Trama Larga Gases
+void load_humidity(int humidity);
+void load_NH3(int NH3);
+void load_CO(int CO);
+void load_NO2(int NO2);
+void load_C3H8(int C3H8);
+void load_C4H10(int C4H10);
+void load_CH4(int CH4);
+void load_H2(int H2);
+void load_C2H5OH(int C2H5OH);
+void load_tempi2c(int tempi2c);
+void load_tempADC(int tempADC);
+void load_pres(long pres);
+
+// Trama Larga IMU
+void load_Accx (long Accx);
+void load_Accy (long Accy);
+void load_Accz (long Accz);
+void load_Gyrx (long Gyrx);
+void load_Gyry (long Gyry);
+void load_Gyrz (long Gyrz);
+void load_Magx (long Magx);
+void load_Magy (long Magy);
+void load_Magz (long Magz);
+
+// Envio Tramas
+void TramaCRadioA();
+void enviarTramaCRadioA();
+void enviarTramaGRadioA();
+void enviarTramaIRadioA();
+void finTramaRadioA();
 
 #endif

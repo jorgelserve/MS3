@@ -16,6 +16,10 @@ void setup() {
   pinMode(buzzer_PIN, OUTPUT);
   pitar(500);
 
+  //////// Pruebas Mosfet
+  pinMode(40, OUTPUT);
+  digitalWrite(40, HIGH);
+
   ////////////////////////////////////////////
 #if MS2Compatible
   pinMode(8, INPUT); // Importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado)
@@ -103,7 +107,7 @@ void setup() {
 #endif
 
   ///////////////////// Setup AFSK - Radio analalogo
-#if MS2Compatible
+#if not RadioSerial
   Serial.print("Setup Afsk...");
   afsk_setup();
   Serial.println(" OK.");
@@ -208,19 +212,10 @@ void loop() {
   // se carga temp I2C a Trama radio
   tempPromPCB = (tempi2cSDV + tempi2cSDG) / 2;
 
-#if not RadioSerial
-  load_tempi2c(tempi2cV);
-#endif
 
   ///// Sensor SHT11 //////////
   float tempC = sht1x.readTemperatureC();
   float humidity = sht1x.readHumidity();
-
-#if not RadioSerial
-  load_tempC(tempC);
-  load_humidity(humidity);
-#endif
-
   tempSD = (int)(tempC * 100);
   humSD = (int)(humidity * 100);
 
@@ -235,145 +230,45 @@ void loop() {
   medirBarometroT();
 #endif
   ///////////////////////////////////////////////////// Se lee la IMU /////////////////////////////////////////////////
-#if DEBUG <1
-  Serial.print("RI");
-#endif
-
   getAccel_Data();
   getGyro_Data();
   getCompassData_calibrated(); // compass data has been calibrated here
+
   getHeading();               //before we use this function we should run 'getCompassDate_calibrated()' frist, so that we can get calibrated data ,then we can get correct angle .
   getTiltHeading();
 
   ///////////////////////////////////////////////////// Se lee Voltaje Bateria /////////////////////////////////////////////////
-  int volBat1 = analogRead(pinVolBat1);
-  voltajeBateria0 = 5.0 * volBat1 / 1024 * 1000;
-  //Serial.print("VoltBat: ");Serial.print(voltajeBateria0);
-#if not RadioSerial
-  load_volt(voltajeBateria0);
-#endif
+  voltajeBateria0 = ADC2Mil * analogRead(pinVolBat1);
+  //voltajeBateria0 = 5.0 * volBat1 / 1024 * 1000;
+
   ///////////////////////////////////////////////////// Se lee Temperatura Radio /////////////////////////////////////////////////
-  int volTR = analogRead(pinTempRad);
-  float tempRad = (volTR * 5.0) / 1024.0;
-  tempRad = tempRad - 0.5;
-  tempRad = tempRad / 0.01;
-  //load_tempADC(tempRad);
-  //Serial.print("TempR: ");Serial.print(tempRad);load_volt(voltajeBateria0);
+  tempRad = ADC2Mil * analogRead(pinTempRad) - 500;
 
   ///////////////////////////////////////////////////// Se lee Temperatura PCB /////////////////////////////////////////////////
-  int volTP = analogRead(pinTempPCB);
-  tempPCB = (5.0 * volTP / 1024 * 1000 - 500) * 10;
-  //Serial.print("TempPCB: ");Serial.print(tempPCB);
-  //load_volt(voltajeBateria0);
+  tempPCB = ADC2Mil * analogRead(pinTempPCB) - 500;
 
   //////////////////////////////////////////////////// Sensores de temperatura analogos externos ///////////////////////////////////
+  tempext1SD = ADC2Mil * analogRead(pinTemp1) - 500;
+  tempext2SD = ADC2Mil * analogRead(pinTemp2) - 500;
+  tempext3SD = ADC2Mil * analogRead(pinTemp3) - 500;
 
-  int tempADC1 = analogRead(pinTemp1);
-  int tempADC2 = analogRead(pinTemp2);
-  int tempADC3 = analogRead(pinTemp3);
+  promTADC = (tempext1SD + tempext2SD + tempext3SD) / 3;
 
-  float tempext1 = tempADC1 * 5.0 / 1024.0;
-  tempext1 = tempext1 - 0.5;
-  tempext1 = tempext1 / 0.01;
-  float tempext2 = (tempADC2 * 5.0) / 1024.0;
-  tempext2 = tempext2 - 0.5;
-  tempext2 = tempext2 / 0.01;
-  float tempext3 = (tempADC3 * 5.0) / 1024.0;
-  tempext3 = tempext3 - 0.5;
-  tempext3 = tempext3 / 0.01;
-
-  tempext1SD = tempext1;
-  tempext2SD = tempext2;
-  tempext3SD = tempext3;
-
-  float prom = tempext1SD + tempext2SD + tempext3SD;
-
-  prom = prom / 3;
-#if not RadioSerial
-  load_tempADC(prom);
-#endif
-  ///////////////////////////////////////////////////// Se lee el GPS /////////////////////////////////////////////////
-#if DEBUG <1
-  Serial.print("RG");
-#endif
-
+  ///////////////////////////////////////////////////// Se lee el GPS
   read_gps();
 
-#if DEBUG <1
-  Serial.print("T");
-  Serial.print(gps_time);
-  Serial.print("La");
-  Serial.print(gps_lat * 10000);
-  Serial.print("Lo");
-  Serial.print(gps_lon * 10000);
-  Serial.print("C");
-  Serial.print(gps_course);
-  Serial.print("S");
-  Serial.print(gps_speed);
-  Serial.print("A");
-  Serial.print(gps_altitude);
-#endif
-
-
-
-  // Time for another APRS frame
-  if ((int32_t) (millis() - next_aprs) >= 0) {
-    //digitalWrite(LedTX_PIN, HIGH);
-
+  ///////////////////////////////////////////////////// Se envian por Radio los datos
 #if not RadioSerial
-    if (band_transmission == 0) {
-      aprs_send();
-      band_transmission = 1;
-    } else {
-      aprs_send_variables();
-      band_transmission = 0;
-    }
-#else
-    enviarTramaIRadio();
+  cargarMediciones();
 #endif
+  trasmitirMediciones();
 
-    //digitalWrite(LedTX_PIN, LOW);
-
-    if (APRS_SLOT >= 0) {
-      next_aprs = millis() + 1000 * (APRS_PERIOD - (gps_seconds + APRS_PERIOD - APRS_SLOT) % APRS_PERIOD);
-    } else {
-      next_aprs += APRS_PERIOD * 1000L;
-    }
-
-#if not RadioSerial
-
-    while (afsk_flush()) {
-      power_save();
-    }
-#ifdef DEBUG_MODEM
-    // Show modem ISR stats from the previous transmission
-    afsk_debug();
-#endif
-
-#endif
-
-  } else {
-    // Discard GPS data received during sleep window
-    //while (Serial.available()) {
-    //  Serial3.read();
-    //}
-  }
-
-#if DEBUG <1
-  Serial.print("2SD.");
-#endif
+  ///////////////////////////////////////////////////// Se guardan en uSD
   guardarDatosSD();
-  //Serial.print(datos);
 
-#ifdef DEBUG <1
-  Serial.println();
-#endif
-
-  //power_save(); // Incoming GPS data or interrupts will wake us up
-
-  // Enviamos Paquete a al radio:
-
+  ///////////////////////////////////////////////////// Se muetran por serial las medidas
   mostrarMediciones();
 
+  //power_save(); // Incoming GPS data or interrupts will wake us up
 } // fin loop
 

@@ -29,102 +29,92 @@
 #  include <WProgram.h>
 #endif
 
-float temperatura = 20.5 ;
-float pressur = 10;
-float altitu = 100;
-float voltajeBateria1 = 5;
-float NH3 = 0;
-float CO = 0;
-float NO2 = 0;
-float C3H8 = 0;
-float C4H10 = 0;
-float CH4 = 0;
-float H2 = 0;
-float C2H5OH = 0;
-float tempC = 0;
-float humidity = 0;
-float tempi2c = 0;
-float tempADC = 0;
+// Trama Corta
+int altitu = 100;
+int temperatura = 20.5 ;
+int tempC = 0;
+int voltajeBateria1 = 5;
 
-void load_tempi2c(float tempi2c_){
-  tempi2c = tempi2c_;
-}
+// Trama Larga G
+int humidity = 0;
+int NH3 = 0;
+int CO = 0;
+int NO2 = 0;
+int C3H8 = 0;
+int C4H10 = 0;
+int CH4 = 0;
+int H2 = 0;
+int C2H5OH = 0;
+int tempi2c = 0;
+int tempADC = 0;
+long pressur = 10;
 
-void load_CO(float CO_){
-  CO = CO_;
-}
-void load_NO2(float NO2_){
-  NO2 = NO2_;
-}
-void load_C3H8(float C3H8_){
-  C3H8 = C3H8_;
-}
-void load_C4H10(float C4H10_){
-  C4H10 = C4H10_;
-}
-void load_CH4(float CH4_){
-  CH4 = CH4_;
-}
-void load_H2(float H2_){
-  H2 = H2_;
-}
-void load_C2H5OH(float C2H5OH_){
-  C2H5OH = C2H5OH_;
-}
-void load_NH3(float NH3_)
-{
-  NH3 = NH3_;
-}
-void load_tempC(float tempC_){
-  tempC = tempC_;
-}
-void load_humidity(float humidity_){
-  humidity = humidity_;
-}
-void load_temp(float temp)
-{
-  // 10000 ft = 3048 m
-  temperatura =  temp; // Temperatura Barometro
-}
+// Trama Larga IMU
+long Accx = 0;
+long Accy= 0;
+long Accz = 0;
+long Gyrx = 0;
+long Gyry= 0;
+long Gyrz = 0;
+long Magx = 0;
+long Magy= 0;
+long Magz = 0;
 
-void load_pres(float pres) {
-  pressur = pres;
-}
-void load_alti(float alti) {
-  altitu = alti;
-}
 
-void load_volt(float volt) {
-  voltajeBateria1 = volt;
-}
-void load_tempADC(float tempADC_){
-  tempADC = tempADC_;
-}
+const struct s_address addresses[] = {
+    {D_CALLSIGN, D_CALLSIGN_ID},  // Destination callsign
+    {S_CALLSIGN, S_CALLSIGN_ID},  // Source callsign (-11 = balloon, -9 = car)
+#ifdef DIGI_PATH1
+    {DIGI_PATH1, DIGI_PATH1_TTL}, // Digi1 (first digi in the chain)
+#endif
+#ifdef DIGI_PATH2
+    {DIGI_PATH2, DIGI_PATH2_TTL}, // Digi2 (second digi in the chain)
+#endif
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Trama corta
+void load_alti(int alti) {altitu = alti;}
+void load_temp(int temp){temperatura =  temp;} //Temperatura Barometro
+void load_tempC(int tempC_){tempC = tempC_;}
+void load_volt(int volt) {voltajeBateria1 = volt;}
+
+// Trama Larga Gases
+void load_humidity(int humidity_){humidity = humidity_;}
+
+void load_NH3(int NH3_){NH3 = NH3_;}
+void load_CO(int CO_){CO = CO_;}
+void load_NO2(int NO2_){NO2 = NO2_;}
+void load_C3H8(int C3H8_){C3H8 = C3H8_;}
+void load_C4H10(int C4H10_){C4H10 = C4H10_;}
+void load_CH4(int CH4_){CH4 = CH4_;}
+void load_H2(int H2_){H2 = H2_;}
+void load_C2H5OH(int C2H5OH_){C2H5OH = C2H5OH_;}
+
+void load_tempi2c(int tempi2c_){tempi2c = tempi2c_;}
+void load_tempADC(int tempADC_){tempADC = tempADC_;}
+void load_pres(long pres) {pressur = pres;}
+
+// Trama Larga IMU
+void load_Accx (long Accxe){Accx = Accxe;}
+void load_Accy (long Accye){Accy = Accye;}
+void load_Accz (long Accze){Accz = Accze;}
+void load_Gyrx (long Gyrxe){Gyrx = Gyrxe;}
+void load_Gyry (long Gyrye){Gyry = Gyrye;}
+void load_Gyrz (long Gyrze){Gyrz = Gyrze;}
+void load_Magx (long Magxe){Magx = Magxe;}
+void load_Magy (long Magye){Magy = Magye;}
+void load_Magz (long Magze){Magz = Magze;}
+
 
 // Module functions
-float meters_to_feet(float m)
-{
-  // 10000 ft = 3048 m
-  return m / 0.3048;
-}
-
-// Exported functions
-void aprs_send()
-{
-  char temp[12];                   // Temperature (int/ext)
-  const struct s_address addresses[] = {
-    {D_CALLSIGN, D_CALLSIGN_ID},  // Destination callsign
-    {S_CALLSIGN, S_CALLSIGN_ID},  // Source callsign (-11 = balloon, -9 = car)
+int meters_to_feet(int m){return m / 0.3048;} // 10000 ft = 3048 m
 
 
-
-#ifdef DIGI_PATH1
-    {DIGI_PATH1, DIGI_PATH1_TTL}, // Digi1 (first digi in the chain)
-#endif
-#ifdef DIGI_PATH2
-    {DIGI_PATH2, DIGI_PATH2_TTL}, // Digi2 (second digi in the chain)
-#endif
-  };
+////////////////////////////////////////// Funciones para el envio de las tramas ////////////////////////////////////////////////////////////
+// Trama Corta
+inline void TramaCRadioA(){
+  char dato[12];                   // datoerature (int/ext)
 
   ax25_send_header(addresses, sizeof(addresses) / sizeof(s_address));
   ax25_send_byte('/');                // Report w/ timestamp, no APRS messaging. $ = NMEA raw data
@@ -135,126 +125,126 @@ void aprs_send()
   ax25_send_byte('/');                // Symbol table
   ax25_send_string(gps_aprs_lon);     // Lon: 000deg and 25.80 min
   ax25_send_byte('O');                // Symbol: O=balloon, -=QTH
-  // cambiar temp por dato
-  snprintf(temp, 4, "%03d", (int)(gps_course + 0.5));
-  ax25_send_string(temp);
-  ax25_send_byte('/');                // and
-  snprintf(temp, 4, "%03d", (int)(gps_speed + 0.5));
-  ax25_send_string(temp);
-  ax25_send_string("A");            // Altitude (feet). Goes anywhere in the comment area
-  snprintf(temp, 7, "%d", (int)(gps_altitude));
-  ax25_send_string(temp);
-  ax25_send_string("B");
-  snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
-  ax25_send_string(temp);
-  ax25_send_string("C");
-  snprintf(temp, 7, "%d", (int)(temperatura * 100)); // Temp Barometro
-  ax25_send_string(temp);
-  ax25_send_string("D");
-  snprintf(temp, 7, "%d", (int)(tempC * 100)); // Temp SHT11
-  ax25_send_string(temp);
-  ax25_send_string("E");
-  snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
-  ax25_send_string(temp);
-  ax25_send_footer();
 
-  ax25_flush_frame();                 // Tell the modem to go
+  snprintf(dato, 4, "%03d", (int)(gps_course + 0.5));
+  ax25_send_string(dato);
+  ax25_send_byte('/');                // and
+  snprintf(dato, 4, "%03d", (int)(gps_speed + 0.5));
+  ax25_send_string(dato);
+  ax25_send_string("A");            // Altitude (feet). Goes anywhere in the comment area
+  snprintf(dato, 7, "%d", (int)gps_altitude);
+  ax25_send_string(dato);
+  ax25_send_string("B");
+  snprintf(dato, 6, "%d", altitu); // Altura Barometrica
+  ax25_send_string(dato);
+  ax25_send_string("C");
+  snprintf(dato, 7, "%d", temperatura); // Temp Barometro
+  ax25_send_string(dato);
+  ax25_send_string("D");
+  snprintf(dato, 7, "%d", tempC); // Temp SHT11
+  ax25_send_string(dato);
+  ax25_send_string("E");
+  snprintf(dato, 6, "%d", voltajeBateria1);
+  ax25_send_string(dato);
 }
 
-// Exported functions
-void aprs_send_variables()
-{
-  char temp[12];                   // Temperature (int/ext)
-  const struct s_address addresses[] = {
-    {D_CALLSIGN, D_CALLSIGN_ID},  // Destination callsign
-    {S_CALLSIGN, S_CALLSIGN_ID},  // Source callsign (-11 = balloon, -9 = car)
+// Trama Corta
+void enviarTramaCRadioA(){
+  TramaCRadioA();
+  finTramaRadioA();
+}
 
+// Trama larga Gases
+void enviarTramaGRadioA(){
+  TramaCRadioA();
 
-#ifdef DIGI_PATH1
-    {DIGI_PATH1, DIGI_PATH1_TTL}, // Digi1 (first digi in the chain)
-#endif
-#ifdef DIGI_PATH2
-    {DIGI_PATH2, DIGI_PATH2_TTL}, // Digi2 (second digi in the chain)
-#endif
-  };
-
-  ax25_send_header(addresses, sizeof(addresses) / sizeof(s_address));
-  ax25_send_byte('/');                // Report w/ timestamp, no APRS messaging. $ = NMEA raw data
-  // ax25_send_string("021709z");     // 021709z = 2nd day of the month, 17:09 zulu (UTC/GMT)
-  ax25_send_string(gps_time);         // 170915 = 17h:09m:15s zulu (not allowed in Status Reports)
-  ax25_send_byte('h');
-  ax25_send_string(gps_aprs_lat);     // Lat: 38deg and 22.20 min (.20 are NOT seconds, but 1/100th of minutes)
-  ax25_send_byte('/');                // Symbol table
-  ax25_send_string(gps_aprs_lon);     // Lon: 000deg and 25.80 min
-  ax25_send_byte('O');                // Symbol: O=balloon, -=QTH
-  // cambiar temp por dato
-  snprintf(temp, 4, "%03d", (int)(gps_course + 0.5));
-  ax25_send_string(temp);
-  ax25_send_byte('/');                // and
-  snprintf(temp, 4, "%03d", (int)(gps_speed + 0.5));
-  ax25_send_string(temp);
-  ax25_send_string("A");            // Altitude (feet). Goes anywhere in the comment area
-  snprintf(temp, 7, "%d", (int)(gps_altitude));
-  ax25_send_string(temp);
-  ax25_send_string("B");
-  snprintf(temp, 6, "%d", (int)altitu); // Altura Barometrica
-  ax25_send_string(temp);
-  ax25_send_string("C");
-  snprintf(temp, 7, "%d", (int)(temperatura * 100)); // Temp Barometro
-  ax25_send_string(temp);
-  ax25_send_string("D");
-  snprintf(temp, 7, "%d", (int)(tempC * 100)); // Temp SHT11
-  ax25_send_string(temp);
-  ax25_send_string("E");
-  snprintf(temp, 6, "%d", (int)(voltajeBateria1 * 10));
-  ax25_send_string(temp);
-
+  char data[12];                   // dataerature (int/ext)
   // Datos Trama larga1
   ax25_send_string("F");
-  snprintf(temp, 7, "%d", (int)(humidity * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", humidity);
+  ax25_send_string(data);
 
   // Sensor Gases (Promedio)
   ax25_send_string("G");
-  snprintf(temp, 7, "%d", (int)(NH3 * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", NH3);
+  ax25_send_string(data);
   ax25_send_string("H");
-  snprintf(temp, 7, "%d", (int)(CO * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", CO);
+  ax25_send_string(data);
   ax25_send_string("I");
-  snprintf(temp, 7, "%d", (int)(NO2 * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", NO2);
+  ax25_send_string(data);
   ax25_send_string("J");
-  /*snprintf(temp, 7, "%d", (int)(C3H8 * 100)); // extraña
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", C3H8); // extraña
+  ax25_send_string(data);
   ax25_send_string("K");
-  snprintf(temp, 7, "%d", (int)(C4H10 * 100)); // extraña
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", C4H10); // extraña
+  ax25_send_string(data);
   ax25_send_string("L");
-  snprintf(temp, 7, "%d", (int)(CH4 * 100)); // extraña
-  ax25_send_string(temp);
-  ax25_send_string("M");*/
-  snprintf(temp, 7, "%d", (int)(H2 * 100));
-  ax25_send_string(temp);
-  ax25_send_string("K");
-  snprintf(temp, 7, "%d", (int)(C2H5OH * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", CH4); // extraña
+  ax25_send_string(data);
+  ax25_send_string("M");
+  snprintf(data, 7, "%d", H2);
+  ax25_send_string(data);
+  ax25_send_string("N");
+  snprintf(data, 7, "%d", C2H5OH);
+  ax25_send_string(data);
 
   // Temp
-  ax25_send_string("L");
-  snprintf(temp, 7, "%d", (int)(tempi2c * 100));
-  ax25_send_string(temp);
-  ax25_send_string("M");
-  snprintf(temp, 7, "%d", (int)(tempADC * 100));
-  ax25_send_string(temp);
   ax25_send_string("O");
-  snprintf(temp, 7, "%d", (int)(pressur * 100));
-  ax25_send_string(temp);
+  snprintf(data, 7, "%d", tempi2c);
+  ax25_send_string(data);
+  ax25_send_string("P");
+  snprintf(data, 7, "%d", tempADC);
+  ax25_send_string(data);
+  ax25_send_string("Q");
+  snprintf(data, 7, "%d", pressur);
+  ax25_send_string(data);
   
+  finTramaRadioA();
+}
 
-  //ax25_send_byte(' ');
-  //ax25_send_string(APRS_COMMENT);     // Comment
+// Trama larga IMU
+void enviarTramaIRadioA(){
+  TramaCRadioA();
+
+  char data[12];
+  // Aceleraciones
+  ax25_send_string("f");
+  snprintf(data, 7, "%d", Accx);
+  ax25_send_string(data);
+  ax25_send_string("G");
+  snprintf(data, 7, "%d", Accy);
+  ax25_send_string(data);
+  ax25_send_string("H");
+  snprintf(data, 7, "%d", Accz);
+  ax25_send_string(data);
+  ax25_send_string("I");
+  // Giroscopo
+  snprintf(data, 7, "%d", Gyrx);
+  ax25_send_string(data);
+  ax25_send_string("J");
+  snprintf(data, 7, "%d", Gyry);
+  ax25_send_string(data);
+  ax25_send_string("K");
+  snprintf(data, 7, "%d", Gyrz);
+  ax25_send_string(data);
+  ax25_send_string("L");
+  // Magnetometro
+  snprintf(data, 7, "%d", Magx);
+  ax25_send_string(data);
+  ax25_send_string("M");
+  snprintf(data, 7, "%d", Magy);
+  ax25_send_string(data);
+  ax25_send_string("N");
+  snprintf(data, 7, "%d", Magz);
+  ax25_send_string(data);
+
+  finTramaRadioA();
+}
+
+// fin tramas
+inline void finTramaRadioA(){
   ax25_send_footer();
-
   ax25_flush_frame();                 // Tell the modem to go
 }

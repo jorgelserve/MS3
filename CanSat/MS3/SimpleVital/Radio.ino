@@ -1,6 +1,67 @@
 //////////////////////////////////////////////////////////////// Radio ////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-void revisarRadio() {
+///////////////////////////////////////// Trasmitir por Radio /////////////////////////////////////////////////////////////
+inline void trasmitirMediciones() {
+  // Time for another APRS frame
+  if ((int32_t) (millis() - next_aprs) >= 0) {
+    //digitalWrite(LedTX_PIN, HIGH);
+
+    // Se envian las tramas por radio
+#if not RadioSerial
+    switch (band_transmission) {
+      case 2:
+        enviarTramaIRadioA();
+        break;
+      case 1:
+        enviarTramaGRadioA();
+        break;
+      default:
+        enviarTramaCRadioA();
+        break;
+    }
+    band_transmission = (band_transmission + 1) % 3;
+#else
+    switch (band_transmission) {
+      case 2:
+        enviarTramaIRadio();
+        break;
+      case 1:
+        enviarTramaGRadio();
+        break;
+      default:
+        enviarTramaCRadio();
+        break;
+    }
+    band_transmission = (band_transmission + 1) % 3;
+#endif
+
+    if (APRS_SLOT >= 0) {
+      next_aprs = millis() + 1000 * (APRS_PERIOD - (gps_seconds + APRS_PERIOD - APRS_SLOT) % APRS_PERIOD);
+    } else {
+      next_aprs += APRS_PERIOD * 1000L;
+    }
+
+#if not RadioSerial
+
+    while (afsk_flush()) {
+      power_save();
+    }
+#ifdef DEBUG_MODEM
+    // Show modem ISR stats from the previous transmission
+    afsk_debug();
+#endif
+
+#endif
+
+  } else {
+    // Discard GPS data received during sleep window
+    //while (Serial.available()) {
+    //  Serial3.read();
+    //}
+  }
+}
+
+///////////////////////////////////////// Revisar Paquetes Radio /////////////////////////////////////////////////////////////
+inline void revisarRadio() {
   if (Serial2.available() > 0) {
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
@@ -26,7 +87,7 @@ void revisarRadio() {
 }
 
 ///////////////////////////////////////// Trama Ubicacion /////////////////////////////////////////////////////////////
-String GenerarTramaCorta() {
+inline String GenerarTramaCorta() {
   // A - GPS - Tiempo
   // B - GPS - Latitud
   // C - GPS - Longitud
@@ -70,7 +131,7 @@ String GenerarTramaCorta() {
 }
 
 ///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
-void enviarTramaCRadio() {
+inline void enviarTramaCRadio() {
   String datos = GenerarTramaCorta();
   digitalWrite(LedRAD_PIN, HIGH);
   Serial.print("Enviando... ");
@@ -81,7 +142,7 @@ void enviarTramaCRadio() {
 }
 
 ///////////////////////////////////////// Trama Larga Gases /////////////////////////////////////////////////////////////
-void enviarTramaGRadio() {
+inline void enviarTramaGRadio() {
   String datos = GenerarTramaCorta();
   char sep [] = {'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'};
   // datos GPS
@@ -104,7 +165,7 @@ void enviarTramaGRadio() {
   datos += String(tempPCB); // tempADC Promedio
   datos += sep[8];
   char text[] = "";
-  snprintf(text, 6, "%d", (unsigned int)BarB_pres);
+  snprintf(text, 6, "%d", (long)BarB_pres);
   datos += text;
 
   digitalWrite(LedRAD_PIN, HIGH);
@@ -116,7 +177,7 @@ void enviarTramaGRadio() {
 }
 
 ///////////////////////////////////////// Trama Larga IMU /////////////////////////////////////////////////////////////
-void enviarTramaIRadio() {
+inline void enviarTramaIRadio() {
   String datos = GenerarTramaCorta();
   char sep [] = {'f', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'};
   // datos GPS
@@ -158,4 +219,43 @@ void enviarTramaIRadio() {
   Serial2.print(datos);
   digitalWrite(LedRAD_PIN, LOW);
 }
+
+///////////////////////////////////////// Cargar Datos Trama analoga /////////////////////////////////////////////////////////////
+#if not RadioSerial
+inline void cargarMediciones() {
+  // Trama corta
+  load_alti(BarB_alti);
+  load_temp(BarB_temp);
+  load_tempC(tempSD);           // Temperatura SHT11
+  load_volt(voltajeBateria0);   // Voltaje Bateria
+
+  // Trama Larga Gases
+  load_humidity(humSD);
+
+  load_NH3(cSD04[0]);
+  load_CO(cSD04[1]);
+  load_NO2(cSD04[2]);
+  load_C3H8(cSD04[3]);
+  load_C4H10(cSD04[4]);
+  load_CH4(cSD04[5]);
+  load_H2(cSD04[6]);
+  load_C2H5OH(cSD04[7]);
+
+  load_tempi2c(tempPromPCB);
+  load_tempADC(promTADC);
+  load_pres(BarB_pres);
+  //load_tempADC(tempRad);
+
+  // Trama Larga IMU
+  load_Accx ((long)Axyz[0] * 100);
+  load_Accy ((long)Axyz[1] * 100);
+  load_Accz ((long)Axyz[2] * 100);
+  load_Gyrx ((long)Gxyz[0] * 100);
+  load_Gyry ((long)Gxyz[1] * 100);
+  load_Gyrz ((long)Gxyz[2] * 100);
+  load_Magx ((long)Mxyz[0] * 100);
+  load_Magy ((long)Mxyz[1] * 100);
+  load_Magz ((long)Mxyz[2] * 100);
+}
+#endif
 
