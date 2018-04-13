@@ -16,8 +16,8 @@ import requests
 
 global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
 
-nombreArchivoTramasLeer = "prueba9abril.txt"
-nombreVectorGuardar = "vectorprueba9abril.txt"
+nombreArchivoTramasLeer = "prueba12abril.txt"
+nombreVectorGuardar = "vectorprueba12abril.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 MatrizD = []
 vectorTramas = ['/0/0/0']
@@ -28,184 +28,194 @@ cuentadesconocida = 0
 time.sleep(2)
 
 def leerTrama():
-    archivo = open(nombreArchivoTramasLeer,"r")
-    tramaNue = archivo.readlines()
-    archivo.close()
-    ultimalinea = len(tramaNue)-1
-    returnedValues = str(tramaNue[ultimalinea])
-    vectorTramas.append(returnedValues)
-    if len(returnedValues) < 20:
-        return 1
-    if (vectorTramas[len(vectorTramas)-1] != vectorTramas[len(vectorTramas)-2]):
-        return returnedValues
-    else:
-        return 0
-def procesarTrama(lineas):
-    returnedValues = lineas
-    valores = returnedValues.split("/")
-    if (len(valores) == 4):
-        print(returnedValues)
-        if len(valores[3]) > 50:
-            j = 0
-            tramaIMU = False
-            for i in range(len(valores[3])):
-                j = j + 1
-                bit = valores[3][j-1]
-                if bit == "f":
-                    tramaIMU = True
-            if tramaIMU == True:
-                #trama larga IMU
-                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-                #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
-                print("trama larga IMU")
-                tramalarga = False
-                tiempo = valores[1][0:6].strip()
-                latitud = valores[1][7:15].strip()
-                longitud = valores[2][0:9].strip()
-                curso = valores[2][10:].strip()
-                velocidad = valores[3].split("A")[0].strip()
-                altitud = valores[3].split("A")[1].split("B")[0].strip()
-                alturabar = valores[3].split("B")[1].split("C")[0].strip()
-                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
-                ACCX =  valores[3].split("f")[1].split("G")[0].strip()
-                ACCY =  valores[3].split("G")[1].split("H")[0].strip()
-                ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
-                GIX =  valores[3].split("I")[1].split("J")[0].strip()
-                GIY =  valores[3].split("J")[1].split("K")[0].strip()
-                GIZ =  valores[3].split("K")[1].split("L")[0].strip()
-                MX =  valores[3].split("L")[1].split("M")[0].strip()
-                MY =  valores[3].split("M")[1].split("N")[0].strip()
-                MZ =  valores[3].split("N")[1].strip()
-            else:
-                #trama larga gases
-                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-                #F humedadDHT11 G NH3 H CO I NO2 J H2 K C2H50H L tempI2C M tempADC N presionbar
-                print("trama larga gases")
-                tramalarga = False
-                tiempo = valores[1][0:6].strip()
-                latitud = valores[1][7:15].strip()
-                longitud = valores[2][0:9].strip()
-                curso = valores[2][10:].strip()
-                velocidad = valores[3].split("A")[0].strip()
-                altitud = valores[3].split("A")[1].split("B")[0].strip()
-                alturabar = valores[3].split("B")[1].split("C")[0].strip()
-                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
-                humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
-                NH3 =  valores[3].split("G")[1].split("H")[0].strip()
-                CO =  valores[3].split("H")[1].split("I")[0].strip()
-                NO2 =  valores[3].split("I")[1].split("J")[0].strip()
-                H2 =  valores[3].split("J")[1].split("K")[0].strip()
-                C2H50H =  valores[3].split("K")[1].split("L")[0].strip()
-                tempI2C =  valores[3].split("L")[1].split("M")[0].strip()
-                tempADC =  valores[3].split("M")[1].split("N")[0].strip()
-                presionbar =  valores[3].split("N")[1].strip()
-        else:
-            #trama corta
-            #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-            print("trama corta")
-            tramalarga = False
-            tiempo = valores[1][0:6].strip()
-            latitud = valores[1][7:15].strip()
-            longitud = valores[2][0:9].strip()
-            curso = valores[2][10:].strip()
-            velocidad = valores[3].split("A")[0].strip()
-            altitud = valores[3].split("A")[1].split("B")[0].strip()
-            alturabar = valores[3].split("B")[1].split("C")[0].strip()
-            tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-            TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-            voltajebater =  valores[3].split("E")[1].strip()
-        datosTransfor = transformarTrama(latitud,longitud)
-        latitud_geo = datosTransfor[0]
-        longitud_geo = datosTransfor[1]
-        altitud_geo = alturabar
-        enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
-        print("tiempo: " + tiempo)
-        print("latitud_geo: " + latitud_geo)
-        print("longitud_geo: " + longitud_geo)
-        print("altitud_geo: " + alturabar)
-        print("curso: " + curso)
-        print("velocidad: " + velocidad)
-        print("alturabar: " + alturabar)
-        print("temperaturaSHT11: " +  str(float(TEMPSHT11)/100))
-        print("voltajebater: " + voltajebater)
-        print("temperaturaBar: " +  str(float(tempebar)/100))
-        archivo3 = open(nombreArchivoSETLeerEscribir,"w")
-        archivo3.write("latitudE/" + str(latitudE) + "\n")
-        archivo3.write("longitudE/" + str(longitudE) + "\n")
-        archivo3.write("altitudE/" + str(altitudE) + "\n")
-        archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
-        archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
-        archivo3.write("altitudG_i/" + str(altitud_geo) + "\n")
-        archivo3.close()
-        return [latitud_geo,longitud_geo,altitud_geo]
-def transformarTrama(latitud,longitud):
-    longitud_geo = 0
-    latitud_geo = 0
-    if(len(longitud) > 8):
-        grados_lo = float(longitud[1:3])
-        minutos_lo = float(longitud[3:5])
-        decimasMinutos_lo = float("0"+longitud[5:8])
-    elif(len(longitud) > 9):
-        grados_lo = float(longitud[0:2])
-        minutos_lo = float(longitud[2:4])
-        decimasMinutos_lo = float(longitud[4:8])
-    else:
-        grados_lo = float(longitud[1:2])
-        minutos_lo = float(longitud[2:4])
-        decimasMinutos_lo = float("0"+longitud[4:7])
-    longitud_geo = (grados_lo + (minutos_lo + decimasMinutos_lo)/60)
-    if(longitud[len(longitud)-1] == "W"):
-        longitud_geo = longitud_geo * -1
-    longitud_geo = str(longitud_geo)
-    longitud_geo = longitud_geo[0:9]
-    longitud_geo = longitud_geo.strip()
-    if(len(latitud) == 9):
-        grados_la = float(latitud[1:3])
-        minutos_la = float(latitud[3:5])
-        decimasMinutos_la = float("0"+latitud[5:8])
-    elif(len(latitud) > 9):
-        grados_la = float(latitud[0:2])
-        minutos_la = float(latitud[2:4])
-        decimasMinutos_la = float(latitud[4:8])
-    else:
-        grados_la = float(latitud[1:2])
-        minutos_la = float(latitud[2:4])
-        decimasMinutos_la = float("0"+latitud[4:7])
-    latitud_geo = (grados_la + (minutos_la + decimasMinutos_la)/60)
-    if(latitud[len(latitud)-1] == "S"):
-        latitud_geo = latitud_geo * -1
-    latitud_geo = str(latitud_geo)
-    latitud_geo = latitud_geo[0:9]
-    latitud_geo = latitud_geo.strip()
-    return [latitud_geo,longitud_geo]
-def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
-    tempoH=tempo[0:2]
-    tempoM=tempo[2:4]
-    tempoS=tempo[4:6]
-    tempo=tempoH+":"+tempoM+":"+tempoS
-    band_altitudGPS = 0
-    band_altitudBAR = 0
-    offset_GPS = 0
-    offset_BAR = 0
-    curs=str(float(curs)-0.5)
-    if float(velo)>0.5:
-        velo=str(float(velo)-0.5)
-    volta=str(float(volta)/100)
-    tempera = str(float(tempera)/100)
-    if(band_altitudBAR == 0):
-        offset_BAR = float(altuba)
-        band_altitudBAR = 1
-    altuba = str(float(altuba) - offset_BAR)
-    if(band_altitudGPS == 0):
-        offset_GPS = float(altu)
-        band_altitudGPS = 1
-    altu = str(float(altu) - offset_GPS)
-    temperabar = str(float(temperabar)/100)
     try:
+        cuentaParticion = 0
+        archivo = open(nombreArchivoTramasLeer,"r")
+        tramaNue = archivo.readlines()
+        archivo.close()
+        ultimalinea = len(tramaNue)-1
+        returnedValues = str(tramaNue[ultimalinea])
+        vectorTramas.append(returnedValues)
+        if len(returnedValues) < 20:
+            return 1
+        if (vectorTramas[len(vectorTramas)-1] != vectorTramas[len(vectorTramas)-2]):
+            return returnedValues
+        else:
+            return 0
+    except:
+        print("****ERROR LEYENDO TRAMA*****")
+def procesarTrama(lineas):
+    try:
+        returnedValues = lineas
+        valores = returnedValues.split("/")
+        if (len(valores) == 4):
+            print(returnedValues)
+            if len(valores[3]) > 50:
+                j = 0
+                tramaIMU = False
+                for i in range(len(valores[3])):
+                    j = j + 1
+                    bit = valores[3][j-1]
+                    if bit == "f":
+                        tramaIMU = True
+                if tramaIMU == True:
+                    #trama larga IMU
+                    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+                    #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
+                    print("trama larga IMU")
+                    tramalarga = False
+                    tiempo = valores[1][0:6].strip()
+                    latitud = valores[1][7:15].strip()
+                    longitud = valores[2][0:9].strip()
+                    curso = valores[2][10:].strip()
+                    velocidad = valores[3].split("A")[0].strip()
+                    altitud = valores[3].split("A")[1].split("B")[0].strip()
+                    alturabar = valores[3].split("B")[1].split("C")[0].strip()
+                    tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+                    TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                    voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
+                    ACCX =  valores[3].split("f")[1].split("G")[0].strip()
+                    ACCY =  valores[3].split("G")[1].split("H")[0].strip()
+                    ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
+                    GIX =  valores[3].split("I")[1].split("J")[0].strip()
+                    GIY =  valores[3].split("J")[1].split("K")[0].strip()
+                    GIZ =  valores[3].split("K")[1].split("L")[0].strip()
+                    MX =  valores[3].split("L")[1].split("M")[0].strip()
+                    MY =  valores[3].split("M")[1].split("N")[0].strip()
+                    MZ =  valores[3].split("N")[1].strip()
+                else:
+                    #trama larga gases
+                    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+                    #F humedadDHT11 G NH3 H CO I NO2 J H2 K C2H50H L tempI2C M tempADC N presionbar
+                    print("trama larga gases")
+                    tramalarga = False
+                    tiempo = valores[1][0:6].strip()
+                    latitud = valores[1][7:15].strip()
+                    longitud = valores[2][0:9].strip()
+                    curso = valores[2][10:].strip()
+                    velocidad = valores[3].split("A")[0].strip()
+                    altitud = valores[3].split("A")[1].split("B")[0].strip()
+                    alturabar = valores[3].split("B")[1].split("C")[0].strip()
+                    tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+                    TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                    voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
+                    humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
+                    NH3 =  valores[3].split("G")[1].split("H")[0].strip()
+                    CO =  valores[3].split("H")[1].split("I")[0].strip()
+                    NO2 =  valores[3].split("I")[1].split("J")[0].strip()
+                    H2 =  valores[3].split("J")[1].split("K")[0].strip()
+                    C2H50H =  valores[3].split("K")[1].split("L")[0].strip()
+                    tempI2C =  valores[3].split("L")[1].split("M")[0].strip()
+                    tempADC =  valores[3].split("M")[1].split("N")[0].strip()
+                    presionbar =  valores[3].split("N")[1].strip()
+            else:
+                #trama corta
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+                print("trama corta")
+                tramalarga = False
+                tiempo = valores[1][0:6].strip()
+                latitud = valores[1][7:15].strip()
+                longitud = valores[2][0:9].strip()
+                curso = valores[2][10:].strip()
+                velocidad = valores[3].split("A")[0].strip()
+                altitud = valores[3].split("A")[1].split("B")[0].strip()
+                alturabar = valores[3].split("B")[1].split("C")[0].strip()
+                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
+                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                voltajebater =  valores[3].split("E")[1].strip()
+            datosTransfor = transformarTrama(latitud,longitud)
+            latitud_geo = datosTransfor[0]
+            longitud_geo = datosTransfor[1]
+            altitud_geo = alturabar
+            enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
+            print("tiempo: " + str(float(tiempo)))
+            print("latitud_geo: " + str(float(latitud_geo)))
+            print("longitud_geo: " + str(float(longitud_geo)))
+            print("altitud_geo: " + str(float(alturabar)))
+            print("curso: " + str(float(curso)))
+            print("velocidad: " + str(float(velocidad)))
+            print("alturabar: " + str(float(alturabar)))
+            print("temperaturaSHT11: " +  str(float(TEMPSHT11)/100))
+            print("voltajebater: " + str(float(voltajebater)))
+            print("temperaturaBar: " +  str(float(tempebar)/100))
+            archivo3 = open(nombreArchivoSETLeerEscribir,"w")
+            archivo3.write("latitudE/" + str(latitudE) + "\n")
+            archivo3.write("longitudE/" + str(longitudE) + "\n")
+            archivo3.write("altitudE/" + str(altitudE) + "\n")
+            archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
+            archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
+            archivo3.write("altitudG_i/" + str(altitud_geo) + "\n")
+            archivo3.close()
+            return [latitud_geo,longitud_geo,altitud_geo]
+    except:
+        print("******ERROR PROCESANDO TRAMA********")
+def transformarTrama(latitud,longitud):
+    try:
+        longitud_geo = 0
+        latitud_geo = 0
+        if(len(longitud) > 8):
+            grados_lo = float(longitud[1:3])
+            minutos_lo = float(longitud[3:5])
+            decimasMinutos_lo = float("0"+longitud[5:8])
+        elif(len(longitud) > 9):
+            grados_lo = float(longitud[0:2])
+            minutos_lo = float(longitud[2:4])
+            decimasMinutos_lo = float(longitud[4:8])
+        else:
+            grados_lo = float(longitud[1:2])
+            minutos_lo = float(longitud[2:4])
+            decimasMinutos_lo = float("0"+longitud[4:7])
+        longitud_geo = (grados_lo + (minutos_lo + decimasMinutos_lo)/60)
+        if(longitud[len(longitud)-1] == "W"):
+            longitud_geo = longitud_geo * -1
+        longitud_geo = str(longitud_geo)
+        longitud_geo = longitud_geo[0:9]
+        longitud_geo = longitud_geo.strip()
+        if(len(latitud) == 9):
+            grados_la = float(latitud[1:3])
+            minutos_la = float(latitud[3:5])
+            decimasMinutos_la = float("0"+latitud[5:8])
+        elif(len(latitud) > 9):
+            grados_la = float(latitud[0:2])
+            minutos_la = float(latitud[2:4])
+            decimasMinutos_la = float(latitud[4:8])
+        else:
+            grados_la = float(latitud[1:2])
+            minutos_la = float(latitud[2:4])
+            decimasMinutos_la = float("0"+latitud[4:7])
+        latitud_geo = (grados_la + (minutos_la + decimasMinutos_la)/60)
+        if(latitud[len(latitud)-1] == "S"):
+            latitud_geo = latitud_geo * -1
+        latitud_geo = str(latitud_geo)
+        latitud_geo = latitud_geo[0:9]
+        latitud_geo = latitud_geo.strip()
+        return [latitud_geo,longitud_geo]
+    except:
+        print("*****ERROR TRANSFORMANDO TRAMA*****")
+def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
+    try:
+        tempoH=tempo[0:2]
+        tempoM=tempo[2:4]
+        tempoS=tempo[4:6]
+        tempo=tempoH+":"+tempoM+":"+tempoS
+        band_altitudGPS = 0
+        band_altitudBAR = 0
+        offset_GPS = 0
+        offset_BAR = 0
+        curs=str(float(curs)-0.5)
+        if float(velo)>0.5:
+            velo=str(float(velo)-0.5)
+        volta=str(float(volta)/100)
+        tempera = str(float(tempera)/100)
+        if(band_altitudBAR == 0):
+            offset_BAR = float(altuba)
+            band_altitudBAR = 1
+        altuba = str(float(altuba) - offset_BAR)
+        if(band_altitudGPS == 0):
+            offset_GPS = float(altu)
+            band_altitudGPS = 1
+        altu = str(float(altu) - offset_GPS)
+        temperabar = str(float(temperabar)/100)
         mqttmsg='"gps_time":"{}",' \
                 '"gps_latitude":"{}",' \
                 '"gps_longitude":"{}",' \
@@ -223,161 +233,167 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
         #print (r.headers)
         print ("trama enviada a web")
     except:
-        print("******* error, trama no enviada a web******")
+        print("*******ERROR ENVIANDO A WEB******")
 def modelo(lati, longi, alti):
-    latitudG = float(lati)
-    longitudG = float(longi)
-    altitudG = float(alti)
-    alfaP = (3.141592653589793/180)*(latitudE)
-    betaP = (3.141592653589793/180)*(longitudE)
-    hP = altitudE
-    alfaS = (3.141592653589793/180)*(latitudG)
-    betaS = (3.141592653589793/180)*(longitudG)
-    hS = altitudG
-    divCero = 0
-    r = 6378000.0
-    P = r + hP
-    S = r + hS
-    Px = P*math.cos(alfaP)*math.sin(betaP)
-    Py = P*math.cos(alfaP)*math.cos(betaP)
-    Pz = P*math.sin(alfaP)
-    Sx = S*math.cos(alfaS)*math.sin(betaS)
-    Sy = S*math.cos(alfaS)*math.cos(betaS)
-    Sz = S*math.sin(alfaS)
-    Dxyz_1 = Sx-Px
-    Dxyz_2 = Sy-Py
-    Dxyz_3 = Sz-Pz
-    D = math.sqrt(Dxyz_1*Dxyz_1+Dxyz_2*Dxyz_2+Dxyz_3*Dxyz_3)
-    Dw_1 = math.cos(-betaP)*Dxyz_1+math.sin(-betaP)*Dxyz_2
-    Dw_2 = -math.sin(-betaP)*Dxyz_1+math.cos(betaP)*Dxyz_2
-    Dw_3 = Dxyz_3
-    Duvw_1 = Dw_1
-    Duvw_2 = math.cos(alfaP)*Dw_2+math.sin(alfaP)*Dw_3
-    Duvw_3 = -math.sin(alfaP)*Dw_2+math.cos(alfaP)*Dw_3
-    Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
-    vectorD = [Duvw_1,Duvw_2,Duvw_3]
-    MatrizD.append(vectorD)
-    archivo1 = open(nombreVectorGuardar,"a")
-    archivo1.write(str(vectorD))
-    archivo1.close()
-    if abs(Duvw_1) < 1:
-        Duvw_1 = 0
-        divCero = divCero + 1
-    if abs(Duvw_2) < 1:
-        Duvw_2 = 0
-        divCero = divCero + 1
-    if abs(Duvw_3) < 1:
-        Duvw_3 = 0
-        divCero = divCero + 1
-    if divCero < 3:
+    try:
+        latitudG = float(lati)
+        longitudG = float(longi)
+        altitudG = float(alti)
+        alfaP = (3.141592653589793/180)*(latitudE)
+        betaP = (3.141592653589793/180)*(longitudE)
+        hP = altitudE
+        alfaS = (3.141592653589793/180)*(latitudG)
+        betaS = (3.141592653589793/180)*(longitudG)
+        hS = altitudG
         divCero = 0
-        omega_prima = math.asin(Duvw_2/Distancia)*180/3.14159265358979
-    if Duvw_1 < 0:
-        theta_prima = -math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
-    else:
-        theta_prima = math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
-    angulo_omega = omega_prima
-    angulo_theta = theta_prima
-    return [angulo_theta, angulo_omega]
+        r = 6378000.0
+        P = r + hP
+        S = r + hS
+        Px = P*math.cos(alfaP)*math.sin(betaP)
+        Py = P*math.cos(alfaP)*math.cos(betaP)
+        Pz = P*math.sin(alfaP)
+        Sx = S*math.cos(alfaS)*math.sin(betaS)
+        Sy = S*math.cos(alfaS)*math.cos(betaS)
+        Sz = S*math.sin(alfaS)
+        Dxyz_1 = Sx-Px
+        Dxyz_2 = Sy-Py
+        Dxyz_3 = Sz-Pz
+        D = math.sqrt(Dxyz_1*Dxyz_1+Dxyz_2*Dxyz_2+Dxyz_3*Dxyz_3)
+        Dw_1 = math.cos(-betaP)*Dxyz_1+math.sin(-betaP)*Dxyz_2
+        Dw_2 = -math.sin(-betaP)*Dxyz_1+math.cos(betaP)*Dxyz_2
+        Dw_3 = Dxyz_3
+        Duvw_1 = Dw_1
+        Duvw_2 = math.cos(alfaP)*Dw_2+math.sin(alfaP)*Dw_3
+        Duvw_3 = -math.sin(alfaP)*Dw_2+math.cos(alfaP)*Dw_3
+        Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
+        vectorD = [Duvw_1,Duvw_2,Duvw_3]
+        MatrizD.append(vectorD)
+        archivo1 = open(nombreVectorGuardar,"a")
+        archivo1.write(str(vectorD))
+        archivo1.close()
+        if abs(Duvw_1) < 1:
+            Duvw_1 = 0
+            divCero = divCero + 1
+        if abs(Duvw_2) < 1:
+            Duvw_2 = 0
+            divCero = divCero + 1
+        if abs(Duvw_3) < 1:
+            Duvw_3 = 0
+            divCero = divCero + 1
+        if divCero < 3:
+            divCero = 0
+            omega_prima = math.asin(Duvw_2/Distancia)*180/3.14159265358979
+        if Duvw_1 < 0:
+            theta_prima = -math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
+        else:
+            theta_prima = math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
+        angulo_omega = omega_prima
+        angulo_theta = theta_prima
+        return [angulo_theta, angulo_omega]
+    except:
+        print("*****ERROR CALCULANDO MODELO****")
 def enviarArduino(angulo_theta, angulo_omega, state):
-    SET = state
-    arduino.write(str("ESTALISTO0000090909").encode())
-    print("arduino listo?")
-    time.sleep(0.1)
-    datoRecibido = ''
-    while True:
-        datoRecibido = str(arduino.readline().decode().splitlines())
-        if datoRecibido == "['listo']":
-            print(datoRecibido)
-            break
-        time.sleep(0.01)
-    datoRecibido = ''
+    try:
+        SET = state
+        arduino.write(str("ESTALISTO0000090909").encode())
+        print("arduino listo?")
+        time.sleep(0.1)
+        datoRecibido = ''
+        while True:
+            datoRecibido = str(arduino.readline().decode().splitlines())
+            if datoRecibido == "['listo']":
+                print(datoRecibido)
+                break
+            time.sleep(0.01)
+        datoRecibido = ''
 
-    omega_prima = angulo_omega
-    theta_prima = angulo_theta
-    if omega_prima < 0:
-        signo_omega = "-"
-        acarreo_signo_omega = 45
-    else:
-        signo_omega = "+"
-        acarreo_signo_omega = 43
+        omega_prima = angulo_omega
+        theta_prima = angulo_theta
+        if omega_prima < 0:
+            signo_omega = "-"
+            acarreo_signo_omega = 45
+        else:
+            signo_omega = "+"
+            acarreo_signo_omega = 43
 
-    if theta_prima < 0:
-        signo_theta = "-"
-        acarreo_signo_theta = 45
-    else:
-        signo_theta = "+"
-        acarreo_signo_theta= 43
+        if theta_prima < 0:
+            signo_theta = "-"
+            acarreo_signo_theta = 45
+        else:
+            signo_theta = "+"
+            acarreo_signo_theta= 43
 
-    suma = (acarreo_signo_theta
-        + acarreo_signo_omega
-        + 84 + 79
-        + int(abs(theta_prima*100))
-        + int(abs(omega_prima*100)))
-    if suma > 10000:
-        ajusteSum = "";
-    if 1000 < suma and suma < 10000:
-        ajusteSum = "0";
-    if 100 < suma and suma < 1000:
-        ajusteSum = "00";
-    if 10 < suma and suma < 100:
-        ajusteSum = "000";
-    if suma < 10:
-        ajusteSum = "0000";
+        suma = (acarreo_signo_theta
+            + acarreo_signo_omega
+            + 84 + 79
+            + int(abs(theta_prima*100))
+            + int(abs(omega_prima*100)))
+        if suma > 10000:
+            ajusteSum = "";
+        if 1000 < suma and suma < 10000:
+            ajusteSum = "0";
+        if 100 < suma and suma < 1000:
+            ajusteSum = "00";
+        if 10 < suma and suma < 100:
+            ajusteSum = "000";
+        if suma < 10:
+            ajusteSum = "0000";
 
-    print("theta_prima: " + str(theta_prima))
-    print("omega_prima: " + str(omega_prima))
+        print("theta_prima: " + str(theta_prima))
+        print("omega_prima: " + str(omega_prima))
 
-    if abs(theta_prima) > 100:
-        ajusteT = ""
-    if 10 < abs(theta_prima) and abs(theta_prima) < 100:
-        ajusteT = "0"
-    if 1 < abs(theta_prima) and abs(theta_prima) < 10:
-        ajusteT = "00"
-    if 0.1 < abs(theta_prima) and abs(theta_prima) < 1:
-        ajusteT = "000"
-    if abs(theta_prima) < 0.1:
-        ajusteT = "0000"
+        if abs(theta_prima) > 100:
+            ajusteT = ""
+        if 10 < abs(theta_prima) and abs(theta_prima) < 100:
+            ajusteT = "0"
+        if 1 < abs(theta_prima) and abs(theta_prima) < 10:
+            ajusteT = "00"
+        if 0.1 < abs(theta_prima) and abs(theta_prima) < 1:
+            ajusteT = "000"
+        if abs(theta_prima) < 0.1:
+            ajusteT = "0000"
 
-    if abs(omega_prima) > 100:
-        ajusteO = "";
-    if 10 < abs(omega_prima) and abs(omega_prima) < 100:
-        ajusteO = "0";
-    if 1 < abs(omega_prima) and abs(omega_prima) < 10:
-        ajusteO = "00";
-    if 0.1 < abs(omega_prima) and abs(omega_prima) < 1:
-        ajusteO = "000";
-    if abs(omega_prima) < 0.1:
-        ajusteO = "0000";
+        if abs(omega_prima) > 100:
+            ajusteO = "";
+        if 10 < abs(omega_prima) and abs(omega_prima) < 100:
+            ajusteO = "0";
+        if 1 < abs(omega_prima) and abs(omega_prima) < 10:
+            ajusteO = "00";
+        if 0.1 < abs(omega_prima) and abs(omega_prima) < 1:
+            ajusteO = "000";
+        if abs(omega_prima) < 0.1:
+            ajusteO = "0000";
 
-    if SET == False:
-        print(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
-              + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
-              + str(ajusteSum).encode() + str(suma).encode())
-        arduino.write(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
-              + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
-              + str(ajusteSum).encode() + str(suma).encode())
-    else:
-        print(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
-              + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
-              + str("99999").encode())
-        arduino.write(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
-              + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
-              + str("99999").encode())
-    time.sleep(0.1)
+        if SET == False:
+            print(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
+                  + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
+                  + str(ajusteSum).encode() + str(suma).encode())
+            arduino.write(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
+                  + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
+                  + str(ajusteSum).encode() + str(suma).encode())
+        else:
+            print(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
+                  + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
+                  + str("99999").encode())
+            arduino.write(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
+                  + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
+                  + str("99999").encode())
+        time.sleep(0.1)
 
-    datoRecibido = ''
-    while True:
-        datoRecibido = str(arduino.readline().decode().splitlines())
-        print("angulo entendido? ")
-        if datoRecibido == "['entendido']":
-            print(datoRecibido)
-            break
-        if datoRecibido == "['SET']":
-            print(datoRecibido)
-            break
-        time.sleep(0.01)
-    datoRecibido = ''
+        datoRecibido = ''
+        while True:
+            datoRecibido = str(arduino.readline().decode().splitlines())
+            print("angulo entendido? ")
+            if datoRecibido == "['entendido']":
+                print(datoRecibido)
+                break
+            if datoRecibido == "['SET']":
+                print(datoRecibido)
+                break
+            time.sleep(0.01)
+        datoRecibido = ''
+    except:
+        print("******ERROR ENVIANDO A ARDUINO*****")
 def estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue):
     Cu = DuNue - DuAnt
     Cv = DvNue - DvAnt
@@ -426,43 +442,50 @@ def estimacion():
     enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1],False)
     time.sleep(2)
 
-archivo2 = open(nombreArchivoSETLeerEscribir,"r")
-datoSET = archivo2.readlines()
-latitudE = float(datoSET[0].split("/")[1])
-longitudE = float(datoSET[1].split("/")[1])
-altitudE = float(datoSET[2].split("/")[1])
-latitudG_i = float(datoSET[3].split("/")[1])
-longitudG_i = float(datoSET[4].split("/")[1])
-altitudG_i = float(datoSET[5].split("/")[1])
-angulosSET = modelo(latitudG_i,longitudG_i,altitudG_i)
-thetaSET = angulosSET[0]
-omegaSET = angulosSET[1]
-archivo2.close()
-#enviarArduino(thetaSET,omegaSET,True)
-print("__________________________________________")
+try:
+    archivo2 = open(nombreArchivoSETLeerEscribir,"r")
+    datoSET = archivo2.readlines()
+    latitudE = float(datoSET[0].split("/")[1])
+    longitudE = float(datoSET[1].split("/")[1])
+    altitudE = float(datoSET[2].split("/")[1])
+    latitudG_i = float(datoSET[3].split("/")[1])
+    longitudG_i = float(datoSET[4].split("/")[1])
+    altitudG_i = float(datoSET[5].split("/")[1])
+    angulosSET = modelo(latitudG_i,longitudG_i,altitudG_i)
+    thetaSET = angulosSET[0]
+    omegaSET = angulosSET[1]
+    archivo2.close()
+    #enviarArduino(thetaSET,omegaSET,True)
+    print("__________________________________________")
+except:
+    while(1):
+        print("****ERROR GENERANDO SET***")
 
 time.sleep(2)
 
 while (1):
-    trama = leerTrama()
-    if trama != 0 and trama != 1:
-        cuentatrama = 0
-        cuentadesconocida = 0
-        coordenadas = procesarTrama(trama)
-        angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-        #enviarArduino(angulos[0],angulos[1],False) #theta,omega
-        if len(MatrizD) > 1: #Estimacion
-            #estimacion()
-            continue
-        print("__________________________________________")
-    if trama == 0:
-        if cuentatrama < 1:
-            print("Esperando trama nueva.....")
+    try:
+        trama = leerTrama()
+        if trama != 0 and trama != 1:
+            cuentatrama = 0
+            cuentadesconocida = 0
+            coordenadas = procesarTrama(trama)
+            angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
+            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            if len(MatrizD) > 1: #Estimacion
+                #estimacion()
+                continue
             print("__________________________________________")
-        cuentatrama = cuentatrama + 1
-    if trama == 1:
-        if cuentadesconocida < 1:
-            print("Trama leida desconocida")
-            print("__________________________________________")
-        cuentadesconocida = cuentadesconocida + 1
-    time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
+        if trama == 0:
+            if cuentatrama < 1:
+                print("Esperando trama nueva.....")
+                print("__________________________________________")
+            cuentatrama = cuentatrama + 1
+        if trama == 1:
+            if cuentadesconocida < 1:
+                print("Trama leida desconocida")
+                print("__________________________________________")
+            cuentadesconocida = cuentadesconocida + 1
+        time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
+    except:
+        print("******** ERROR DE EJECUCION ***********")
