@@ -90,3 +90,30 @@ inline void medirGases05() {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+inline void calibrarGases04() {
+  if (error_gas04 == 0) {
+    error_gas04 = iniciarGases04();
+  }
+  Serial.print("Begin to calibrate 04...: ");
+  Serial.println(millis());
+  gas04.doCalibrate();
+  Serial.print("04... Calibration ok: ");
+  Serial.println(millis());
+  gas04.display_eeprom();
+  
+}
+
+inline void calibrarGases05() {
+  if (error_gas05 == 0) {
+    error_gas05 = iniciarGases05();
+  }
+  Serial.print("Begin to calibrate 05...: ");
+  Serial.println(millis());
+  gas05.doCalibrate();
+  Serial.print("05... Calibration ok: ");
+  Serial.println(millis());
+
+  gas05.display_eeprom();
+}
+

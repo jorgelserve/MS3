@@ -174,6 +174,7 @@ void setup() {
 
   // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
   Serial.println("Presione c para iniciar modo carga");
+  Serial.println("Presione g para calibrar sensores de gases");
   unsigned long tiempoConfCarga = millis() + 5000;
   while (tiempoConfCarga > millis()) {
     char comando = Serial.read();
@@ -184,8 +185,15 @@ void setup() {
         power_save();
         revisarRadio();
       }
+    } else if (comando == 'g') {
+      Serial.println("Iniciando calibracion de sensores de gases... Precalentando.");
+      calibrarGases04();
+      calibrarGases05();
     }
   }
+
+
+
 
 
 }

@@ -65,20 +65,31 @@ inline void revisarRadio() {
   if (Serial2.available() > 0) {
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
+    /*String datosR = data2Send;
+    // Verificamos el Tamaño el de la trama recibida, si es igual a 63, es posible que falte informacion por recibir
+    if (data2Send.length() == 63) {
+      //preguntamos por mas datos
+      Serial2.println("D");
+      delay(10);
+      String data2Send2 = Serial2.readString();
+    }*/
     // data2Send.length() max lenght = 63
     //Serial.println(data2Send.length());
     guardarStringSD(data2Send, "r");
     Serial.println("Radio: " + data2Send);
+
+    // Verificamos Recepcion Comando de Despliegue
     if (data2Send.substring(0, 2).equals("DP")) {
       Serial2.print("M");
       Serial2.print("Desplegando...");
       Serial.print("Comando Despliegue detectado, ");
-      liberarPaneles();
+      liberarPaneles(1);
       Serial2.print("M");
       Serial2.print("Paneles Desplegados");
       digitalWrite(LedRAD_PIN, LOW);
-      return;
+      return; // No repetimos mensaje de despligue
     }
+    
     // Repetimos informacion por Radio
     Serial2.print("M");
     Serial2.print(data2Send);
