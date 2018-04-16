@@ -275,25 +275,22 @@ float PCBTemperature(byte PCB) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void revisarDesPaneles() {
-  if (band_paneles == 0) {
+  if (panelesDesplegados == 0) {
+    
+    weight = (millis() > panel_time) ? weight + 1 : weight;         // Condicion Temporal
+    weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;    // Condicion GPS
+    weight = (BarB_alti > alt_paneles) ? weight + 1 : weight;       // Condicion Barometro
 
-    weight = ((millis() / 1000) > panel_time) ? weight + 1 : weight;
-    weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;
-    weight = (BarB_alti > alt_paneles) ? weight + 1 : weight;
-
-    if (weight == 2) {
-      liberarPaneles();
-      //Serial.println("Simple Pregunta: Desplego?");
-      band_paneles = 1;
-      pitar(5000);
+    if (weight >= 2) {
+      liberarPaneles(1);
+      revisarDespliegue();   // Solo poner en uno si realmente desplego (Deteccion de aumento del voltaje de la bateria?)
     } else {
       weight = 0;
     }
-    // si, que chimba, no bueno, intentemos de nuevo
   }
 }
 
-inline void liberarPaneles() {
+inline void liberarPaneles(bool panel) {
   Serial.println("Cuenta Regresiva para Despliegue de Paneles, Iniciada...");
   pitar(1000);
   for (int i = 9; i > 0; i--) {
@@ -301,13 +298,31 @@ inline void liberarPaneles() {
     Serial.print("T-0");
     Serial.println(i);
   }
-  Serial.print("Desplegando...");
-  digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
-  digitalWrite(pinPanel1, HIGH);
-  pitar(5000);
-  digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
-  digitalWrite(pinPanel1, LOW);
-  Serial.print("OK");
+  desplegarPaneles(panel,15000);
+}
+
+inline void desplegarPaneles(bool panel, unsigned int tiempoD) {
+  Serial.print(" Desplegando ");
+  if (panel) {
+    digitalWrite(pinPanel0, HIGH);  // toca elegir uno a la vez
+    Serial.print("1...");
+  } else {
+    digitalWrite(pinPanel1, HIGH);
+    Serial.print("0...");
+  }
+  pitar(tiempoD);
+  if (panel) {
+    digitalWrite(pinPanel0, LOW); // toca alegir uno a la vez
+  } else {
+    digitalWrite(pinPanel1, LOW);
+  }
+  Serial.print(" OK");
+}
+
+inline void revisarDespliegue() {
+  // si se percive un cambio del voltaje de la bateria que indique que los paneles reciven sol y estan cargando la bateria, las probalidades de que desplegaran es alta
+  
+  // panelesDesplegados = 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +357,7 @@ inline void medirBarometroB() {
   BarB_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
   BarB_pres = baro_BMP280T.readPressure();
   BarB_alti = baro_BMP280T.readAltitude(1013.25);
-  
+
 #else
   BarB_temp = Barometer.bmp180GetTemperature(Barometer.bmp180ReadUT()) * 100; // Get the temperature, bmp180ReadUT MUST be called first
   BarB_pres = Barometer.bmp180GetPressure(Barometer.bmp180ReadUP());// Get the presure
@@ -353,9 +368,11 @@ inline void medirBarometroB() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void medirBarometroT() {
-  #if not MS2Compatible
+#if not MS2Compatible
   BarT_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
   BarT_pres = baro_BMP280T.readPressure();
   BarT_alti = baro_BMP280T.readAltitude(1013.25);
 #endif
 }
+
+

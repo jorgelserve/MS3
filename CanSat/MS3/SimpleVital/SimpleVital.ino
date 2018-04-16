@@ -16,7 +16,7 @@ void setup() {
   pinMode(buzzer_PIN, OUTPUT);
   pitar(500);
 
-  //////// Pruebas Mosfet
+  //////// Pruebas Mosfet (Problema retorno de corriente a pin de desactivacion del elevador de 5V)
   pinMode(40, OUTPUT);
   digitalWrite(40, HIGH);
 
@@ -42,8 +42,9 @@ void setup() {
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
 #endif
 
+  //////////////////////////////////////////// Inicio Radio Serial
 #if RadioSerial
-  Serial.print("Initializing Radio...");
+  Serial.print("Iniciando Radio...");
   pinMode(4, OUTPUT);
   // reset Radio
   digitalWrite(4, LOW);
@@ -52,16 +53,21 @@ void setup() {
   Serial.println("OK");
 #endif
 
-  // Se configura sistema despligue paneles
-  pinMode(pinPanel0, OUTPUT);
-  digitalWrite(pinPanel0, LOW);
+  //////////////////////////////////////////// Se configura sistema despligue paneles
+  Serial.print("Iniciando Sistema Despliegue... ");
+  pinMode(pinPanel0, OUTPUT); // Se configuran puertos como salida
   pinMode(pinPanel1, OUTPUT);
+  digitalWrite(pinPanel0, LOW); // Se Inician Apagados
   digitalWrite(pinPanel1, LOW);
+  //probamos despliegue
+  desplegarPaneles(0, 100);
+  desplegarPaneles(1, 100);
+  Serial.println("");
 
   // se configura pin voltaje bateria
   pinMode(pinVolBat1, INPUT);
   // se configura pin voltaje bateria
-  pinMode(pinTempRad, INPUT);
+  pinMode(pinTempRad, INPUT); // usado en la vital MS3 para monitorear salida Radio (No usado)
   pinMode(pinTempPCB, INPUT);
 
   // se configuran los leds indicadores
@@ -138,7 +144,7 @@ void setup() {
       read_gps();
     } while (!gps_seconds && endMillis1 > millis());
 
-    next_aprs = millis() + 1000 * (APRS_PERIOD - (gps_seconds + APRS_PERIOD - APRS_SLOT) % APRS_PERIOD);
+    next_aprs = millis() + 1000 * (APRS_PERIOD/1000 - (gps_seconds + APRS_PERIOD/1000 - APRS_SLOT) % APRS_PERIOD);
   } else {
     next_aprs = millis();
   }
@@ -170,12 +176,13 @@ void setup() {
   // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
   Serial.println("Presione c para iniciar modo carga");
   Serial.println("Presione g para calibrar sensores de gases");
+  Serial.println("Presione p para probar despliegue de panales");
 
   // Configuraciones
   unsigned long tiempoConfCarga = millis() + 5000;
   while (tiempoConfCarga > millis()) {
     char comando = Serial.read();
-    
+
     if (comando == 'c') {
       Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
       while (Serial.available() < 1) {
@@ -183,13 +190,18 @@ void setup() {
         power_save();
         revisarRadio();
       }
-      
+
     } else if (comando == 'g') {
       Serial.println("Iniciando calibracion de sensores de gases... Precalentando.");
       calibrarGases04();
       calibrarGases05();
+      
+    } else if (comando == 'p') {
+      Serial.println("Iniciando Pruebas de sistemas de despligue 0 y 1");
+      liberarPaneles(0);
+      liberarPaneles(1);
     }
-    
+
   }
   // fin menu configuraciones iniciales.
 }
@@ -199,11 +211,8 @@ void loop() {
   // verificamos mensajes seriales del radio y los mostramos en pantalla:
   revisarRadio();
 
-  ////////////////////////////// Apogeo del sistema //////////////////////////////////////
-  apogeoSistema();
-
   /////////////////////////////// Liberación de paneles /////////////////////////////////////
-  //liberarPaneles();
+  revisarDesPaneles();
 
   ////////////////////////////////////////////////////////Temperatura y Humedad //////////////////////////////////////////////
   ////// Sensor i2C /////////////

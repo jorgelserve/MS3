@@ -175,20 +175,23 @@ int tempext3SD;
 //#define ana2tem 0.0048828125
 
 // ----------------------------- Apogeo
-#define alt_apogeo 4000       // altura por encima de la que inicia el conteo
-#define apogeo_time 360000    // tiempo en mili-segundos desde que pasa altura
+//#define alt_apogeo 4000       // altura por encima de la que inicia el conteo
+//#define apogeo_time 360000    // tiempo en mili-segundos desde que pasa altura
 //---
-byte band_buzzer = 0;
-long int fall_time = 0;
-byte band_apogeo = 0;
-byte ban_apogeo_active = 0;
+//byte band_buzzer = 0;
+//long int fall_time = 0;
+//byte band_apogeo = 0;
+//byte ban_apogeo_active = 0;
 
 // ----------------------------- liberacion Paneles
-#define panel_time 24         // Tiempo en segundos
-#define alt_paneles 80        // Altura en metros antes de despliegue 
+unsigned long panel_time = 24000;     // Tiempo en milli segundos
+unsigned int alt_paneles = 5000;      // Altura en metros antes de despliegue 
 //---
-float weight = 0;
-byte band_paneles = 0;
+float weight = 0;                     // Permite desplegar teniendo presente datos de barometro, GPS y Tiempo
+bool panelesDesplegados = false;      // Permite saber si ya se corrio el despligue de paneles
+
+
+// ----------------------------- Radio
 byte band_transmission = 0;   // Usamos para cambiar entre Trama Corta, Gases y IMU
 
 //Configuracion Simple 144/434
@@ -241,7 +244,7 @@ volatile int mx_min = 0;
 volatile int my_min = 0;
 volatile int mz_min = 0;
 
-// barometer Variables
+//////////////////////////// barometer Variables
 float BarB_temp;
 float BarB_pres;
 float BarB_atmo;
@@ -260,7 +263,7 @@ float BarT_alti;
 static const uint32_t VALID_POS_TIMEOUT = 2000;  // ms
 
 // Module variables
-static int32_t next_aprs = 0;
+unsigned long next_aprs = 0;
 
 
 ////////////////////////////////////////////// Debuggin //////////////////////////////////////////////
@@ -278,7 +281,7 @@ static int32_t next_aprs = 0;
 //////////////////////// Runtime
 // time outs (milliseconds)
 uint32_t GPS_timeout = 5000;
-int APRS_PERIOD = 10;  // tiempo en segundos entre transmision
+unsigned int  APRS_PERIOD = 10000;  // tiempo en segundos entre transmision
 //#define pinPeriodo 23
 
 

@@ -2,7 +2,7 @@
 ///////////////////////////////////////// Trasmitir por Radio /////////////////////////////////////////////////////////////
 inline void trasmitirMediciones() {
   // Time for another APRS frame
-  if ((int32_t) (millis() - next_aprs) >= 0) {
+  if (millis() >= next_aprs) {
     //digitalWrite(LedTX_PIN, HIGH);
 
     // Se envian las tramas por radio
@@ -18,7 +18,6 @@ inline void trasmitirMediciones() {
         enviarTramaCRadioA();
         break;
     }
-    band_transmission = (band_transmission + 1) % 3;
 #else
     switch (band_transmission) {
       case 2:
@@ -31,13 +30,13 @@ inline void trasmitirMediciones() {
         enviarTramaCRadio();
         break;
     }
-    band_transmission = (band_transmission + 1) % 3;
 #endif
+    band_transmission = (band_transmission + 1) % 3;
 
     if (APRS_SLOT >= 0) {
-      next_aprs = millis() + 1000 * (APRS_PERIOD - (gps_seconds + APRS_PERIOD - APRS_SLOT) % APRS_PERIOD);
+      next_aprs = millis() + (APRS_PERIOD - (gps_seconds * 1000 + APRS_PERIOD - APRS_SLOT) % APRS_PERIOD);
     } else {
-      next_aprs += APRS_PERIOD * 1000L;
+      next_aprs += APRS_PERIOD;
     }
 
 #if not RadioSerial
