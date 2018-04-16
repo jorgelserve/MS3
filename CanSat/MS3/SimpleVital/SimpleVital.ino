@@ -43,11 +43,13 @@ void setup() {
 #endif
 
 #if RadioSerial
+  Serial.print("Initializing Radio...");
   pinMode(4, OUTPUT);
   // reset Radio
   digitalWrite(4, LOW);
   delay(50);
   pinMode(4, INPUT);
+  Serial.println("OK");
 #endif
 
   // Se configura sistema despligue paneles
@@ -162,22 +164,18 @@ void setup() {
   }
 #endif
 
-#if RadioSerial
-  Serial.println("Initializing Radio...");
-  Serial2.println("MSimple3-ON");
-  delay(1000);
-  revisarRadio();
-#endif
-
   // Pitido final
   pitar(100);
 
   // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
   Serial.println("Presione c para iniciar modo carga");
   Serial.println("Presione g para calibrar sensores de gases");
+
+  // Configuraciones
   unsigned long tiempoConfCarga = millis() + 5000;
   while (tiempoConfCarga > millis()) {
     char comando = Serial.read();
+    
     if (comando == 'c') {
       Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
       while (Serial.available() < 1) {
@@ -185,17 +183,15 @@ void setup() {
         power_save();
         revisarRadio();
       }
+      
     } else if (comando == 'g') {
       Serial.println("Iniciando calibracion de sensores de gases... Precalentando.");
       calibrarGases04();
       calibrarGases05();
     }
+    
   }
-
-
-
-
-
+  // fin menu configuraciones iniciales.
 }
 
 //////////////////////////////////////////////////////////////// Loop ////////////////////////////////////////////////////////////////

@@ -63,7 +63,7 @@ inline void medirGases04() {
   dim04 = (sizeof(c04) / sizeof(float));
 
   for (int i = 0; i < (dim04); i++) {
-    cSD04[i] = (int) (c04[i] * 100);
+    cSD04[i] = (long) (c04[i] * 100);
   }
 }
 
@@ -86,7 +86,7 @@ inline void medirGases05() {
   dim05 = (sizeof(c05) / sizeof(float));
 
   for (int i = 0; i < (dim05); i++) {
-    cSD05[i] = (int) (c05[i] * 100);
+    cSD05[i] = (long) (c05[i] * 100);
   }
 }
 

@@ -131,7 +131,7 @@ float promTADC = 0;
 char band_gas04 = 0;
 int dim04;
 float c04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int cSD04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+long cSD04[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 byte error04;
 byte error_gas04 = 0;
 
@@ -139,7 +139,7 @@ byte error_gas04 = 0;
 char band_gas05 = 0;
 int dim05;
 float c05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int cSD05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+long cSD05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 byte error05;
 byte error_gas05 = 0;
 

@@ -66,15 +66,16 @@ inline void revisarRadio() {
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
     /*String datosR = data2Send;
-    // Verificamos el Tamaño el de la trama recibida, si es igual a 63, es posible que falte informacion por recibir
-    if (data2Send.length() == 63) {
+      // Verificamos el Tamaño el de la trama recibida, si es igual a 63, es posible que falte informacion por recibir
+      if (data2Send.length() == 63) {
       //preguntamos por mas datos
       Serial2.println("D");
       delay(10);
       String data2Send2 = Serial2.readString();
-    }*/
+      }*/
     // data2Send.length() max lenght = 63
     //Serial.println(data2Send.length());
+
     guardarStringSD(data2Send, "r");
     Serial.println("Radio: " + data2Send);
 
@@ -89,7 +90,7 @@ inline void revisarRadio() {
       digitalWrite(LedRAD_PIN, LOW);
       return; // No repetimos mensaje de despligue
     }
-    
+
     // Repetimos informacion por Radio
     Serial2.print("M");
     Serial2.print(data2Send);
@@ -155,7 +156,7 @@ inline void enviarTramaCRadio() {
 ///////////////////////////////////////// Trama Larga Gases /////////////////////////////////////////////////////////////
 inline void enviarTramaGRadio() {
   String datos = GenerarTramaCorta();
-  char sep [] = {'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'};
+  char sep [] = {'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'};
   // datos GPS
   datos += sep[0];
   datos += String(humSD); // humedad DHT11
@@ -166,18 +167,25 @@ inline void enviarTramaGRadio() {
   datos += sep[3];
   datos += String(cSD04[2]); //NO2
   datos += sep[4];
-  datos += String(cSD04[6]); //H2
+  datos += String(cSD04[3]); //C3H8
   datos += sep[5];
-  datos += String(cSD04[7]); //C2H5OH
+  datos += String(cSD04[4]); //C4H10
   datos += sep[6];
+  datos += String(cSD04[5]); //CH4
+  datos += sep[7];
+  datos += String(cSD04[6]); //H2
+  datos += sep[8];
+  datos += String(cSD04[7]); //C2H5OH
+  datos += sep[9];
 
   datos += String(tempPromPCB); //tempI2c Promedio
-  datos += sep[7];
+  datos += sep[10];
   datos += String(tempPCB); // tempADC Promedio
-  datos += sep[8];
-  char text[] = "";
-  snprintf(text, 6, "%d", (long)BarB_pres);
-  datos += text;
+  datos += sep[11];
+  datos += String((long)BarB_pres);
+  //char text[] = "";
+  //snprintf(text, 6, "%d", (long)BarB_pres);
+  //datos += text;
 
   digitalWrite(LedRAD_PIN, HIGH);
   Serial.print("Enviando... ");
@@ -194,33 +202,33 @@ inline void enviarTramaIRadio() {
   // datos GPS
   datos += sep[0];
   char text[] = "";
-  snprintf(text, 6, "%d", (int)Axyz[0] * 100);
+  snprintf(text, 6, "%d", (long)Axyz[0] * 100);
   datos += text;
   datos += sep[1];
-  snprintf(text, 6, "%d", (int)Axyz[1] * 100);
+  snprintf(text, 6, "%d", (long)Axyz[1] * 100);
   datos += text;
   datos += sep[2];
-  snprintf(text, 6, "%d", (int)Axyz[2] * 100);
+  snprintf(text, 6, "%d", (long)Axyz[2] * 100);
   datos += text;
 
   datos += sep[3];
-  snprintf(text, 6, "%d", (int)Gxyz[0] * 100);
+  snprintf(text, 6, "%d", (long)Gxyz[0] * 100);
   datos += text;
   datos += sep[4];
-  snprintf(text, 6, "%d", (int)Gxyz[1] * 100);
+  snprintf(text, 6, "%d", (long)Gxyz[1] * 100);
   datos += text;
   datos += sep[5];
-  snprintf(text, 6, "%d", (int)Gxyz[2] * 100);
+  snprintf(text, 6, "%d", (long)Gxyz[2] * 100);
   datos += text;
 
   datos += sep[6];
-  snprintf(text, 6, "%d", (int)Mxyz[0] * 100);
+  snprintf(text, 6, "%d", (long)Mxyz[0] * 100);
   datos += text;
   datos += sep[7];
-  snprintf(text, 6, "%d", (int)Mxyz[1] * 100);
+  snprintf(text, 6, "%d", (long)Mxyz[1] * 100);
   datos += text;
   datos += sep[8];
-  snprintf(text, 6, "%d", (int)Mxyz[2] * 100);
+  snprintf(text, 6, "%d", (long)Mxyz[2] * 100);
   datos += text;
 
   digitalWrite(LedRAD_PIN, HIGH);

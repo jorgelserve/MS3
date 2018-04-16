@@ -57,6 +57,8 @@ void guardarDatosSD() {
     g TempExt2
     h TempExt3
     i VoltBat
+    // MS3
+    
   */
   char sep [] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
   // datos GPS
@@ -108,58 +110,31 @@ void guardarDatosSD() {
   datos += sep[18];
   datos += String(millis());
 
-  //Sensore de gases (04)
+  //Sensor de gases (04)
   //Gas NH3
   datos += sep[19];
-  datos += String(cSD04[0]);
+  datos += String(c04[0]);
   //Gas CO
   datos += sep[20];
-  datos += String(cSD04[1]);
+  datos += String(c04[1]);
   //Gas NO2
   datos += sep[21];
-  datos += String(cSD04[2]);
+  datos += String(c04[2]);
   //Gas C3H8
   datos += sep[22];
-  datos += String(cSD04[3]);
+  datos += String(c04[3]);
   //Gas C4H10
   datos += sep[23];
-  datos += String(cSD04[4]);
+  datos += String(c04[4]);
   //Gas CH4
   datos += sep[24];
-  datos += String(cSD04[5]);
+  datos += String(c04[5]);
   //GAS H2
   datos += sep[25];
-  datos += String(cSD04[6]);
+  datos += String(c04[6]);
   //Gas C2H5OH
   datos += sep[26];
-  datos += String(cSD04[7]);
-
-  /*
-  //Gas NH3
-  datos += sep[19];
-  datos += String(cSD05[0]);
-  //Gas CO
-  datos += sep[20];
-  datos += String(cSD05[1]);
-  //Gas NO2
-  datos += sep[21];
-  datos += String(cSD05[2]);
-  //Gas C3H8
-  datos += sep[22];
-  datos += String(cSD05[3]);
-  //Gas C4H10
-  datos += sep[23];
-  datos += String(cSD05[4]);
-  //Gas CH4
-  datos += sep[24];
-  datos += String(cSD05[5]);
-  //GAS H2
-  datos += sep[25];
-  datos += String(cSD05[6]);
-  //Gas C2H5OH
-  datos += sep[26];
-  datos += String(cSD05[7]);
-   */
+  datos += String(c04[7]);
   
   //Temperatura SHT11
   datos += sep[27];
@@ -197,73 +172,44 @@ void guardarDatosSD() {
   datos += sep[37];
   datos += String(BarT_alti);
   
-  //Sensore de gases (05)
+  //Sensor de gases (05)
   //Gas NH3
   datos += sep[38];
-  datos += String(cSD05[0]);
+  datos += String(c05[0]);
   //Gas CO
   datos += sep[39];
-  datos += String(cSD05[1]);
+  datos += String(c05[1]);
   //Gas NO2
   datos += sep[40];
-  datos += String(cSD05[2]);
+  datos += String(c05[2]);
   //Gas C3H8
   datos += sep[41];
-  datos += String(cSD05[3]);
+  datos += String(c05[3]);
   //Gas C4H10
   datos += sep[42];
-  datos += String(cSD05[4]);
+  datos += String(c05[4]);
   //Gas CH4
   datos += sep[43];
-  datos += String(cSD05[5]);
+  datos += String(c05[5]);
   //GAS H2
   datos += sep[44];
-  datos += String(cSD05[6]);
+  datos += String(c05[6]);
   //Gas C2H5OH
   datos += sep[45];
-  datos += String(cSD05[7]);
+  datos += String(c05[7]);
 
   //Tempi2c Vital
   datos += sep[46];
   datos += String(tempi2cSDG);
 
-  // fin trama
+  // fin trama MS3
   datos += sep[47];
   #else
-  // fin trama
+  // fin trama MS2
   datos += sep[35];
   #endif
   
   guardarStringSD(datos,"d");
-  /*
-  if (sd_ok) {
-    digitalWrite(LedSD_PIN, HIGH);
-    // se guarda en la SD
-    dataFile = SD.open("datalog.txt", FILE_WRITE);
-    // if the file is available, write to it:
-    if (dataFile) {
-      dataFile.println(datos);
-      dataFile.flush();
-      dataFile.close();
-      // led indicador guardado en SD
-
-      // print to the serial port too:
-      //Serial.print(datos);
-      Serial.print("ON SD .. ");
-      Serial.print(datos);
-      pitar(50);
-    }
-    // if the file isn't open, pop up an error:
-    else {
-      Serial.println("error opening datalog.txt");
-      dataFile.close();
-      sd_ok =  false;
-    }
-    
-  } else {
-    iniciarSd(); // si sd no esta ok (sd_ok) tratamos de iniciarla nuevamente
-  }
-  digitalWrite(LedSD_PIN, LOW); // gurdado SD finalizado//*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

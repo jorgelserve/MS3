@@ -26,14 +26,14 @@ void load_volt(int volt);
 
 // Trama Larga Gases
 void load_humidity(int humidity);
-void load_NH3(int NH3);
-void load_CO(int CO);
-void load_NO2(int NO2);
-void load_C3H8(int C3H8);
-void load_C4H10(int C4H10);
-void load_CH4(int CH4);
-void load_H2(int H2);
-void load_C2H5OH(int C2H5OH);
+void load_NH3(long NH3);
+void load_CO(long CO);
+void load_NO2(long NO2);
+void load_C3H8(long C3H8);
+void load_C4H10(long C4H10);
+void load_CH4(long CH4);
+void load_H2(long H2);
+void load_C2H5OH(long C2H5OH);
 void load_tempi2c(int tempi2c);
 void load_tempADC(int tempADC);
 void load_pres(long pres);

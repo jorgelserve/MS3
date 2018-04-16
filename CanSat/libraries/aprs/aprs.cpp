@@ -37,14 +37,14 @@ int voltajeBateria1 = 5;
 
 // Trama Larga G
 int humidity = 0;
-int NH3 = 0;
-int CO = 0;
-int NO2 = 0;
-int C3H8 = 0;
-int C4H10 = 0;
-int CH4 = 0;
-int H2 = 0;
-int C2H5OH = 0;
+long NH3 = 0;
+long CO = 0;
+long NO2 = 0;
+long C3H8 = 0;
+long C4H10 = 0;
+long CH4 = 0;
+long H2 = 0;
+long C2H5OH = 0;
 int tempi2c = 0;
 int tempADC = 0;
 long pressur = 10;
@@ -82,14 +82,14 @@ void load_volt(int volt) {voltajeBateria1 = volt;}
 // Trama Larga Gases
 void load_humidity(int humidity_){humidity = humidity_;}
 
-void load_NH3(int NH3_){NH3 = NH3_;}
-void load_CO(int CO_){CO = CO_;}
-void load_NO2(int NO2_){NO2 = NO2_;}
-void load_C3H8(int C3H8_){C3H8 = C3H8_;}
-void load_C4H10(int C4H10_){C4H10 = C4H10_;}
-void load_CH4(int CH4_){CH4 = CH4_;}
-void load_H2(int H2_){H2 = H2_;}
-void load_C2H5OH(int C2H5OH_){C2H5OH = C2H5OH_;}
+void load_NH3(long NH3_){NH3 = NH3_;}
+void load_CO(long CO_){CO = CO_;}
+void load_NO2(long NO2_){NO2 = NO2_;}
+void load_C3H8(long C3H8_){C3H8 = C3H8_;}
+void load_C4H10(long C4H10_){C4H10 = C4H10_;}
+void load_CH4(long CH4_){CH4 = CH4_;}
+void load_H2(long H2_){H2 = H2_;}
+void load_C2H5OH(long C2H5OH_){C2H5OH = C2H5OH_;}
 
 void load_tempi2c(int tempi2c_){tempi2c = tempi2c_;}
 void load_tempADC(int tempADC_){tempADC = tempADC_;}
