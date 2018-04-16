@@ -144,7 +144,7 @@ void setup() {
       read_gps();
     } while (!gps_seconds && endMillis1 > millis());
 
-    next_aprs = millis() + 1000 * (APRS_PERIOD/1000 - (gps_seconds + APRS_PERIOD/1000 - APRS_SLOT) % APRS_PERIOD);
+    next_aprs = millis() + 1000 * (APRS_PERIOD / 1000 - (gps_seconds + APRS_PERIOD / 1000 - APRS_SLOT) % APRS_PERIOD);
   } else {
     next_aprs = millis();
   }
@@ -195,7 +195,7 @@ void setup() {
       Serial.println("Iniciando calibracion de sensores de gases... Precalentando.");
       calibrarGases04();
       calibrarGases05();
-      
+
     } else if (comando == 'p') {
       Serial.println("Iniciando Pruebas de sistemas de despligue 0 y 1");
       liberarPaneles(0);
@@ -273,6 +273,8 @@ void loop() {
   ///////////////////////////////////////////////////// Se envian por Radio los datos
 #if not RadioSerial
   cargarMediciones();
+#else if
+  generarTramas();
 #endif
   trasmitirMediciones();
 

@@ -97,8 +97,15 @@ inline void revisarRadio() {
   }
 }
 
-///////////////////////////////////////// Trama Ubicacion /////////////////////////////////////////////////////////////
-inline String GenerarTramaCorta() {
+///////////////////////////////////////// Generar Tramas /////////////////////////////////////////////////////////////
+inline void generarTramas(){
+  generarTramaCorta();
+  generarTramaGRadio();
+  generarTramaIRadio();
+}
+
+///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
+inline void generarTramaCorta() {
   // A - GPS - Tiempo
   // B - GPS - Latitud
   // C - GPS - Longitud
@@ -138,26 +145,25 @@ inline String GenerarTramaCorta() {
   datos += text;
   //datos += sep[10];
   // fin trama
-  return datos;
+  DatosRC = datos; // cargamos trama a variable global 
 }
 
-///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
+///////////////////////////////////////// Envio Trama Ubicacion
 inline void enviarTramaCRadio() {
-  String datos = GenerarTramaCorta();
-  digitalWrite(LedRAD_PIN, HIGH);
   Serial.print("Enviando... ");
-  Serial.println(datos);
+  Serial.println(DatosRC);
+  // Envio datos por Radio
+  digitalWrite(LedRAD_PIN, HIGH);
   Serial2.print("M");
-  Serial2.print(datos);
+  Serial2.print(DatosRC);
   digitalWrite(LedRAD_PIN, LOW);
 }
 
 ///////////////////////////////////////// Trama Larga Gases /////////////////////////////////////////////////////////////
-inline void enviarTramaGRadio() {
-  String datos = GenerarTramaCorta();
+inline void generarTramaGRadio() {
   char sep [] = {'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'};
   // datos GPS
-  datos += sep[0];
+  String datos = String(sep[0]);
   datos += String(humSD); // humedad DHT11
   datos += sep[1];
   datos += String(cSD04[0]); //NH3
@@ -182,57 +188,69 @@ inline void enviarTramaGRadio() {
   datos += String(tempPCB); // tempADC Promedio
   datos += sep[11];
   datos += String((long)BarB_pres);
-  //char text[] = "";
-  //snprintf(text, 6, "%d", (long)BarB_pres);
-  //datos += text;
+  
+  DatosRG = datos; // cargamos trama a variable global 
+}
 
-  digitalWrite(LedRAD_PIN, HIGH);
+///////////////////////////////////////// Envio Trama Larga Gases
+inline void enviarTramaGRadio() {
+  String datos = DatosRC;
+  datos += DatosRG;
   Serial.print("Enviando... ");
   Serial.println(datos);
+  // Envio datos por Radio
+  digitalWrite(LedRAD_PIN, HIGH);
   Serial2.print("M");
   Serial2.print(datos);
   digitalWrite(LedRAD_PIN, LOW);
 }
 
 ///////////////////////////////////////// Trama Larga IMU /////////////////////////////////////////////////////////////
-inline void enviarTramaIRadio() {
-  String datos = GenerarTramaCorta();
+inline void generarTramaIRadio() {
   char sep [] = {'f', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'};
   // datos GPS
-  datos += sep[0];
+  String datos = String(sep[0]);
   char text[] = "";
-  snprintf(text, 6, "%d", (long)Axyz[0] * 100);
+  snprintf(text, 6, "%d", (long)(Axyz[0] * 100));
   datos += text;
   datos += sep[1];
-  snprintf(text, 6, "%d", (long)Axyz[1] * 100);
+  snprintf(text, 6, "%d", (long)(Axyz[1] * 100));
   datos += text;
   datos += sep[2];
-  snprintf(text, 6, "%d", (long)Axyz[2] * 100);
+  snprintf(text, 6, "%d", (long)(Axyz[2] * 100));
   datos += text;
 
   datos += sep[3];
-  snprintf(text, 6, "%d", (long)Gxyz[0] * 100);
+  snprintf(text, 6, "%d", (long)(Gxyz[0] * 100));
   datos += text;
   datos += sep[4];
-  snprintf(text, 6, "%d", (long)Gxyz[1] * 100);
+  snprintf(text, 6, "%d", (long)(Gxyz[1] * 100));
   datos += text;
   datos += sep[5];
-  snprintf(text, 6, "%d", (long)Gxyz[2] * 100);
+  snprintf(text, 6, "%d", (long)(Gxyz[2] * 100));
   datos += text;
 
   datos += sep[6];
-  snprintf(text, 6, "%d", (long)Mxyz[0] * 100);
+  snprintf(text, 6, "%d", (long)(Mxyz[0] * 100));
   datos += text;
   datos += sep[7];
-  snprintf(text, 6, "%d", (long)Mxyz[1] * 100);
+  snprintf(text, 6, "%d", (long)(Mxyz[1] * 100));
   datos += text;
   datos += sep[8];
-  snprintf(text, 6, "%d", (long)Mxyz[2] * 100);
+  snprintf(text, 6, "%d", (long)(Mxyz[2] * 100));
   datos += text;
 
-  digitalWrite(LedRAD_PIN, HIGH);
+  DatosRI = datos; // cargamos trama a variable global 
+}
+
+///////////////////////////////////////// Envio Trama Larga IMU
+inline void enviarTramaIRadio() {
+  String datos = DatosRC;
+  datos += DatosRI;
   Serial.print("Enviando... ");
   Serial.println(datos);
+  // Envio datos por Radio
+  digitalWrite(LedRAD_PIN, HIGH);
   Serial2.print("M");
   Serial2.print(datos);
   digitalWrite(LedRAD_PIN, LOW);
@@ -265,15 +283,15 @@ inline void cargarMediciones() {
   //load_tempADC(tempRad);
 
   // Trama Larga IMU
-  load_Accx ((long)Axyz[0] * 100);
-  load_Accy ((long)Axyz[1] * 100);
-  load_Accz ((long)Axyz[2] * 100);
-  load_Gyrx ((long)Gxyz[0] * 100);
-  load_Gyry ((long)Gxyz[1] * 100);
-  load_Gyrz ((long)Gxyz[2] * 100);
-  load_Magx ((long)Mxyz[0] * 100);
-  load_Magy ((long)Mxyz[1] * 100);
-  load_Magz ((long)Mxyz[2] * 100);
+  load_Accx ((long)(Axyz[0] * 100));
+  load_Accy ((long)(Axyz[1] * 100));
+  load_Accz ((long)(Axyz[2] * 100));
+  load_Gyrx ((long)(Gxyz[0] * 100));
+  load_Gyry ((long)(Gxyz[1] * 100));
+  load_Gyrz ((long)(Gxyz[2] * 100));
+  load_Magx ((long)(Mxyz[0] * 100));
+  load_Magy ((long)(Mxyz[1] * 100));
+  load_Magz ((long)(Mxyz[2] * 100));
 }
 #endif
 

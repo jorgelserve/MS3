@@ -194,6 +194,11 @@ bool panelesDesplegados = false;      // Permite saber si ya se corrio el despli
 // ----------------------------- Radio
 byte band_transmission = 0;   // Usamos para cambiar entre Trama Corta, Gases y IMU
 
+// variables Generacion promedios envio radio
+String DatosRC = "";
+String DatosRG = "";
+String DatosRI = "";
+
 //Configuracion Simple 144/434
 //#define AnalogosExt // 144
 
