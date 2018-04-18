@@ -16,15 +16,15 @@ import requests
 
 global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
 
-nombreArchivoTramasLeer = "prueba12abril.txt"
-nombreVectorGuardar = "vectorprueba12abril.txt"
+nombreArchivoTramasLeer = "prueba13abril.txt"
+nombreVectorGuardar = "vectorprueba13abril.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 MatrizD = []
 vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
-
-#arduino = serial.Serial('/dev/ttyUSB0',9600)
+band_inicial = 0;
+arduino = serial.Serial('/dev/ttyUSB0',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -455,7 +455,7 @@ try:
     thetaSET = angulosSET[0]
     omegaSET = angulosSET[1]
     archivo2.close()
-    #enviarArduino(thetaSET,omegaSET,True)
+    enviarArduino(thetaSET,omegaSET,True)
     print("__________________________________________")
 except:
     while(1):
@@ -471,7 +471,7 @@ while (1):
             cuentadesconocida = 0
             coordenadas = procesarTrama(trama)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            enviarArduino(angulos[0],angulos[1],False) #theta,omega
             if len(MatrizD) > 1: #Estimacion
                 #estimacion()
                 continue

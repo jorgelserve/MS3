@@ -1,0 +1,46 @@
+{
+  "gps_time": "133512", #En un label que muestre el valor actual
+  "gps_latitude": "54987.52", #en tablas a la mitad de la pantalla #En el eje x
+  "gps_longitude": "-747293.94", #En el eje y
+  "gps_altitude": "1086.40", #en speedometer
+  "gps_course": "172.95",
+  "gps_speed": "0.00", #Todo lo de gps es un panel ppal #en speedometer
+  "imu_ax": "0.21", #Todo lo de imu en un panel imu
+  "imu_ay": "-0.12",
+  "imu_az": "0.24",
+  "imu_cx": "-3.27",
+  "imu_cy": "1.07",
+  "imu_cz": "0.50",
+  "imu_gx": "1.17",
+  "imu_gy": "-25.20",
+  "imu_gz": "-51.56",
+  "barometer_temperature": "19.40", #Todo lo de barometer en un panel barometer
+  "barometer_Pressure": "99165.00",
+  "barometer_Altitude": "181.38",
+  "barometer1_temperature": "19.40", # los sig 3 en speedometer
+  "barometer1_Pressure": "99165.00",
+  "barometer1_Altitude": "181.38",
+  "time_milisenconds": "9392321",
+  "gas_nh3": "473",
+  "gas_co": "4094", #show #Mostrar en gauge
+  "gas_no2": "16", #show #Mostrar en gauge
+  "gas_c3h8": "15523",
+  "gas_c4h10": "18968",
+  "gas_ch4": "-10896",
+  "gas_h2": "2210", #show #Mostrar en gauge
+  "gas_c2h5oh": "3070",
+  "gas1_nh3": "473", #show
+  "gas1_co": "4094",
+  "gas1_no2": "16",
+  "gas1_c3h8": "15523",
+  "gas1_c4h10": "18968",
+  "gas1_ch4": "-10896",
+  "gas1_h2": "2210",
+  "gas1_c2h5oh": "3070",
+  "temperature_sht11": "3166", #show #en speedometer
+  "humidity_sht11": "-2401", #show
+  "temperature_i2c": "2050", #show #en speedometer
+  "temperature1_i2c": "2050", #show #Estas dos se van a promediar
+  "mean_temperature": "14",
+  "voltage_battery": "3.5" #show #Mostrar solo En el main
+}
