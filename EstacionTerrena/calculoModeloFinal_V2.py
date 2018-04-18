@@ -15,11 +15,25 @@ import random
 import requests
 
 global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
+global vectorAlturaGps, vectorAlturaBar
 
+
+#La variable nombreArchivoTramasLeer contiene las tramas que el programa gqrx guardo al decodificar el AFSK
+#La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
+#La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
+
+<<<<<<< HEAD
+nombreArchivoTramasLeer = "prueba12abril.txt"
+nombreVectorTrayectoriaGuardar = "vectorprueba12abril.txt"
+=======
 nombreArchivoTramasLeer = "prueba13abril.txt"
 nombreVectorGuardar = "vectorprueba13abril.txt"
+>>>>>>> d08183112a2c97e74cbcc025c954b46c8c036f3a
 nombreArchivoSETLeerEscribir = "SET.txt"
+
 MatrizD = []
+vectorAlturaBar = []
+vectorAlturaGps = []
 vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
@@ -34,11 +48,11 @@ def leerTrama():
         tramaNue = archivo.readlines()
         archivo.close()
         ultimalinea = len(tramaNue)-1
-        returnedValues = str(tramaNue[ultimalinea])
+        returnedValues = str(tramaNue[ultimalinea]) #Retornar solo la ultima linea del archivo
         vectorTramas.append(returnedValues)
-        if len(returnedValues) < 20:
+        if len(returnedValues) < 20: # Si la longitud de la trama es exageradamente corta reportar
             return 1
-        if (vectorTramas[len(vectorTramas)-1] != vectorTramas[len(vectorTramas)-2]):
+        if (vectorTramas[len(vectorTramas)-1] != vectorTramas[len(vectorTramas)-2]): #Si y solo si las tramas son diferentes retorna la trama
             return returnedValues
         else:
             return 0
@@ -50,13 +64,13 @@ def procesarTrama(lineas):
         valores = returnedValues.split("/")
         if (len(valores) == 4):
             print(returnedValues)
-            if len(valores[3]) > 50:
+            if len(valores[3]) > 50: #Si la longitud de la trama es mayor a 50 es larga
                 j = 0
                 tramaIMU = False
                 for i in range(len(valores[3])):
                     j = j + 1
                     bit = valores[3][j-1]
-                    if bit == "f":
+                    if bit == "f": #Si en la trama hay una f minuscula sera una trama IMU, de lo contrario GASES
                         tramaIMU = True
                 if tramaIMU == True:
                     #trama larga IMU
@@ -69,10 +83,10 @@ def procesarTrama(lineas):
                     longitud = valores[2][0:9].strip()
                     curso = valores[2][10:].strip()
                     velocidad = valores[3].split("A")[0].strip()
-                    altitud = valores[3].split("A")[1].split("B")[0].strip()
-                    alturabar = valores[3].split("B")[1].split("C")[0].strip()
-                    tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-                    TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                    altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                    alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                    tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                    tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                     voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
                     ACCX =  valores[3].split("f")[1].split("G")[0].strip()
                     ACCY =  valores[3].split("G")[1].split("H")[0].strip()
@@ -94,10 +108,10 @@ def procesarTrama(lineas):
                     longitud = valores[2][0:9].strip()
                     curso = valores[2][10:].strip()
                     velocidad = valores[3].split("A")[0].strip()
-                    altitud = valores[3].split("A")[1].split("B")[0].strip()
-                    alturabar = valores[3].split("B")[1].split("C")[0].strip()
-                    tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-                    TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                    altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                    alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                    tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                    tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                     voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
                     humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
                     NH3 =  valores[3].split("G")[1].split("H")[0].strip()
@@ -118,26 +132,34 @@ def procesarTrama(lineas):
                 longitud = valores[2][0:9].strip()
                 curso = valores[2][10:].strip()
                 velocidad = valores[3].split("A")[0].strip()
-                altitud = valores[3].split("A")[1].split("B")[0].strip()
-                alturabar = valores[3].split("B")[1].split("C")[0].strip()
-                tempebar =  valores[3].split("C")[1].split("D")[0].strip()
-                TEMPSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                 voltajebater =  valores[3].split("E")[1].strip()
-            datosTransfor = transformarTrama(latitud,longitud)
+            datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
+            #alturaFusionGpsBar = fusionar(altitudGps,alturaBar) #Fusiona la altura del GPS y Barometro en una sola medida mas precisa
             latitud_geo = datosTransfor[0]
             longitud_geo = datosTransfor[1]
-            altitud_geo = alturabar
+            #altitud_geo = alturaFusionGpsBar
+            altitud_geo = altitudGps
             enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
-            print("tiempo: " + str(float(tiempo)))
-            print("latitud_geo: " + str(float(latitud_geo)))
-            print("longitud_geo: " + str(float(longitud_geo)))
-            print("altitud_geo: " + str(float(alturabar)))
-            print("curso: " + str(float(curso)))
-            print("velocidad: " + str(float(velocidad)))
-            print("alturabar: " + str(float(alturabar)))
-            print("temperaturaSHT11: " +  str(float(TEMPSHT11)/100))
-            print("voltajebater: " + str(float(voltajebater)))
-            print("temperaturaBar: " +  str(float(tempebar)/100))
+            try:
+                print("tiempo: " + str(float(tiempo)))
+                print("latitud_geo: " + str(float(latitud_geo)))
+                print("longitud_geo: " + str(float(longitud_geo)))
+                print("altitud_geo: " + str(float(altitud_geo)))
+                print("curso: " + str(float(curso)))
+                print("velocidad: " + str(float(velocidad)))
+                print("alturabar: " + str(float(alturabar)))
+                print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                print("voltajebater: " + str(float(voltajebater)))
+                print("temperaturaBar: " +  str(float(tempeBar)/100))
+            except:
+                print("***** ERROR EN VARIABLES PROCESADAS *****")
+            #Se debe guardar de manera recurrente las coordenadas de la estacion terrena y la gondola
+            #para el caso en el que se reinicie la aplicacion y no se haya movido la estacion, poder
+            #recuperar el tracking seteando nuevamente de manera automatica
             archivo3 = open(nombreArchivoSETLeerEscribir,"w")
             archivo3.write("latitudE/" + str(latitudE) + "\n")
             archivo3.write("longitudE/" + str(longitudE) + "\n")
@@ -268,7 +290,7 @@ def modelo(lati, longi, alti):
         Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
         vectorD = [Duvw_1,Duvw_2,Duvw_3]
         MatrizD.append(vectorD)
-        archivo1 = open(nombreVectorGuardar,"a")
+        archivo1 = open(nombreVectorTrayectoriaGuardar,"a")
         archivo1.write(str(vectorD))
         archivo1.close()
         if abs(Duvw_1) < 1:
@@ -295,6 +317,7 @@ def modelo(lati, longi, alti):
 def enviarArduino(angulo_theta, angulo_omega, state):
     try:
         SET = state
+        #Python le pregunta al arduino si puede recibir datos
         arduino.write(str("ESTALISTO0000090909").encode())
         print("arduino listo?")
         time.sleep(0.1)
@@ -305,10 +328,13 @@ def enviarArduino(angulo_theta, angulo_omega, state):
                 print(datoRecibido)
                 break
             time.sleep(0.01)
+        #Solo cuando el arduino responda el programa continua
         datoRecibido = ''
 
         omega_prima = angulo_omega
         theta_prima = angulo_theta
+
+        #Se hace un acarreo de los datos a enviar al arduino y garantizar que no hay perdida de datos
         if omega_prima < 0:
             signo_omega = "-"
             acarreo_signo_omega = 45
@@ -364,6 +390,7 @@ def enviarArduino(angulo_theta, angulo_omega, state):
         if abs(omega_prima) < 0.1:
             ajusteO = "0000";
 
+        #Si SET es true el arduino comprendera que las coordenadas enviadas son el SET y alli configurara su posicion inicial
         if SET == False:
             print(str("T").encode() + str(signo_theta).encode() + str(ajusteT).encode() + str(int(abs(theta_prima*100))).encode()
                   + str("O").encode() + str(signo_omega).encode() + str(ajusteO).encode() + str(int(abs(omega_prima*100))).encode()
@@ -381,6 +408,7 @@ def enviarArduino(angulo_theta, angulo_omega, state):
         time.sleep(0.1)
 
         datoRecibido = ''
+        #Python le pregunta al arduino si entendio el dato que le fue enviado
         while True:
             datoRecibido = str(arduino.readline().decode().splitlines())
             print("angulo entendido? ")
@@ -391,6 +419,7 @@ def enviarArduino(angulo_theta, angulo_omega, state):
                 print(datoRecibido)
                 break
             time.sleep(0.01)
+        #Si el arduino responde el programa continua
         datoRecibido = ''
     except:
         print("******ERROR ENVIANDO A ARDUINO*****")
@@ -441,6 +470,35 @@ def estimacion():
     angulosEstim_v2 = modeloVector(coordEstim[3],coordEstim[4],coordEstim[5])
     enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1],False)
     time.sleep(2)
+'''def fusionar(AltG,AltB):
+    vectorAlturaGps.append(AltG)
+    vectorAlturaGps.append(AltB)
+    if len(vectorAlturaBar) == 1 and len(vectorAlturaGps) == 1:
+        alturaFus = 0.5*float(AltG) + 0.5*float(AltB)
+    elif len(vectorAlturaBar) > 1 and len(vectorAlturaGps) > 1:
+        for i in len(vectorAlturaBar):
+            sumaAlturaBar = sumaAlturaBar + float(vectorAlturaBar[i])
+        promedioAlturaBar = sumaAlturaBar/len(vectorAlturaBar)
+        for j in len(vectorAlturaBar):
+            sumaVarianzaAlturaBar = sumaVarianzaAlturaBar + (float(vectorAlturaBar[j])-float(vectorAlturaBar[j-1]))²
+        varianzaAlturaBar = sumaVarianzaAlturaBar/len(vectorAlturaBar)
+
+        for i in len(vectorAlturaGps):
+            sumaAlturaGps = sumaAlturaGps + float(vectorAlturaGps[i])
+        promedioAlturaGps = sumaAlturaGps/len(vectorAlturaGps)
+        for j in len(vectorAlturaGps):
+            sumaVarianzaAlturaGps = sumaVarianzaAlturaGps + (float(vectorAlturaGps[j])-float(vectorAlturaGps[j-1]))²
+        varianzaAlturaGps = sumaVarianzaAlturaGps/len(vectorAlturaGps)
+
+        pesoAlturaGps = varianzaAlturaBar/(varianzaAlturaBar + varianzaAlturaGps)
+        pesoAlturaBar = 1 - pesoAlturaGps
+        alturaFus = pesoAlturaBar*float(AltB) + pesoAlturaGps*float(AltG)
+    if len(vectorAlturaBar) > 10000 or len(vectorAlturaGps) > 10000:
+        sumaAlturaBar = 0
+        sumaVarianzaAlturaBar = 0
+        vectorAlturaBar = []
+        vectorAlturaGps = []
+    return str(alturaFus)'''
 
 try:
     archivo2 = open(nombreArchivoSETLeerEscribir,"r")

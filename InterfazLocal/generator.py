@@ -11,12 +11,13 @@ import sys
 import time
 import random
 
+
 IP = "localhost"        # The IP of the machine hosting your influxdb instance
 
 DB = "globo"               # The database to write to, has to exist
 USER = "admin"             # The influxdb user to authenticate with
 PASSWORD = "admin"  # The password of that user
-TIME = 0.5                  # Delay in seconds between two consecutive updates
+TIME = 1                  # Delay in seconds between two consecutive updates
 STATUS_MOD = 5            # The interval in which the updates count will be printed to your console
 
 
@@ -26,15 +27,15 @@ randNums0_1 = []
 rangoVariacion = [5,25]
 n = 0
 insertData = 15
-
+nombreArchivoTramasLeer = "prueba13abril.txt"
 
 def addToDB(r):
     if r.status_code != 204:
         print 'Failed to add point to influxdb (%d) - aborting.' %r.status_code
         sys.exit(1)
 
-
 while True:
+
     for d in range(0, 360):
         actual = time.time()
         # Generar el dato aleatorio cada cierto tiempo
