@@ -22,13 +22,8 @@ global vectorAlturaGps, vectorAlturaBar
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
 #La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
 
-<<<<<<< HEAD
-nombreArchivoTramasLeer = "prueba12abril.txt"
-nombreVectorTrayectoriaGuardar = "vectorprueba12abril.txt"
-=======
 nombreArchivoTramasLeer = "prueba13abril.txt"
 nombreVectorGuardar = "vectorprueba13abril.txt"
->>>>>>> d08183112a2c97e74cbcc025c954b46c8c036f3a
 nombreArchivoSETLeerEscribir = "SET.txt"
 
 MatrizD = []
