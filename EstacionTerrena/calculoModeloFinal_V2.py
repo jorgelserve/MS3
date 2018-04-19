@@ -5,7 +5,7 @@
     #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
 #trama larga gases
     #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-    #F humedadDHT11 G NH3 H CO I NO2 J H2 K C2H50H L tempI2C M tempADC N presionbar
+    #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
 
 import math
 import serial
@@ -117,11 +117,14 @@ def procesarTrama(lineas):
                     NH3 =  valores[3].split("G")[1].split("H")[0].strip()
                     CO =  valores[3].split("H")[1].split("I")[0].strip()
                     NO2 =  valores[3].split("I")[1].split("J")[0].strip()
-                    H2 =  valores[3].split("J")[1].split("K")[0].strip()
-                    C2H50H =  valores[3].split("K")[1].split("L")[0].strip()
-                    tempI2C =  valores[3].split("L")[1].split("M")[0].strip()
-                    tempADC =  valores[3].split("M")[1].split("N")[0].strip()
-                    presionbar =  valores[3].split("N")[1].strip()
+                    C3H8 = valores[3].split("J")[1].split("K")[0].strip()
+                    C4H10 = valores[3].split("K")[1].split("L")[0].strip()
+                    CH4 = valores[3].split("L")[1].split("M")[0].strip()
+                    H2 =  valores[3].split("M")[1].split("N")[0].strip()
+                    C2H50H =  valores[3].split("N")[1].split("0")[0].strip()
+                    tempI2C =  valores[3].split("O")[1].split("P")[0].strip()
+                    tempADC =  valores[3].split("P")[1].split("Q")[0].strip()
+                    presionbar =  valores[3].split("Q")[1].strip()
             else:
                 #trama corta
                 #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
