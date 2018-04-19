@@ -28,7 +28,7 @@ n = 0
 insertData = 15
 nombreArchivoTramasLeer = "interfazLocal18.txt"
 bnad_grafana = 0
-
+time_miliseconds = 1
 def addToDB(r):
     if r.status_code != 204:
         print 'Failed to add point to influxdb (%d) - aborting.' %r.status_code
@@ -221,13 +221,17 @@ while True:
             cuentadesconocida = cuentadesconocida + 1
         time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
         if band_grafana == 1:
+            then = time.time()
+            time = then - start
+            time_mision = str(time)
+            
             gps_data = 'gps_data gps_time=%e,gps_latitude=%e,gps_longitude=%e,gps_altitude=%e,gps_course=%e,gps_speed=%e' % (tiempo, latitud_geo, longitud_geo, altitudGps, curso, velocidad)
             imu_data = 'imu_data imu_ax=%e,imu_ay=%e,imu_az=%e,imu_cx=%e,imu_cy=%e,imu_cz=%e,imu_gx=%e,imu_gy=%e,imu_gz=%e' % (ACCX, ACCY, ACCZ, GIX, GIY, GIZ, MX, MY, MZ)
             barometer_data = 'barometer_data barometer_temperature=%e,barometer_pressure=%e,barometer_altitude=%e' % (tempeBar, presionbar, alturaBar)
             gas_data = 'gas_data gas_nh3=%e,gas_co=%e,gas_no2=%e,gas_c3h8=%e,gas_c4h10=%e,gas_ch4=%e,gas_h2=%e,gas_c2h5oh=%e' % (NH3, CO, NO2, C3H8, C4H10, CH4, H2, C2H50H)
             #gas1_data = 'gas1_data gas1_nh3=%e,gas1_co=%e,gas1_no2=%e,gas1_c3h8=%e,gas1_c4h10=%e,gas1_ch4=%e,gas1_h2=%e,gas1_c2h5oh=%e' % (conseno, seno, voltajePanel1, velocidad, seno*0.2, seno*0.5, conseno*0.2, conseno*0.5)
             environment_data = 'environment_data temperature_sht11=%e,humidity_sht11=%e,temperature_i2c=%e,mean_temperature=%e' % (tempeSHT11, humedadDHT11, tempI2C, tempADC)
-            other_data = 'other_data time_miliseconds=%e,voltage_batery=%e' % (voltajePanel1, voltajebater)
+            other_data = 'other_data time_miliseconds=%e,voltage_batery=%e' % (time_mision, voltajebater)
 
             ## without autentication
             #r = requests.post("http://%s:8086/write?db=%s" %(IP, DB), data=v)
@@ -253,6 +257,7 @@ while True:
             other = requests.post("http://%s:8086/write?db=%s" %(IP, DB), auth=(USER, PASSWORD), data=other_data)
             addToDB(other)
             band_grafana = 0
+
             n += 1
             time.sleep(TIME)
             if n % STATUS_MOD == 0:
