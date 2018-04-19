@@ -1,10 +1,10 @@
 #trama corta
-    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
 #trama larga IMU
-    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
     #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
 #trama larga gases
-    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
+    #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
     #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
 
 import math
@@ -13,27 +13,27 @@ import time
 import subprocess
 import random
 import requests
+import string
 
 global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
-global vectorAlturaGps, vectorAlturaBar
-
+global vectorAlturaGps, vectoralturaBar
 
 #La variable nombreArchivoTramasLeer contiene las tramas que el programa gqrx guardo al decodificar el AFSK
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
 #La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
 
-nombreArchivoTramasLeer = "prueba13abril.txt"
-nombreVectorGuardar = "vectorprueba13abril.txt"
+nombreArchivoTramasLeer = "prueba19abril.txt"
+nombreVectorTrayectoriaGuardar = "vectorprueba19abril.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 
 MatrizD = []
-vectorAlturaBar = []
+vectoralturaBar = []
 vectorAlturaGps = []
 vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 band_inicial = 0;
-arduino = serial.Serial('/dev/ttyUSB0',9600)
+#arduino = serial.Serial('/dev/ttyUSB0',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -51,122 +51,195 @@ def leerTrama():
             return returnedValues
         else:
             return 0
-    except:
+    except Exception as e:
         print("****ERROR LEYENDO TRAMA*****")
+        print(e)
 def procesarTrama(lineas):
     try:
         returnedValues = lineas
         valores = returnedValues.split("/")
         if (len(valores) == 4):
             print(returnedValues)
-            if len(valores[3]) > 50: #Si la longitud de la trama es mayor a 50 es larga
-                j = 0
-                tramaIMU = False
+            tramaIMU = False
+            tramaGases = False
+            for i in range(len(valores[3])):
+                i = i + 1
+                bit = valores[3][i-1]
+                if bit == "f": #Si en la trama hay una f minuscula sera una trama IMU
+                    tramaIMU = True
+                if bit == "F":
+                    tramaGases = True
+            if tramaIMU == True:
+                #trama larga IMU
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
+                #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
                 for i in range(len(valores[3])):
-                    j = j + 1
-                    bit = valores[3][j-1]
-                    if bit == "f": #Si en la trama hay una f minuscula sera una trama IMU, de lo contrario GASES
-                        tramaIMU = True
-                if tramaIMU == True:
-                    #trama larga IMU
-                    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-                    #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
-                    print("trama larga IMU")
-                    tramalarga = False
-                    tiempo = valores[1][0:6].strip()
-                    latitud = valores[1][7:15].strip()
-                    longitud = valores[2][0:9].strip()
-                    curso = valores[2][10:].strip()
-                    velocidad = valores[3].split("A")[0].strip()
-                    altitudGps = valores[3].split("A")[1].split("B")[0].strip()
-                    alturaBar = valores[3].split("B")[1].split("C")[0].strip()
-                    tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                    tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                    voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
-                    ACCX =  valores[3].split("f")[1].split("G")[0].strip()
-                    ACCY =  valores[3].split("G")[1].split("H")[0].strip()
-                    ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
-                    GIX =  valores[3].split("I")[1].split("J")[0].strip()
-                    GIY =  valores[3].split("J")[1].split("K")[0].strip()
-                    GIZ =  valores[3].split("K")[1].split("L")[0].strip()
-                    MX =  valores[3].split("L")[1].split("M")[0].strip()
-                    MY =  valores[3].split("M")[1].split("N")[0].strip()
-                    MZ =  valores[3].split("N")[1].strip()
-                else:
-                    #trama larga gases
-                    #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-                    #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
-                    print("trama larga gases")
-                    tramalarga = False
-                    tiempo = valores[1][0:6].strip()
-                    latitud = valores[1][7:15].strip()
-                    longitud = valores[2][0:9].strip()
-                    curso = valores[2][10:].strip()
-                    velocidad = valores[3].split("A")[0].strip()
-                    altitudGps = valores[3].split("A")[1].split("B")[0].strip()
-                    alturaBar = valores[3].split("B")[1].split("C")[0].strip()
-                    tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                    tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                    voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
-                    humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
-                    NH3 =  valores[3].split("G")[1].split("H")[0].strip()
-                    CO =  valores[3].split("H")[1].split("I")[0].strip()
-                    NO2 =  valores[3].split("I")[1].split("J")[0].strip()
-                    C3H8 = valores[3].split("J")[1].split("K")[0].strip()
-                    C4H10 = valores[3].split("K")[1].split("L")[0].strip()
-                    CH4 = valores[3].split("L")[1].split("M")[0].strip()
-                    H2 =  valores[3].split("M")[1].split("N")[0].strip()
-                    C2H50H =  valores[3].split("N")[1].split("0")[0].strip()
-                    tempI2C =  valores[3].split("O")[1].split("P")[0].strip()
-                    tempADC =  valores[3].split("P")[1].split("Q")[0].strip()
-                    presionbar =  valores[3].split("Q")[1].strip()
+                    i = i + 1
+                    bit = valores[3][i-1]
+                    if bit == "B": #Si se cumple se garantiza existencia de trama hasta "B"
+                        tiempo = valores[1][0:6].strip()
+                        latitud = valores[1][7:15].strip()
+                        longitud = valores[2][0:9].strip()
+                        curso = valores[2][10:].strip()
+                        velocidad = valores[3].split("A")[0].strip()
+                        altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                        datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
+                        latitud_geo = datosTransfor[0]
+                        longitud_geo = datosTransfor[1]
+                        altitud_geo = altitudGps
+                        datoToSetOK = True
+                        print("tiempo: " + str(float(tiempo)))
+                        print("latitud_geo: " + str(float(latitud_geo)))
+                        print("longitud_geo: " + str(float(longitud_geo)))
+                        print("altitud_geo: " + str(float(altitud_geo)))
+                        print("curso: " + str(float(curso)))
+                        print("velocidad: " + str(float(velocidad)))
+                    if bit == "C": #Si se cumple se garantiza existencia de trama hasta "C"
+                        alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                        print("alturaBar: " + str(float(alturaBar)))
+                    if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
+                        tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                    if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
+                        tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                    if bit == "f": #Si se cumple se garantiza existencia de trama hasta "f"
+                        voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
+                        print("voltajebater: " + str(float(voltajebater)))
+                    if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
+                        ACCX =  valores[3].split("f")[1].split("G")[0].strip()
+                    if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
+                        ACCY =  valores[3].split("G")[1].split("H")[0].strip()
+                    if bit == "I": #Si se cumple se garantiza existencia de trama hasta "I"
+                        ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
+                    if bit == "J": #Si se cumple se garantiza existencia de trama hasta "J"
+                        GIX =  valores[3].split("I")[1].split("J")[0].strip()
+                    if bit == "K": #Si se cumple se garantiza existencia de trama hasta "K"
+                        GIY =  valores[3].split("J")[1].split("K")[0].strip()
+                    if bit == "L": #Si se cumple se garantiza existencia de trama hasta "L"
+                        GIZ =  valores[3].split("K")[1].split("L")[0].strip()
+                    if bit == "M": #Si se cumple se garantiza existencia de trama hasta "M"
+                        MX =  valores[3].split("L")[1].split("M")[0].strip()
+                    if bit == "N": #Si se cumple se garantiza existencia de trama hasta "N"
+                        MY =  valores[3].split("M")[1].split("N")[0].strip()
+                        MZ =  valores[3].split("N")[1].strip()
+                        print("trama larga IMU completa")
+            elif tramaGases == True:
+                #trama larga gases
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
+                #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
+                for i in range(len(valores[3])):
+                    i = i + 1
+                    bit = valores[3][i-1]
+                    if bit == "B": #Si se cumple se garantiza existencia de trama hasta "B"
+                        tiempo = valores[1][0:6].strip()
+                        latitud = valores[1][7:15].strip()
+                        longitud = valores[2][0:9].strip()
+                        curso = valores[2][10:].strip()
+                        velocidad = valores[3].split("A")[0].strip()
+                        altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                        datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
+                        latitud_geo = datosTransfor[0]
+                        longitud_geo = datosTransfor[1]
+                        altitud_geo = altitudGps
+                        datoToSetOK = True
+                        print("tiempo: " + str(float(tiempo)))
+                        print("latitud_geo: " + str(float(latitud_geo)))
+                        print("longitud_geo: " + str(float(longitud_geo)))
+                        print("altitud_geo: " + str(float(altitud_geo)))
+                        print("curso: " + str(float(curso)))
+                        print("velocidad: " + str(float(velocidad)))
+                    if bit == "C": #Si se cumple se garantiza existencia de trama hasta "C"
+                        alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                        print("alturaBar: " + str(float(alturaBar)))
+                    if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
+                        tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                    if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
+                        tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                    if bit == "F": #Si se cumple se garantiza existencia de trama hasta "F"
+                        voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
+                        print("voltajebater: " + str(float(voltajebater)))
+                    if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
+                        humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
+                    if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
+                        NH3 =  valores[3].split("G")[1].split("H")[0].strip()
+                    if bit == "I": #Si se cumple se garantiza existencia de trama hasta "I"
+                        CO =  valores[3].split("H")[1].split("I")[0].strip()
+                    if bit == "J": #Si se cumple se garantiza existencia de trama hasta "J"
+                        NO2 =  valores[3].split("I")[1].split("J")[0].strip()
+                    if bit == "K": #Si se cumple se garantiza existencia de trama hasta "K"
+                        C3H8 = valores[3].split("J")[1].split("K")[0].strip()
+                    if bit == "L": #Si se cumple se garantiza existencia de trama hasta "L"
+                        C4H10 = valores[3].split("K")[1].split("L")[0].strip()
+                    if bit == "M": #Si se cumple se garantiza existencia de trama hasta "M"
+                        CH4 = valores[3].split("L")[1].split("M")[0].strip()
+                    if bit == "N": #Si se cumple se garantiza existencia de trama hasta "N"
+                        H2 =  valores[3].split("M")[1].split("N")[0].strip()
+                    if bit == "O": #Si se cumple se garantiza existencia de trama hasta "O"
+                        C2H50H =  valores[3].split("N")[1].split("O")[0].strip()
+                    if bit == "P": #Si se cumple se garantiza existencia de trama hasta "P"
+                        tempI2C =  valores[3].split("O")[1].split("P")[0].strip()
+                    if bit == "Q": #Si se cumple se garantiza existencia de trama hasta "Q"
+                        tempADC =  valores[3].split("P")[1].split("Q")[0].strip()
+                        presionbar =  valores[3].split("Q")[1].strip()
+                        print("trama larga Gases completa")
             else:
                 #trama corta
-                #tiempo h latitud / longitud O curso / velocidad A altitud B alturabar C tempbar D TEMPSHT11 E voltajebater
-                print("trama corta")
+                #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
                 tramalarga = False
-                tiempo = valores[1][0:6].strip()
-                latitud = valores[1][7:15].strip()
-                longitud = valores[2][0:9].strip()
-                curso = valores[2][10:].strip()
-                velocidad = valores[3].split("A")[0].strip()
-                altitudGps = valores[3].split("A")[1].split("B")[0].strip()
-                alturaBar = valores[3].split("B")[1].split("C")[0].strip()
-                tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                voltajebater =  valores[3].split("E")[1].strip()
-            datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
-            latitud_geo = datosTransfor[0]
-            longitud_geo = datosTransfor[1]
-            altitud_geo = altitudGps
-            enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
-            try:
-                print("tiempo: " + str(float(tiempo)))
-                print("latitud_geo: " + str(float(latitud_geo)))
-                print("longitud_geo: " + str(float(longitud_geo)))
-                print("altitud_geo: " + str(float(altitud_geo)))
-                print("curso: " + str(float(curso)))
-                print("velocidad: " + str(float(velocidad)))
-                print("alturabar: " + str(float(alturabar)))
-                print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
-                print("voltajebater: " + str(float(voltajebater)))
-                print("temperaturaBar: " +  str(float(tempeBar)/100))
-            except:
-                print("***** ERROR EN VARIABLES PROCESADAS *****")
+                for i in range(len(valores[3])):
+                    i = i + 1
+                    bit = valores[3][i-1]
+                    if bit == "B": #Si se cumple se garantiza existencia de trama hasta "B"
+                        tiempo = valores[1][0:6].strip()
+                        latitud = valores[1][7:15].strip()
+                        longitud = valores[2][0:9].strip()
+                        curso = valores[2][10:].strip()
+                        velocidad = valores[3].split("A")[0].strip()
+                        altitudGps = valores[3].split("A")[1].split("B")[0].strip()
+                        datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
+                        latitud_geo = datosTransfor[0]
+                        longitud_geo = datosTransfor[1]
+                        altitud_geo = altitudGps
+                        datoToSetOK = True
+                        print("tiempo: " + str(float(tiempo)))
+                        print("latitud_geo: " + str(float(latitud_geo)))
+                        print("longitud_geo: " + str(float(longitud_geo)))
+                        print("altitud_geo: " + str(float(altitud_geo)))
+                        print("curso: " + str(float(curso)))
+                        print("velocidad: " + str(float(velocidad)))
+                    if bit == "C": #Si se cumple se garantiza existencia de trama hasta "C"
+                        alturaBar = valores[3].split("B")[1].split("C")[0].strip()
+                        print("alturaBar: " + str(float(alturaBar)))
+                    if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
+                        tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
+                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                    if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
+                        tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
+                        voltajebater =  valores[3].split("E")[1].strip()
+                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                        print("voltajebater: " + str(float(voltajebater)))
+                        print("trama corta completa")
+                        enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar)
             #Se debe guardar de manera recurrente las coordenadas de la estacion terrena y la gondola
             #para el caso en el que se reinicie la aplicacion y no se haya movido la estacion, poder
             #recuperar el tracking seteando nuevamente de manera automatica
-            archivo3 = open(nombreArchivoSETLeerEscribir,"w")
-            archivo3.write("latitudE/" + str(latitudE) + "\n")
-            archivo3.write("longitudE/" + str(longitudE) + "\n")
-            archivo3.write("altitudE/" + str(altitudE) + "\n")
-            archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
-            archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
-            archivo3.write("altitudG_i/" + str(altitud_geo) + "\n")
-            archivo3.close()
+            if datoToSetOK == True:
+                datoToSetOK = False
+                archivo3 = open(nombreArchivoSETLeerEscribir,"w")
+                archivo3.write("latitudE/" + str(latitudE) + "\n")
+                archivo3.write("longitudE/" + str(longitudE) + "\n")
+                archivo3.write("altitudE/" + str(altitudE) + "\n")
+                archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
+                archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
+                archivo3.write("altitudG_i/" + str(altitud_geo) + "\n")
+                archivo3.close()
             return [latitud_geo,longitud_geo,altitud_geo]
-    except:
+    except Exception as e:
         print("******ERROR PROCESANDO TRAMA********")
+        print(e)
 def transformarTrama(latitud,longitud):
     try:
         longitud_geo = 0
@@ -208,8 +281,9 @@ def transformarTrama(latitud,longitud):
         latitud_geo = latitud_geo[0:9]
         latitud_geo = latitud_geo.strip()
         return [latitud_geo,longitud_geo]
-    except:
+    except Exception as e:
         print("*****ERROR TRANSFORMANDO TRAMA*****")
+        print(e)
 def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
     try:
         tempoH=tempo[0:2]
@@ -250,8 +324,9 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
         #print (r.status_code)
         #print (r.headers)
         print ("trama enviada a web")
-    except:
+    except Exception as e:
         print("*******ERROR ENVIANDO A WEB******")
+        print(e)
 def modelo(lati, longi, alti):
     try:
         latitudG = float(lati)
@@ -283,7 +358,6 @@ def modelo(lati, longi, alti):
         Duvw_1 = Dw_1
         Duvw_2 = math.cos(alfaP)*Dw_2+math.sin(alfaP)*Dw_3
         Duvw_3 = -math.sin(alfaP)*Dw_2+math.cos(alfaP)*Dw_3
-        Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
         vectorD = [Duvw_1,Duvw_2,Duvw_3]
         MatrizD.append(vectorD)
         archivo1 = open(nombreVectorTrayectoriaGuardar,"a")
@@ -298,18 +372,23 @@ def modelo(lati, longi, alti):
         if abs(Duvw_3) < 1:
             Duvw_3 = 0
             divCero = divCero + 1
-        if divCero < 3:
-            divCero = 0
-            omega_prima = math.asin(Duvw_2/Distancia)*180/3.14159265358979
-        if Duvw_1 < 0:
-            theta_prima = -math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
+        Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
+        if Distancia > 0:
+            if divCero < 3:
+                divCero = 0
+                omega_prima = math.asin(Duvw_2/Distancia)*180/3.14159265358979
+            if Duvw_1 < 0:
+                theta_prima = -math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
+            else:
+                theta_prima = math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
+            angulo_omega = omega_prima
+            angulo_theta = theta_prima
+            return [angulo_theta, angulo_omega]
         else:
-            theta_prima = math.acos(Duvw_3/math.sqrt(Duvw_1*Duvw_1+Duvw_3*Duvw_3))*180/3.141592653589793
-        angulo_omega = omega_prima
-        angulo_theta = theta_prima
-        return [angulo_theta, angulo_omega]
-    except:
+            return[0.0, 0.0]
+    except Exception as e:
         print("*****ERROR CALCULANDO MODELO****")
+        print(e)
 def enviarArduino(angulo_theta, angulo_omega, state):
     try:
         SET = state
@@ -417,8 +496,9 @@ def enviarArduino(angulo_theta, angulo_omega, state):
             time.sleep(0.01)
         #Si el arduino responde el programa continua
         datoRecibido = ''
-    except:
+    except Exception as e:
         print("******ERROR ENVIANDO A ARDUINO*****")
+        print(e)
 def estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue):
     Cu = DuNue - DuAnt
     Cv = DvNue - DvAnt
@@ -465,10 +545,11 @@ try:
     thetaSET = angulosSET[0]
     omegaSET = angulosSET[1]
     archivo2.close()
-    enviarArduino(thetaSET,omegaSET,True)
+    #enviarArduino(thetaSET,omegaSET,True)
     print("__________________________________________")
-except:
+except Exception as e:
     while(1):
+        print(e)
         print("****ERROR GENERANDO SET***")
         time.sleep(1)
 
@@ -482,18 +563,18 @@ while (1):
             cuentadesconocida = 0
             coordenadas = procesarTrama(trama)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-            enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
             print("__________________________________________")
         if trama == 0:
             if cuentatrama < 1:
                 print("Esperando trama nueva.....")
                 print("__________________________________________")
-            cuentatrama = cuentatrama + 1
+                cuentatrama = cuentatrama + 1
         if trama == 1:
             if cuentadesconocida < 1:
                 print("Trama leida desconocida")
                 print("__________________________________________")
-            cuentadesconocida = cuentadesconocida + 1
+                cuentadesconocida = cuentadesconocida + 1
         time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
     except:
         print("******** ERROR DE EJECUCION ***********")
