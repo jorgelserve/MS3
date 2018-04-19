@@ -136,8 +136,10 @@ def procesarTrama(lineas):
                 tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                 voltajebater =  valores[3].split("E")[1].strip()
             datosTransfor = transformarTrama(latitud,longitud) #Convierte las coordenadas a decimales
+            #alturaFusionGpsBar = fusionar(altitudGps,alturaBar) #Fusiona la altura del GPS y Barometro en una sola medida mas precisa
             latitud_geo = datosTransfor[0]
             longitud_geo = datosTransfor[1]
+            #altitud_geo = alturaFusionGpsBar
             altitud_geo = altitudGps
             enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturabar,TEMPSHT11,voltajebater,tempebar)
             try:
@@ -450,7 +452,51 @@ def modeloVector(Du,Dv,Dw):
     else:
         theta_prima_estimada = math.acos(Dw/math.sqrt(Du*Du+Dw*Dw))*180/3.141592653589793
     return [theta_prima_estimada,omega_prima_estimada]
+def estimacion():
+    DuAnt = MatrizD[len(MatrizD)-2][0]
+    DvAnt = MatrizD[len(MatrizD)-2][1]
+    DwAnt = MatrizD[len(MatrizD)-2][2]
+    DuNue = MatrizD[len(MatrizD)-1][0]
+    DvNue = MatrizD[len(MatrizD)-1][1]
+    DwNue = MatrizD[len(MatrizD)-1][2]
+    coordEstim = estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue)
 
+    angulosEstim_v1 = modeloVector(coordEstim[0],coordEstim[1],coordEstim[2])
+    enviarArduino(angulosEstim_v1[0],angulosEstim_v1[1],False)
+    time.sleep(2)
+
+    angulosEstim_v2 = modeloVector(coordEstim[3],coordEstim[4],coordEstim[5])
+    enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1],False)
+    time.sleep(2)
+def fusionar(AltG,AltB):
+    vectorAlturaGps.append(AltG)
+    vectorAlturaGps.append(AltB)
+    if len(vectorAlturaBar) == 1 and len(vectorAlturaGps) == 1:
+        alturaFus = 0.5*float(AltG) + 0.5*float(AltB)
+    elif len(vectorAlturaBar) > 1 and len(vectorAlturaGps) > 1:
+        i = j = k = n = 0
+        for i in len(vectorAlturaBar):
+            i = i + 1
+            sumaAlturaBar = sumaAlturaBar + float(vectorAlturaBar[i])
+        promedioAlturaBar = sumaAlturaBar/len(vectorAlturaBar)
+        for j in len(vectorAlturaBar):
+            j = j + 1
+            sumaVarianzaAlturaBar = sumaVarianzaAlturaBar + (float(vectorAlturaBar[j])-promedioAlturaBar)²
+        varianzaAlturaBar = sumaVarianzaAlturaBar/len(vectorAlturaBar)
+
+        for n in len(vectorAlturaGps):
+            n = n + 1
+            sumaAlturaGps = sumaAlturaGps + float(vectorAlturaGps[n])
+        promedioAlturaGps = sumaAlturaGps/len(vectorAlturaGps)
+        for k in len(vectorAlturaGps):
+            k = k + 1
+            sumaVarianzaAlturaGps = sumaVarianzaAlturaGps + (float(vectorAlturaGps[k])-promedioAlturaGps)²
+        varianzaAlturaGps = sumaVarianzaAlturaGps/len(vectorAlturaGps)
+
+        pesoAlturaGps = varianzaAlturaBar/(varianzaAlturaBar + varianzaAlturaGps)
+        pesoAlturaBar = 1 - pesoAlturaGps
+        alturaFus = pesoAlturaBar*float(AltB) + pesoAlturaGps*float(AltG)
+    return str(alturaFus)
 
 try:
     archivo2 = open(nombreArchivoSETLeerEscribir,"r")
@@ -483,6 +529,9 @@ while (1):
             coordenadas = procesarTrama(trama)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
             enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            if len(MatrizD) > 1: #Estimacion
+                #estimacion()
+                continue
             print("__________________________________________")
         if trama == 0:
             if cuentatrama < 1:
