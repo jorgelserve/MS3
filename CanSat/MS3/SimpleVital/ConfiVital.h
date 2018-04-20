@@ -146,6 +146,9 @@ long cSD05[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 byte error05;
 byte error_gas05 = 0;
 
+// promedio
+long gases[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
 // ----------------------------- Humedad y Temperatura (SHT11)
 int tempSD;
 int humSD;

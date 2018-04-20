@@ -240,6 +240,7 @@ void loop() {
   medirGases04();
 #if not MS2Compatible
   medirGases05();
+  promedioGases();    // se calcula el promedio de ambos sensores para enviarlos por radio
 #endif
   ///////////////////////////////////////////////////// Se lee el Barometro /////////////////////////////////////////////////
   medirBarometroB();

@@ -91,6 +91,25 @@ inline void medirGases05() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+inline void promedioGases() {
+  dim04 = (sizeof(c04) / sizeof(float));  // estraccion Tamaño
+  // Generacion promedio, validando funcionamiento sensor
+  for (int i = 0; i < (dim04); i++) { 
+    if (error_gas04 != 0) {
+      if (error_gas05 != 0) {
+        gases[i] = (cSD04[i] + cSD05[i]) / 2; // si ningun sensor tiene error se promedian sus valores
+      } else {
+        gases[i] = cSD04[i];  // si solo 5 esta fallando
+      }
+    } else if (error_gas05 != 0) {
+      gases[i] = cSD05[i];    // si solo 4 esta fallando
+    } else {
+      gases[i] = 0;           // si ambos fallan
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void calibrarGases04() {
   if (error_gas04 == 0) {
     error_gas04 = iniciarGases04();
@@ -101,7 +120,7 @@ inline void calibrarGases04() {
   Serial.print("04... Calibration ok: ");
   Serial.println(millis());
   gas04.display_eeprom();
-  
+
 }
 
 inline void calibrarGases05() {
