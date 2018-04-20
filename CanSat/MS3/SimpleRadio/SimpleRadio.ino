@@ -175,6 +175,15 @@ void loop() {
   */
   processPacket(); // Print in console the incoming data
 
+  //enviarDatosSeriales();
+  procesarTramasLargas();
+} // fin loop
+
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Funciones Principales zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+
+inline void enviarDatosSeriales() {
   // Check for Serial Comunication
   if (Serial.available() > 0) {
     char c = Serial.read();  //gets one byte from serial buffer
@@ -182,13 +191,13 @@ void loop() {
     if (c == 'M') {
       //lectura recursiva de los datos seriales llegan de a 63
       String data2Send = Serial.readString();
-      if (data2Send.length() == 63) {
+      /*if (data2Send.length() == 63) {
         delay 10;
         while (Serial.available() > 0) {
           c = Serial.readString();
           data2Send += c; //makes the string readString
         }
-      }
+        }*/
       // A message will be send, capture de string data
       /*while (Serial.available() > 0){
         c = Serial.readString();
@@ -204,22 +213,51 @@ void loop() {
       APRS_sendSMsg(message, strlen(message)); // Send Message
     }
   }
+}
 
-} // fin loop
 
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz Funciones Principales zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-//zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-/*
-  void RadioInTx() {
-  pinMode(RxS_pin, INPUT);
-  pinMode(TxS_pin, OUTPUT);
-  digitalWrite(TxS_pin, LOW);
-  }
+inline void procesarTramasLargas() {
+  String data2Send = "";
+  bool badPacket = true;
+  // Check for Serial Comunication
+  if (Serial.available() > 0) {
+    char c = Serial.read();  //gets one byte from serial buffer
+    if (c == 'M') {
+      Serial.print('n'); // se le indica a la vital que envie el primer paquete
 
-  void RadioInRx() {
-  pinMode(TxS_pin, INPUT);
-  pinMode(RxS_pin, OUTPUT);
-  digitalWrite(RxS_pin, LOW);
-  }
-*/
+      unsigned long tiempoFinMensaje = millis() + 5000;
+      // Recibimos los la trama a enviar por paquetes de a 63 o menos
+      while (tiempoFinMensaje > millis()) {
+
+        if (Serial.available() > 0) {
+          // lectura recursiva de los datos seriales, llegan de a 63  o menos
+          String dataR = Serial.readString(); // Se lee el primer paquete
+
+          data2Send += dataR;   // Agrupamos Paquetes
+
+          if (dataR.length() == 63) {
+            //delay(500);
+            Serial.print('n'); // Enviamos de nuevo una n, preguntando por el posible siguiente paquete
+          } else {
+            badPacket = false;
+            // el paquete es mas pequeño, no hay mas paquetes, se procede a enviar el mensaje
+            break;
+          }
+
+        } // Hay datos seriales
+
+      } // Fin while
+
+      // Se envia mensaje
+      if (!badPacket) {
+        message = data2Send.c_str();
+        APRS_sendSMsg(message, strlen(message)); // Send Message
+      }
+
+    } // Fin M detectada
+
+  } // Fin datos seriales disponibles
+
+} // fin funcion procesar
+
+

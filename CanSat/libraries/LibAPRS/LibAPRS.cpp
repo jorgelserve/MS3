@@ -46,7 +46,7 @@ char message_recip[7];
 int message_recip_ssid = -1;
 
 int message_seq = 0;
-char lastMessage[67];
+char lastMessage[200];
 size_t lastMessageLen;
 bool message_autoAck = false;
 /////////////////////////
@@ -310,7 +310,7 @@ void APRS_sendMsg(void *_buffer, size_t length) {
 
 // Simple Message
 void APRS_sendSMsg(void *_buffer, size_t length) {
-    if (length > 67) length = 67;
+    if (length > 200) length = 200;
     size_t payloadLength = length; 
     uint8_t *packet = (uint8_t*)malloc(payloadLength);
     uint8_t *ptr = packet;
