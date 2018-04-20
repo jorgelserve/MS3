@@ -1,0 +1,20 @@
+linux; GNU C++ version 7.1.1 20170711 (Red Hat 7.1.1-5); Boost_106400; UHD_003.010.001.000-0-unknown
+
+Resampling audio 96000 -> 48000
+BookmarksFile is /home/diegovalle/.config/gqrx/bookmarks.csv
+linux; GNU C++ version 7.1.1 20170711 (Red Hat 7.1.1-5); Boost_106400; UHD_003.010.001.000-0-unknown
+
+Resampling audio 96000 -> 48000
+BookmarksFile is /home/diegovalle/.config/gqrx/bookmarks.csv
+linux; GNU C++ version 7.1.1 20170711 (Red Hat 7.1.1-5); Boost_106400; UHD_003.010.001.000-0-unknown
+
+Resampling audio 96000 -> 48000
+BookmarksFile is /home/diegovalle/.config/gqrx/bookmarks.csv
+linux; GNU C++ version 7.1.1 20170711 (Red Hat 7.1.1-5); Boost_106400; UHD_003.010.001.000-0-unknown
+
+Resampling audio 96000 -> 48000
+BookmarksFile is /home/diegovalle/.config/gqrx/bookmarks.csv
+linux; GNU C++ version 7.1.1 20170711 (Red Hat 7.1.1-5); Boost_106400; UHD_003.010.001.000-0-unknown
+
+Resampling audio 96000 -> 48000
+BookmarksFile is /home/diegovalle/.config/gqrx/bookmarks.csv
