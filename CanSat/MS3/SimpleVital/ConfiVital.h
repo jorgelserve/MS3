@@ -199,6 +199,8 @@ bool panelesDesplegados = false;      // Permite saber si ya se corrio el despli
 
 // ----------------------------- Radio
 byte band_transmission = 0;   // Usamos para cambiar entre Trama Corta, Gases y IMU
+byte band_transmission = 0;           // Usamos para cambiar entre Trama Corta, Gases y IMU
+unsigned long ultimoTiempoTX = 0;     // Lo usamos para saber cuando fue la ultima tramsion y encaso de ser muy larga reiniciamos radio
 
 // variables Generacion promedios envio radio
 String DatosRC = "";

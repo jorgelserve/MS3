@@ -62,6 +62,7 @@ inline void trasmitirMediciones() {
 ///////////////////////////////////////// Revisar Paquetes Radio /////////////////////////////////////////////////////////////
 inline void revisarRadio() {
   if (Serial2.available() > 0) {
+    ultimoTiempoTX = millis();    // reportamos respuesta del radio
     digitalWrite(LedRAD_PIN, HIGH);
     String data2Send = Serial2.readString();
     /*String datosR = data2Send;
@@ -94,14 +95,24 @@ inline void revisarRadio() {
     Serial2.print("M");
     Serial2.print(data2Send);
     digitalWrite(LedRAD_PIN, LOW);
+  } else {
+    // si no hay respuesta del radio en 20 segundos, lo reiniciamos
+    if ((ultimoTiempoTX + 20000) < millis()) {
+      resetRadio();
+    }
+
   }
-}
+
+} // fin revisar Radio
 
 ///////////////////////////////////////// Generar Tramas /////////////////////////////////////////////////////////////
-inline void generarTramas(){
+inline void generarTramas() {
   generarTramaCorta();
   generarTramaGRadio();
   generarTramaIRadio();
+
+  //enviarTramasRadio(DatosRC + DatosRG + "----Alargado intencionalTrama");
+  //enviarTramasRadio(DatosRC + DatosRG);
 }
 
 ///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
@@ -145,7 +156,7 @@ inline void generarTramaCorta() {
   datos += text;
   //datos += sep[10];
   // fin trama
-  DatosRC = datos; // cargamos trama a variable global 
+  DatosRC = datos; // cargamos trama a variable global
 }
 
 ///////////////////////////////////////// Envio Trama Ubicacion
@@ -153,10 +164,7 @@ inline void enviarTramaCRadio() {
   Serial.print("Enviando... ");
   Serial.println(DatosRC);
   // Envio datos por Radio
-  digitalWrite(LedRAD_PIN, HIGH);
-  Serial2.print("M");
-  Serial2.print(DatosRC);
-  digitalWrite(LedRAD_PIN, LOW);
+  enviarTramasRadio(DatosRC);
 }
 
 ///////////////////////////////////////// Trama Larga Gases /////////////////////////////////////////////////////////////
@@ -188,8 +196,8 @@ inline void generarTramaGRadio() {
   datos += String(tempPCB); // tempADC Promedio
   datos += sep[11];
   datos += String((long)BarB_pres);
-  
-  DatosRG = datos; // cargamos trama a variable global 
+
+  DatosRG = datos; // cargamos trama a variable global
 }
 
 ///////////////////////////////////////// Envio Trama Larga Gases
@@ -199,10 +207,7 @@ inline void enviarTramaGRadio() {
   Serial.print("Enviando... ");
   Serial.println(datos);
   // Envio datos por Radio
-  digitalWrite(LedRAD_PIN, HIGH);
-  Serial2.print("M");
-  Serial2.print(datos);
-  digitalWrite(LedRAD_PIN, LOW);
+  enviarTramasRadio(datos);
 }
 
 ///////////////////////////////////////// Trama Larga IMU /////////////////////////////////////////////////////////////
@@ -240,7 +245,7 @@ inline void generarTramaIRadio() {
   snprintf(text, 6, "%d", (long)(Mxyz[2] * 100));
   datos += text;
 
-  DatosRI = datos; // cargamos trama a variable global 
+  DatosRI = datos; // cargamos trama a variable global
 }
 
 ///////////////////////////////////////// Envio Trama Larga IMU
@@ -250,10 +255,85 @@ inline void enviarTramaIRadio() {
   Serial.print("Enviando... ");
   Serial.println(datos);
   // Envio datos por Radio
+  enviarTramasRadio(datos);
+}
+
+///////////////////////////////////////// Envio de Trama Largas
+inline void enviarTramasRadio(String datosR) {
   digitalWrite(LedRAD_PIN, HIGH);
+  byte largoTrama = datosR.length();
+#define punto1  63
+#define punto2  126  // Punto final para la segunda trama
+  byte cont = 0;
+  String Pack1 = "";
+  String Pack2 = "";
+  String Pack3 = "";
+
+  // Convertimos la Trama en paquetes de maximo 63 caracteres
+  if (largoTrama <= punto1) {
+    Pack1 = datosR;
+  } else if ( largoTrama > punto1 && largoTrama <= punto2) {
+    Pack1 = datosR.substring(0, punto1);
+    Pack2 = datosR.substring(punto1, largoTrama);
+    cont = 1; // 2 paquetes
+  } else if (largoTrama > punto2) {
+    Pack1 = datosR.substring(0, punto1);
+    Pack2 = datosR.substring(punto1, punto2);
+    Pack3 = datosR.substring(punto2, largoTrama);
+    cont = 2; // 3 paquetes
+  }
+
+  /*Serial.println("");
+    Serial.println("Prueba Enviando... ");
+    Serial.println("M");
+    Serial.println(Pack1);
+    Serial.println(Pack2);
+    Serial.println(Pack3);
+    Serial.println("Debug Radio...");*/
+  // Enviamos M para indiciarle al radio que va un mensaje, y luego esperamos
   Serial2.print("M");
-  Serial2.print(datos);
+
+  // Esperamos una n, indicando que el radio esta listo para recibir el mensaje
+  unsigned long tiempoFinMensaje = millis() + 3000;
+  byte contador = 0;
+
+  while (tiempoFinMensaje > millis()) {
+    if (Serial2.available() > 0) {
+      char c = Serial2.read();
+      ultimoTiempoTX = millis();    // reportamos respuesta del radio
+      //Serial.println(c);
+      // Si Pack 2 y 3 tienen contenido los enviamos luego de recivir nuevamente N
+      if (c == 'n') {
+        switch (contador) {
+          case 0:
+            Serial2.print(Pack1); contador++; // Enviamos mensaje 1
+            //Serial.println(Pack1);
+            break;
+          case 1:
+            Serial2.print(Pack2); contador++; // Enviamos mensaje 2
+            //Serial.println(Pack2);
+            break;
+          case 2:
+            Serial2.print(Pack3); contador++; // Enviamos mensaje 3
+            //Serial.println(Pack3);
+            break;
+        }
+      }
+      // si fueron enviados todos los paquetes, terminamos la espera
+      if (contador > cont) {
+        //Serial.println("Todos Enviados");
+        break;  // Si se evio todo se continua con el codigo
+      }
+    }
+  }// Fin envio tramai
+
+  //Serial.println("Fin..");
+  // Envio datos por Radio
+  //
+  //Serial2.print("M");
+  //Serial2.print(datos);
   digitalWrite(LedRAD_PIN, LOW);
+
 }
 
 ///////////////////////////////////////// Cargar Datos Trama analoga /////////////////////////////////////////////////////////////
@@ -294,4 +374,13 @@ inline void cargarMediciones() {
   load_Magz ((long)(Mxyz[2] * 100));
 }
 #endif
+
+///////////////////////////////////////// Resetear Radio
+inline void resetRadio() {
+  pinMode(4, OUTPUT);
+  // reset Radio
+  digitalWrite(4, LOW);
+  delay(100);
+  pinMode(4, INPUT);
+}
 

@@ -17,11 +17,11 @@ void setup() {
   pitar(500);
 
   //////// Pruebas Mosfet (Problema retorno de corriente a pin de desactivacion del elevador de 5V)
-  
+
   pinMode(potUSB, OUTPUT);
   digitalWrite(potUSB, HIGH);  // Mosfet Tipo P- Se apaga durante el funcionamiento con bateria
   //digitalWrite(potUSB, LOW);  // Se enciende con el uso del puerto USB
-  
+
   ////////////////////////////////////////////
 #if MS2Compatible
   pinMode(8, INPUT); // Importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado)
@@ -31,10 +31,6 @@ void setup() {
   //////////////////////////////////////////// Comunication
   Serial.begin(DEBUG_SERIAL_SPEED);
 
-#if RadioSerial
-  Serial2.begin(115200);
-#endif
-
   Serial3.begin(GPS_BAUDRATE);
 
   //////////////////////////////////////////// Serial init
@@ -42,17 +38,6 @@ void setup() {
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 2");
 #else
   Serial.println("Serial Debuggin Started - Hi from SimpleVital 3");
-#endif
-
-  //////////////////////////////////////////// Inicio Radio Serial
-#if RadioSerial
-  Serial.print("Iniciando Radio...");
-  pinMode(4, OUTPUT);
-  // reset Radio
-  digitalWrite(4, LOW);
-  delay(50);
-  pinMode(4, INPUT);
-  Serial.println("OK");
 #endif
 
   //////////////////////////////////////////// Se configura sistema despligue paneles
@@ -176,16 +161,24 @@ void setup() {
   pitar(100);
 
   // Se verifica si esta en modo carga esperando una c por serial durante 5 segundos
-  Serial.println("Presione c para iniciar modo carga");
-  Serial.println("Presione g para calibrar sensores de gases");
-  Serial.println("Presione p para probar despliegue de panales");
+  Serial.println("");
+  Serial.println("------------ Menu configuraciones iniciales -----------------");
+  Serial.println("Presione:");
+  Serial.println(" i para iniciar imediatamente");
+  Serial.println(" c para iniciar modo carga rapida");
+  Serial.println(" g para calibrar sensores de gases");
+  Serial.println(" p para probar despliegue de panales");
+  Serial.println(" r para cargar con seguridad codigo en la radio");
+  Serial.println("-------------------------------------------------------------");
 
   // Configuraciones
   unsigned long tiempoConfCarga = millis() + 5000;
   while (tiempoConfCarga > millis()) {
     char comando = Serial.read();
+    if (comando == 'i') {
+      break;
 
-    if (comando == 'c') {
+    } else if (comando == 'c') {
       Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
       digitalWrite(potUSB, LOW);  // Se enciende el flujo de potencia desde el USB
       while (Serial.available() < 1) {
@@ -204,9 +197,26 @@ void setup() {
       Serial.println("Iniciando Pruebas de sistemas de despligue 0 y 1");
       liberarPaneles(0);
       liberarPaneles(1);
+
+    } else if (comando == 'r') {
+      pinMode(16, INPUT);
+      pinMode(17, INPUT);
+      Serial.println("Pines comunicacion Radio listos para evitar colision de datos");
+      while (Serial.available() < 1) {
+        power_save();
+      }
     }
 
   }
+
+  //////////////////////////////////////////// Inicio Radio Serial
+#if RadioSerial
+  Serial2.begin(115200);
+  Serial.print("Iniciando Radio...");
+  resetRadio();
+  Serial.println("OK");
+#endif
+
   // fin menu configuraciones iniciales.
 }
 
