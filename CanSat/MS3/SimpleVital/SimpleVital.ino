@@ -17,9 +17,11 @@ void setup() {
   pitar(500);
 
   //////// Pruebas Mosfet (Problema retorno de corriente a pin de desactivacion del elevador de 5V)
-  pinMode(40, OUTPUT);
-  digitalWrite(40, HIGH);
-
+  
+  pinMode(potUSB, OUTPUT);
+  digitalWrite(potUSB, HIGH);  // Mosfet Tipo P- Se apaga durante el funcionamiento con bateria
+  //digitalWrite(potUSB, LOW);  // Se enciende con el uso del puerto USB
+  
   ////////////////////////////////////////////
 #if MS2Compatible
   pinMode(8, INPUT); // Importante Configurar pin 8 como entrada(va al radio, pero no tiene el timer adecuado)
@@ -185,11 +187,13 @@ void setup() {
 
     if (comando == 'c') {
       Serial.println("Modo Carga activado.... Presione una tecla para iniciar modulo.");
+      digitalWrite(potUSB, LOW);  // Se enciende el flujo de potencia desde el USB
       while (Serial.available() < 1) {
         //delay(500);
         power_save();
         revisarRadio();
       }
+      digitalWrite(potUSB, HIGH);  // Se apaga el flujo de potencia del puerto USB, para evitar que se apague el elevador
 
     } else if (comando == 'g') {
       Serial.println("Iniciando calibracion de sensores de gases... Precalentando.");

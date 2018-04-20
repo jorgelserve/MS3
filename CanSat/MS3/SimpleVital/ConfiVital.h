@@ -85,6 +85,9 @@ BMP180 Barometer;
 #include <SD.h>
 
 ////////////////////////////////////////////// SimpleVital Pin Distribution //////////////////////////////////////////////
+//////////////////////////// Potencia USB
+#define potUSB 40 // pin conectado a la gate del mosfet tipo P que controla el flujo de potencia del puerto USB
+
 //////////////////////////// SD
 #define chipSelect 38
 
