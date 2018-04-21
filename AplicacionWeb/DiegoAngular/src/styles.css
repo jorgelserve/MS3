@@ -7,3 +7,12 @@ body {
 .card{
   background-color: #061531;
 }
+@font-face {
+    font-family:DINAlternate-Bold ;
+    src: url('/assets/fuentes/DINAlternate-Bold.ttf');
+}
+.title{
+    font-family:DINAlternate-Bold;
+    text-align:center;
+    color: #903684;
+}
