@@ -33,7 +33,7 @@ vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 band_inicial = 0;
-#arduino = serial.Serial('/dev/ttyUSB0',9600)
+arduino = serial.Serial('/dev/ttyUSB0',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -73,6 +73,7 @@ def procesarTrama(lineas):
                 #trama larga IMU
                 #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
                 #f ACCx G ACCy H ACCz I GIx J GIy K GIz L Mx M My N Mz
+                print("trama IMU")
                 for i in range(len(valores[3])):
                     i = i + 1
                     bit = valores[3][i-1]
@@ -105,7 +106,7 @@ def procesarTrama(lineas):
                         print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                     if bit == "f": #Si se cumple se garantiza existencia de trama hasta "f"
                         voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
-                        print("voltajebater: " + str(float(voltajebater)))
+                        print("voltajebater: " + str(float(voltajebater)/1000))
                     if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
                         ACCX =  valores[3].split("f")[1].split("G")[0].strip()
                     if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
@@ -128,6 +129,7 @@ def procesarTrama(lineas):
                 #trama larga gases
                 #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
                 #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
+                print("trama Gases")
                 for i in range(len(valores[3])):
                     i = i + 1
                     bit = valores[3][i-1]
@@ -160,7 +162,7 @@ def procesarTrama(lineas):
                         print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                     if bit == "F": #Si se cumple se garantiza existencia de trama hasta "F"
                         voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
-                        print("voltajebater: " + str(float(voltajebater)))
+                        print("voltajebater: " + str(float(voltajebater)/1000))
                     if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
                         humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
                     if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
@@ -220,7 +222,7 @@ def procesarTrama(lineas):
                         tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                         voltajebater =  valores[3].split("E")[1].strip()
                         print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
-                        print("voltajebater: " + str(float(voltajebater)))
+                        print("voltajebater: " + str(float(voltajebater)/1000))
                         print("trama corta completa")
                         enviarWeb(tiempo,latitud_geo,longitud_geo,altitud_geo,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar)
             #Se debe guardar de manera recurrente las coordenadas de la estacion terrena y la gondola
@@ -297,7 +299,7 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
         curs=str(float(curs)-0.5)
         if float(velo)>0.5:
             velo=str(float(velo)-0.5)
-        volta=str(float(volta)/100)
+        volta=str(float(volta)/1000)
         tempera = str(float(tempera)/100)
         if(band_altitudBAR == 0):
             offset_BAR = float(altuba)
@@ -531,7 +533,6 @@ def modeloVector(Du,Dv,Dw):
         theta_prima_estimada = math.acos(Dw/math.sqrt(Du*Du+Dw*Dw))*180/3.141592653589793
     return [theta_prima_estimada,omega_prima_estimada]
 
-
 try:
     archivo2 = open(nombreArchivoSETLeerEscribir,"r")
     datoSET = archivo2.readlines()
@@ -545,7 +546,7 @@ try:
     thetaSET = angulosSET[0]
     omegaSET = angulosSET[1]
     archivo2.close()
-    #enviarArduino(thetaSET,omegaSET,True)
+    enviarArduino(thetaSET,omegaSET,True)
     print("__________________________________________")
 except Exception as e:
     while(1):
@@ -563,7 +564,7 @@ while (1):
             cuentadesconocida = 0
             coordenadas = procesarTrama(trama)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            enviarArduino(angulos[0],angulos[1],False) #theta,omega
             print("__________________________________________")
         if trama == 0:
             if cuentatrama < 1:
