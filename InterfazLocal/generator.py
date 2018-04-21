@@ -318,7 +318,8 @@ while True:
         time.sleep(0.1) #leer archivo tramas cada 100 milisegundos
         if band_grafana == 1:
             tiempog = tiempo; latitud_geog = float(latitud_geo); longitud_geog = float(longitud_geo); altitudGpsg = float(altitudGps); cursog = float(curso); velocidadg = float(velocidad)
-            ACCXg = float(ACCX); ACCYg = float(ACCY); ACCZg = float(ACCZ); GIXg = float(GIX); GIYg = float(GIY); GIZg = float(GIZ); MXg = float(MX); MYg = float(MY); MZg = float(MZ)
+            ACCXg = float(ACCX) / 100.0; ACCYg = float(ACCY) / 100.0; ACCZg = float(ACCZ) / 100.0; GIXg = float(GIX) / 100.0; GIYg = float(GIY) / 100.0; GIZg = float(GIZ) / 100.0; MXg = float(MX) / 100.0;
+            MYg = float(MY) / 100.0; MZg = float(MZ) / 100.0
             tempeBarg = float(tempeBar); presionbarg = float(presionbar); alturaBarg = float(alturaBar)
             NH3g = float(NH3); COg = float(CO); NO2g = float(NO2); C3H8g = float(C3H8); C4H10g = float(C4H10); CH4g = float(CH4); H2g = float(H2); C2H50Hg = float(C2H50H)
             tempeSHT11g = float(tempeSHT11); humedadDHT11g = float(humedadDHT11); tempI2Cg = float(tempI2C); tempADCg = float(tempADC); voltajebater = float(voltajebater)/1000.0
@@ -335,6 +336,7 @@ while True:
             tiempoS = tiempog[4:6]
             tempI2Cg = (tempI2Cg / 100.0)
             tempeBarg = (tempeBarg / 100.0)
+            presionbarg = (presionbarg / 100.0)
         #    tiempog = str(tiempoH+":"+tiempoM+":"+tiempoS)
             print tiempog
             gps_data = 'gps_data gps_time=%s,gps_latitude=%e,gps_longitude=%e,gps_altitude=%e,gps_course=%e,gps_speed=%e' % (tiempoH, latitud_geog, longitud_geog, altitudGpsg, cursog, velocidadg)
