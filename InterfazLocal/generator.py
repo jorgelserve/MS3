@@ -25,7 +25,7 @@ randNums0_1 = []
 rangoVariacion = [5,25]
 n = 0
 insertData = 15
-nombreArchivoTramasLeer = "interfazLocal18.txt"
+nombreArchivoTramasLeer = "interfazLocal20.txt"
 band_grafana = 0
 time_miliseconds = 1
 band_init = 0
@@ -333,6 +333,8 @@ while True:
             tiempoH = tiempog[0:2]
             tiempoM = tiempog[2:4]
             tiempoS = tiempog[4:6]
+            tempI2Cg = (tempI2Cg / 100.0)
+            tempeBarg = (tempeBarg / 100.0)
         #    tiempog = str(tiempoH+":"+tiempoM+":"+tiempoS)
             print tiempog
             gps_data = 'gps_data gps_time=%s,gps_latitude=%e,gps_longitude=%e,gps_altitude=%e,gps_course=%e,gps_speed=%e' % (tiempoH, latitud_geog, longitud_geog, altitudGpsg, cursog, velocidadg)
