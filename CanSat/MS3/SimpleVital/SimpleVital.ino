@@ -217,6 +217,10 @@ void setup() {
   Serial.println("OK");
 #endif
 
+
+  //////////////////////////////////////////// Se reinician los tiempos de referencia
+  next_aprs = millis();
+  
   // fin menu configuraciones iniciales.
 }
 
@@ -289,7 +293,7 @@ void loop() {
 #if not RadioSerial
   cargarMediciones();
 #else if
-  generarTramas();
+  //generarTramas();
 #endif
   trasmitirMediciones();
 

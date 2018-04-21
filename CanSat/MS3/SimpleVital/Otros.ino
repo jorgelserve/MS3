@@ -375,4 +375,11 @@ inline void medirBarometroT() {
 #endif
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+inline void promedioBarometros() {
+#if not MS2Compatible
+  BarT_temp = baro_BMP280T.readTemperature() * 100; // Get the temperature, bmp180ReadUT MUST be called first
+  BarT_pres = baro_BMP280T.readPressure();
+  BarT_alti = baro_BMP280T.readAltitude(1013.25);
+#endif
+}
