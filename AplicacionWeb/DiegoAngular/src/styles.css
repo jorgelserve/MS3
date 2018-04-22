@@ -16,3 +16,10 @@ body {
     text-align:center;
     color: #903684;
 }
+@font-face {
+    font-family:HelveticaLTStd-Light;
+    src: url('/assets/fuentes/HelveticaLTStd-Light.otf');
+}
+h5{
+  font-family:HelveticaLTStd-Light; 
+}

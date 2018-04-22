@@ -30,7 +30,7 @@ void setup() {
 
   //////////////////////////////////////////// Comunication
   Serial.begin(DEBUG_SERIAL_SPEED);
-
+  Serial1.begin(9600);
   Serial3.begin(GPS_BAUDRATE);
 
   //////////////////////////////////////////// Serial init

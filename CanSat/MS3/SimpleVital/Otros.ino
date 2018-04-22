@@ -383,3 +383,15 @@ inline void promedioBarometros() {
   BarT_alti = baro_BMP280T.readAltitude(1013.25);
 #endif
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+float luchitoLeds(){
+  Serial1.print('B');
+  if(Serial1.available()>0){
+    if(Serial1.read() == 'B'){
+      luchitoLedOk = true;
+    }else{
+      luchitoLedOk = false;
+    }
+  }
+}
+

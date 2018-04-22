@@ -211,6 +211,9 @@ String DatosRI = "";
 
 int voltajeBateria0 = 0;
 
+//------------------------------ Potencia de la gondola
+bool luchitoLedOk = false;
+
 //////////////////////////// SD
 bool sd_ok = false;
 File dataFile;

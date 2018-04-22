@@ -195,7 +195,7 @@ export class LocationComponent {
         let max = res.length;
         this.altura = this.valueJson[max-1]['gps_altitude'];
         this.visajetemp = this.valueJson[max-1]['temperature_sht11'];
-        this.visajetemp = (this.visajetemp / 10);
+        this.visajetemp = this.visajetemp;
         this.visajelon = this.valueJson[max-1]['gps_longitude'];
         this.visajelat = this.valueJson[max-1]['gps_latitude'];
         this.visajetime = new Date();
