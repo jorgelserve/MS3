@@ -38,7 +38,7 @@ vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 cuentaFusion = 0
-arduino = serial.Serial('/dev/ttyUSB0',9600)
+arduino = serial.Serial('/dev/ttyUSB1',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -283,9 +283,9 @@ def procesarTrama(lineas):
                 archivo3.write("altitudE/" + str(altitudE) + "\n")
                 archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
                 archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
-                archivo3.write("altitudG_i/" + str(altitudGps) + "\n")
+                archivo3.write("altitudG_i/" + str(alturaBar) + "\n")
                 archivo3.close()
-            return [latitud_geo,longitud_geo,altitudGps]
+            return [latitud_geo,longitud_geo,alturaBar]
     except Exception as e:
         print("******ERROR PROCESANDO TRAMA********")
         print(e)
