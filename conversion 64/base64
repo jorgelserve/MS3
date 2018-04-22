@@ -1,0 +1,8 @@
+import base64
+
+#image=open("WhatsApp Image 2018-04-20 at 5.05.35 PM.jpeg",'r')
+def conversion64(imagen):
+    coded=base64.b64encode(bytes(image, 'utf-8'))
+    return coded
+
+print(conversion64("hola"))
