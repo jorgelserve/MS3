@@ -21,12 +21,17 @@ inline void trasmitirMediciones() {
 #else
     switch (band_transmission) {
       case 2:
+        generarTramaCorta();
+        generarTramaIRadio();
         enviarTramaIRadio();
         break;
       case 1:
+        generarTramaCorta();
+        generarTramaGRadio();
         enviarTramaGRadio();
         break;
       default:
+        generarTramaCorta();
         enviarTramaCRadio();
         break;
     }
@@ -106,15 +111,14 @@ inline void revisarRadio() {
 } // fin revisar Radio
 
 ///////////////////////////////////////// Generar Tramas /////////////////////////////////////////////////////////////
-inline void generarTramas() {
+/*inline void generarTramas() {
   generarTramaCorta();
   generarTramaGRadio();
   generarTramaIRadio();
 
   //enviarTramasRadio(DatosRC + DatosRG + "----Alargado intencionalTrama");
   //enviarTramasRadio(DatosRC + DatosRG);
-}
-
+}*/
 ///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
 inline void generarTramaCorta() {
   // A - GPS - Tiempo

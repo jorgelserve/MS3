@@ -114,7 +114,7 @@ BMP180 Barometer;
 
 //////////////////////////// Analogos ////////////////////////////
 //////////////////////////// Factor de Conversion ADC a  Milivoltios
-const float ADC2Mil = 5.0 * 1000.0 / 1024.0;
+const float ADC2Mil = 5.2 * 1000.0 / 1024.0; // depende del voltaje del sistema.
 
 //////////////////////////// Temperatura Radio
 #define pinTempRad 0    //analogo
@@ -198,7 +198,6 @@ bool panelesDesplegados = false;      // Permite saber si ya se corrio el despli
 
 
 // ----------------------------- Radio
-byte band_transmission = 0;   // Usamos para cambiar entre Trama Corta, Gases y IMU
 byte band_transmission = 0;           // Usamos para cambiar entre Trama Corta, Gases y IMU
 unsigned long ultimoTiempoTX = 0;     // Lo usamos para saber cuando fue la ultima tramsion y encaso de ser muy larga reiniciamos radio
 
@@ -211,6 +210,9 @@ String DatosRI = "";
 //#define AnalogosExt // 144
 
 int voltajeBateria0 = 0;
+
+//------------------------------ Potencia de la gondola
+bool luchitoLedOk = false;
 
 //////////////////////////// SD
 bool sd_ok = false;
