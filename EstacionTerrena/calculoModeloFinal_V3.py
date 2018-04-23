@@ -22,8 +22,8 @@ global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cue
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
 #La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
 
-nombreArchivoTramasLeer = "/home/oscar/Descargas/datosIterativos.txt"
-nombreVectorTrayectoriaGuardar = "vectorprueba22abril.txt"
+nombreArchivoTramasLeer = "lanzamientoSimple3.txt"
+nombreVectorTrayectoriaGuardar = "vectorLanzamientoSimple3.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 
 MatrizD = []
@@ -284,9 +284,9 @@ def procesarTrama(lineas,set):
                 archivo3.write("altitudE/" + str(altitudE) + "\n")
                 archivo3.write("latitudG_i/" + str(latitud_geo) + "\n")
                 archivo3.write("longitudG_i/" + str(longitud_geo) + "\n")
-                archivo3.write("altitudG_i/" + str(alturaBar) + "\n")
+                archivo3.write("altitudG_i/" + str(altitudGps) + "\n")
                 archivo3.close()
-            return [latitud_geo,longitud_geo,alturaBar]
+            return [latitud_geo,longitud_geo,altitudGps]
     except Exception as e:
         print("******ERROR PROCESANDO TRAMA********")
         print(e)
@@ -408,20 +408,20 @@ def modelo(lati, longi, alti):
         Duvw_1 = Dw_1
         Duvw_2 = math.cos(alfaP)*Dw_2+math.sin(alfaP)*Dw_3
         Duvw_3 = -math.sin(alfaP)*Dw_2+math.cos(alfaP)*Dw_3
+        if abs(Duvw_1) < 1:
+            Duvw_1 = 0.0
+            divCero = divCero + 1
+        if abs(Duvw_2) < 1:
+            Duvw_2 = 0.0
+            divCero = divCero + 1
+        if abs(Duvw_3) < 1:
+            Duvw_3 = 0.0
+            divCero = divCero + 1
         vectorD = [Duvw_1,Duvw_2,Duvw_3]
         MatrizD.append(vectorD)
         archivo1 = open(nombreVectorTrayectoriaGuardar,"a")
-        archivo1.write(str(vectorD))
+        archivo1.write(str(vectorD) + '\n')
         archivo1.close()
-        if abs(Duvw_1) < 1:
-            Duvw_1 = 0
-            divCero = divCero + 1
-        if abs(Duvw_2) < 1:
-            Duvw_2 = 0
-            divCero = divCero + 1
-        if abs(Duvw_3) < 1:
-            Duvw_3 = 0
-            divCero = divCero + 1
         Distancia = math.sqrt(Duvw_1*Duvw_1+Duvw_2*Duvw_2+Duvw_3*Duvw_3)
         if Distancia > 0:
             if divCero < 3:
@@ -663,9 +663,7 @@ try:
             break
             print("_________________")
         time.sleep(0.1)
-
-
-    '''archivo2 = open(nombreArchivoSETLeerEscribir,"r")
+    archivo2 = open(nombreArchivoSETLeerEscribir,"r")
     datoSET = archivo2.readlines()
     latitudE = float(datoSET[0].split("/")[1])
     longitudE = float(datoSET[1].split("/")[1])
@@ -677,7 +675,7 @@ try:
     thetaSET = angulosSET[0]
     omegaSET = angulosSET[1]
     archivo2.close()
-    enviarArduino(thetaSET,omegaSET,True)'''
+    #enviarArduino(thetaSET,omegaSET,True)
     print("__________________________________________")
 except Exception as e:
     while(1):
