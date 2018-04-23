@@ -201,9 +201,16 @@ void guardarDatosSD() {
   //Tempi2c Vital
   datos += sep[46];
   datos += String(tempi2cSDG);
-
-  // fin trama MS3
+  
+  // Datos potencia Gondola
   datos += sep[47];
+  datos += String(voltajePaneles);
+  
+  datos += sep[48];
+  datos += String(corrientePaneles);
+  
+  // fin trama MS3
+  datos += sep[49];
   #else
   // fin trama MS2
   datos += sep[35];

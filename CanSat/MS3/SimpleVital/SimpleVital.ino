@@ -30,7 +30,11 @@ void setup() {
 
   //////////////////////////////////////////// Comunication
   Serial.begin(DEBUG_SERIAL_SPEED);
-  Serial1.begin(9600);
+  
+  Serial1.begin(9600);      // Serial potencia gondola
+  Serial1.setTimeout(500);
+  Serial1.flush();
+  
   Serial3.begin(GPS_BAUDRATE);
 
   //////////////////////////////////////////// Serial init
@@ -169,6 +173,7 @@ void setup() {
   Serial.println(" g para calibrar sensores de gases");
   Serial.println(" p para probar despliegue de panales");
   Serial.println(" r para cargar con seguridad codigo en la radio");
+  Serial.println(" s probar potencia gondola");
   Serial.println("-------------------------------------------------------------");
 
   // Configuraciones
@@ -205,8 +210,33 @@ void setup() {
       while (Serial.available() < 1) {
         power_save();
       }
-    }
+    } else if (comando == 's') {
+      Serial.println("Iniciando Pruebas de sistemas de potencia gondola... presione una tecla para finalizar");
+      byte prueba = 0;
+      Serial1.flush();
+      while (Serial.available() < 1) {
+        delay(1000);
+        revisarPotencia('r');
+        delay(1000);
+        revisarPotencia('r');
+        delay(1000);
+        revisarPotencia('r');
+        switch (prueba) {
+          case 2:
+            revisarPotencia('D');
+            break;
+          case 1:
+            revisarPotencia('C');
+            break;
+          default:
+            revisarPotencia('B');
+            break;
+        }
+        prueba = (prueba + 1) % 3;
+        revisarPotencia('r');
 
+      }
+    }
   }
 
   //////////////////////////////////////////// Inicio Radio Serial
@@ -220,7 +250,7 @@ void setup() {
 
   //////////////////////////////////////////// Se reinician los tiempos de referencia
   next_aprs = millis();
-  
+
   // fin menu configuraciones iniciales.
 }
 
@@ -296,6 +326,17 @@ void loop() {
   //generarTramas();
 #endif
   trasmitirMediciones();
+
+  //////////////////////////////////////////////////// Medir corriente
+  if(band_lectura == 0){
+    corrientePaneles = readAmp();
+  }
+  ////////////////////////////////////////////////// Medir voltaje
+  if(band_lectura == 1){
+    voltajePaneles = readVolt();
+  }
+  ////////////////////////////////////////////////////Leds
+  char ok = LedOn();
 
   ///////////////////////////////////////////////////// Se guardan en uSD
   guardarDatosSD();

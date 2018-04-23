@@ -6,12 +6,12 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-6">
-        <div>
+        <div class="chart-wrapper">
           <img src={{imagen1}} width="580" height="380"/>
         </div>
       </div>
       <div class="col-sm-6">
-        <div>
+        <div class="chart-wrapper">
           <iframe width="580" height="380" src="http://www.cansats3kratos.me/aprs"></iframe>
         </div>
       </div>
@@ -21,48 +21,48 @@
     <div class="row">
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Altitude (m)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{altura}}</h4></strong>
+          <h5>Altitude (m)</h5></div>
+        <strong align="center"><h4>{{altura}}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Temperature (°C)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{visajetemp}}</h4></strong>
+          <h5>Temperature (°C)</h5></div>
+        <strong align="center"><h4>{{visajetemp}}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Longitud (°)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{visajelon}}</h4></strong>
+          <h5>Longitud (°)</h5></div>
+        <strong align="center"><h4>{{visajelon}}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar bg-warning" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Latitud (°)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{visajelat}}</h4></strong>
+          <h5>Latitud (°)</h5></div>
+        <strong align="center"><h4>{{visajelat}}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Time (HH:mm:ss)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{visajetime | date : "H:mm:ss" }}</h4></strong>
+          <h5>Time (HH:mm:ss)</h5></div>
+        <strong align="center"><h4>{{visajetime | date : "H:mm:ss" }}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div class="col-sm-2">
         <div class="text-muted" align="center">
-          <h5 style="color:white;">Speed (m/s)</h5></div>
-        <strong align="center"><h4 style="color:white;">{{visajevel}}</h4></strong>
+          <h5>Speed (m/s)</h5></div>
+        <strong align="center"><h4>{{visajevel}}</h4></strong>
         <div class="progress progress-xs mt-2">
           <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
@@ -74,12 +74,12 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-6">
-        <div class="chart-wrapper embed-responsive embed-responsive-16by9" style="height:300px;margin-top:40px;">
-          <iframe width="600" height="320" src="http://165.227.212.222:8080/simple3ssdv.html" allowfullscreen></iframe>
+        <div class="chart-wrapper embed-responsive embed-responsive-16by9">
+          <iframe width="580" height="380" src="http://165.227.212.222:8080/simple3ssdv.html" allowfullscreen></iframe>
         </div>
       </div>
       <div class="col-sm-6">
-        <div class="chart-wrapper" style="height:320px;margin-top:40px;">
+        <div class="chart-wrapper" style="height:400px;">
           <agm-map [latitude]=6.228535 [longitude]=-75.532123 [zoom]=11 [scrollwheel]="false">
             <agm-marker class="mapMarker" *ngFor="let Coordinates of Coordinates;" [markerClickable]="true" [latitude]="Coordinates.x" [longitude]="Coordinates.y"></agm-marker>
           </agm-map>

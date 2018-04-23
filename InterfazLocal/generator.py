@@ -25,7 +25,7 @@ randNums0_1 = []
 rangoVariacion = [5,25]
 n = 0
 insertData = 15
-nombreArchivoTramasLeer = "interfazLocal20.txt"
+nombreArchivoTramasLeer = "Interfazprueba.txt"
 band_grafana = 0
 time_miliseconds = 1
 band_init = 0
@@ -239,7 +239,7 @@ def procesarTrama(lineas, band_init):
                 print("altitud_geo: " + str(float(altitud_geo)))
                 print("curso: " + str(float(curso)))
                 print("velocidad: " + str(float(velocidad)))
-                #print("alturabar: " + str(float(alturabar)))
+                print("alturabar: " + str(float(alturaBar)))
                 print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                 print("voltajebater: " + str(float(voltajebater)))
                 print("temperaturaBar: " +  str(float(tempeBar)/100))

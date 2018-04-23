@@ -137,7 +137,11 @@ void mostrarMediciones() {
   Serial.print("Voltaje Bateria : ");
   Serial.println(voltajeBateria0);
 
-  Serial.println("---------------------------------------------------------------------------------");
+  Serial.print("Voltaje Paneles Gondola: ");
+  Serial.print(voltajePaneles);
+  Serial.print("\t Corriente Paneles Gondola: ");
+  Serial.print(corrientePaneles);
+  Serial.println("\n ---------------------------------------------------------------------------------");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +280,7 @@ float PCBTemperature(byte PCB) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void revisarDesPaneles() {
   if (panelesDesplegados == 0) {
-    
+
     weight = (millis() > panel_time) ? weight + 1 : weight;         // Condicion Temporal
     weight = (gps_altitude > alt_paneles) ? weight + 1 : weight;    // Condicion GPS
     weight = (BarB_alti > alt_paneles) ? weight + 1 : weight;       // Condicion Barometro
@@ -298,7 +302,7 @@ inline void liberarPaneles(bool panel) {
     Serial.print("T-0");
     Serial.println(i);
   }
-  desplegarPaneles(panel,15000);
+  desplegarPaneles(panel, 15000);
 }
 
 inline void desplegarPaneles(bool panel, unsigned int tiempoD) {
@@ -321,7 +325,7 @@ inline void desplegarPaneles(bool panel, unsigned int tiempoD) {
 
 inline void revisarDespliegue() {
   // si se percive un cambio del voltaje de la bateria que indique que los paneles reciven sol y estan cargando la bateria, las probalidades de que desplegaran es alta
-  
+
   // panelesDesplegados = 1;
 }
 
@@ -384,13 +388,155 @@ inline void promedioBarometros() {
 #endif
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-float luchitoLeds(){
-  Serial1.print('B');
-  if(Serial1.available()>0){
-    if(Serial1.read() == 'B'){
-      luchitoLedOk = true;
+float revisarPotencia(char comando) {
+  // si comando = r revisamos estado ultimas peticiones, si comando es B, C o D enviamos el comando y cambiamos el estado
+  if (comando == 'r') {
+    Serial.print("Revisando... ");
+    if (ultimaSolicitud == 'B') { // Iluminacion leds
+      // Veificamos que tengamos comando de respuesta de despligue panales
+      if (Serial1.available() > 0) {
+        char dato = Serial1.read();
+        if (dato == 'B') {
+          ultimaConexion = millis();
+          Serial.print("Leds Enecendidos... ");
+          Serial.println(dato);
+        }
+      }
+    } else if (ultimaSolicitud == 'C') { // Voltaje Paneles
+     
+      if (Serial1.available() > 2) {
+         
+        float dato = Serial1.parseFloat();
+        if (dato > -1) {
+          Serial.print("Voltaje: ");
+          Serial.println(dato);
+          ultimaConexion = millis();
+          voltajePaneles = dato;      // se actualiza el ultimo valor de voltaje medido
+        }
+      }
+    } else if (ultimaSolicitud == 'D') { // Corrientes Panele
+      if (Serial1.available() > 2) {
+        float dato = Serial1.parseFloat();
+        if (dato > -1) {
+          Serial.print("Corriente: ");
+          Serial.println(dato);
+          ultimaConexion = millis();
+          corrientePaneles = dato;      // se actualiza el ultimo valor de corriente medido
+        }
+      }
+    }
+  } else {
+    Serial1.print(comando);
+    Serial.print("Solicitando comando: ");
+    Serial.println(comando);
+    ultimaSolicitud = comando;
+    maximaEsperaComando = millis();
+  }
+  
+
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+float readAmp(){
+  if(band_serial == false){
+    Serial1.print('D');
+    band_serial = true;
+    comandoInicio = millis();
+  }
+  if(band_serial == true){  
+    maximaEsperaComando = millis();
+    totalComando = maximaEsperaComando - comandoInicio;
+    if (Serial1.available() > 2) {
+      float dato = Serial1.parseFloat();
+      if (dato > -1) {
+        band_serial = false;
+        ultimaConexion = millis();
+        band_lectura = 1;
+        Serial1.flush();
+        return dato;       // se actualiza el ultimo valor de corriente medido
+      }
+    }
+    if(totalComando > 3000){
+      totalComando = 0;
+      band_serial = false;
+      band_lectura = 1;
+    }
+  } 
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+float readVolt(){
+  if(band_serial == false){
+    Serial1.print('C');
+    band_serial = true;
+    comandoInicio = millis();
+  }
+  if(band_serial == true){  
+    maximaEsperaComando = millis();
+    totalComando = maximaEsperaComando - comandoInicio;
+    if (Serial1.available() > 2) {
+      float dato1 = Serial1.parseFloat();
+      if (dato1 > -1) {
+        band_serial = false;
+        ultimaConexion = millis();
+        band_lectura = 0;
+        Serial1.flush();
+        return dato1;       // se actualiza el ultimo valor de voltaje medido
+      }
+    }
+    if(totalComando > 3000){
+      totalComando = 0;
+      band_serial = false;
+      band_lectura = 0;
+    }
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+char LedOn(){
+  fall_time = millis();
+  if(band_weightLed == 0){
+    weightLed = (BarB_alti > alt_apogeo) ? weightLed + 1 : weightLed;
+    weightLed = (BarT_alti > alt_apogeo) ? weightLed + 1 : weightLed;
+    weightLed = (gps_altitude > alt_apogeo) ? weightLed + 2 : weightLed;
+  }else if(band_weightLed == 1){
+    weightLedDown = (BarB_alti < alt_apogeo) ? weightLedDown + 1 : weightLedDown;
+    weightLedDown = (BarT_alti < alt_apogeo) ? weightLedDown + 1 : weightLedDown;
+    weightLedDown = (gps_altitude < alt_apogeo) ? weightLedDown + 2 : weightLedDown;
+  }
+  
+
+  if(weightLed >= 3){
+    band_weightLed = 1;
+    if(weightLedDown >= 3 && fall_time >= apogeo_time){
+      band_weightLed = 2;
+      band_Led = 1;
     }else{
-      luchitoLedOk = false;
+      weightLedDown = 0;
+    }
+  }else{
+    weightLed = 0;
+  }
+
+  if(band_Led == 1){
+    if(band_serial_led == false){
+        Serial1.print('B');
+        band_serial_led = true;
+        comandoInicioLed = millis();
+    }
+    if(band_serial_led == true){
+      maximaEsperaComandoLed = millis();
+      totalComandoLed = maximaEsperaComandoLed - comandoInicioLed;  
+      if (Serial1.available() > 2) {
+        float dato2 = Serial1.read();
+        if (dato2 == 'B') {
+          band_serial_led = false;
+          ultimaConexion = millis();
+          Serial1.flush();
+          return dato2;       // se actualiza el ultimo valor de corriente medido
+        }
+      }
+    }
+    if(totalComandoLed > 3000){
+      totalComandoLed = 0;
+      band_serial_led = false;
     }
   }
 }

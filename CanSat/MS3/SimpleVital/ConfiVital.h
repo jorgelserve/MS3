@@ -181,8 +181,17 @@ int tempext3SD;
 //#define ana2tem 0.0048828125
 
 // ----------------------------- Apogeo
-//#define alt_apogeo 4000       // altura por encima de la que inicia el conteo
-//#define apogeo_time 360000    // tiempo en mili-segundos desde que pasa altura
+int alt_apogeo = 2000;      // altura por encima de la que inicia el conteo
+long int apogeo_time = 7200000;    // tiempo en mili-segundos desde que pasa altura
+long int fall_time = 0;
+int weightLed = 0;
+int weightLedDown = 0;
+int band_weightLed = 0;
+int band_serial_led = 0;
+int band_Led = 0;
+unsigned long maximaEsperaComandoLed = 0;
+unsigned long comandoInicioLed = 0;
+unsigned long totalComandoLed = 0;
 //---
 //byte band_buzzer = 0;
 //long int fall_time = 0;
@@ -213,6 +222,16 @@ int voltajeBateria0 = 0;
 
 //------------------------------ Potencia de la gondola
 bool luchitoLedOk = false;
+unsigned long ultimaConexion = 0;
+unsigned long maximaEsperaComando = 0;
+unsigned long comandoInicio = 0;
+unsigned long totalComando = 0;
+char ultimaSolicitud = 'B';  // Solicitud de informacion a la gondola (B: solicitud de iluminacion leds, C: Voltaje Paneles, D: Corriente paneles)
+volatile float corrientePaneles = 0;
+volatile float voltajePaneles = 0;
+bool band_serial = false;
+bool band_serial1 = false;
+char band_lectura = 0;
 
 //////////////////////////// SD
 bool sd_ok = false;
