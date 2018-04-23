@@ -7,6 +7,7 @@
     #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
     #F humedadDHT11 G NH3 H CO I NO2 J C3H8 K C4H10 L Ch4 M H2 N C2H50H O tempI2C P tempADC Q presionbar
 
+import sys
 import math
 import serial
 import time
@@ -21,8 +22,8 @@ global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cue
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
 #La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
 
-nombreArchivoTramasLeer = "prueba21abril.txt"
-nombreVectorTrayectoriaGuardar = "vectorprueba21abril.txt"
+nombreArchivoTramasLeer = "/home/oscar/Descargas/datosIterativos.txt"
+nombreVectorTrayectoriaGuardar = "vectorprueba22abril.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 
 MatrizD = []
@@ -38,7 +39,7 @@ vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 cuentaFusion = 0
-arduino = serial.Serial('/dev/ttyUSB1',9600)
+#arduino = serial.Serial('/dev/ttyUSB0',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -59,7 +60,7 @@ def leerTrama():
     except Exception as e:
         print("****ERROR LEYENDO TRAMA*****")
         print(e)
-def procesarTrama(lineas):
+def procesarTrama(lineas,set):
     try:
         returnedValues = lineas
         valores = returnedValues.split("/")
@@ -275,7 +276,7 @@ def procesarTrama(lineas):
             #Se debe guardar de manera recurrente las coordenadas de la estacion terrena y la gondola
             #para el caso en el que se reinicie la aplicacion y no se haya movido la estacion, poder
             #recuperar el tracking seteando nuevamente de manera automatica
-            if datoToSetOK == True:
+            if datoToSetOK == True and set == True:
                 datoToSetOK = False
                 archivo3 = open(nombreArchivoSETLeerEscribir,"w")
                 archivo3.write("latitudE/" + str(latitudE) + "\n")
@@ -626,7 +627,45 @@ def fusionar(AltG,AltB):
         print(e)
 
 try:
-    archivo2 = open(nombreArchivoSETLeerEscribir,"r")
+    continuar = 0
+    while(1):
+        trama = leerTrama()
+        if trama != 0 and trama != 1:
+            print(trama)
+            for line in sys.stdin:
+                if str(line).encode() == b'\n':
+                    break
+                if line.strip() == "SET-ESTACION":
+                    coordenadas = procesarTrama(trama,False)
+                    latitudE_set = coordenadas[0]
+                    longitudE_set = coordenadas[1]
+                    altitudE_set = coordenadas[2]
+                    print("**** SET-ESTACION OK ****")
+                    continuar = continuar + 1
+                    break
+                if line.strip() == "SET-GONDOLA":
+                    coordenadas = procesarTrama(trama,False)
+                    latitudG_i_set = coordenadas[0]
+                    longitudG_i_set = coordenadas[1]
+                    altitudG_i_set = coordenadas[2]
+                    print("**** SET-GONDOLA OK ****")
+                    continuar = continuar + 1
+                    break
+        if continuar == 2:
+            archivo3 = open(nombreArchivoSETLeerEscribir,"w")
+            archivo3.write("latitudE/" + str(latitudE_set) + "\n")
+            archivo3.write("longitudE/" + str(longitudE_set) + "\n")
+            archivo3.write("altitudE/" + str(altitudE_set) + "\n")
+            archivo3.write("latitudG_i/" + str(latitudG_i_set) + "\n")
+            archivo3.write("longitudG_i/" + str(longitudG_i_set) + "\n")
+            archivo3.write("altitudG_i/" + str(altitudG_i_set) + "\n")
+            archivo3.close()
+            break
+            print("_________________")
+        time.sleep(0.1)
+
+
+    '''archivo2 = open(nombreArchivoSETLeerEscribir,"r")
     datoSET = archivo2.readlines()
     latitudE = float(datoSET[0].split("/")[1])
     longitudE = float(datoSET[1].split("/")[1])
@@ -638,7 +677,7 @@ try:
     thetaSET = angulosSET[0]
     omegaSET = angulosSET[1]
     archivo2.close()
-    enviarArduino(thetaSET,omegaSET,True)
+    enviarArduino(thetaSET,omegaSET,True)'''
     print("__________________________________________")
 except Exception as e:
     while(1):
@@ -654,9 +693,9 @@ while (1):
         if trama != 0 and trama != 1:
             cuentatrama = 0
             cuentadesconocida = 0
-            coordenadas = procesarTrama(trama)
+            coordenadas = procesarTrama(trama,True)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-            enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
             print("__________________________________________")
         if trama == 0:
             if cuentatrama < 1:

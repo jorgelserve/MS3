@@ -1,6 +1,6 @@
 latitudE/6.1986666
-longitudE/-75.5793333
-altitudE/1475.0
-latitudG_i/6.1975
-longitudG_i/-75.579
-altitudG_i/1455
+longitudE/-75.5795
+altitudE/1478
+latitudG_i/6.199
+longitudG_i/-75.5795
+altitudG_i/1493
