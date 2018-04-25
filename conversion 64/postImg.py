@@ -1,11 +1,11 @@
-import requests
+import requests, sys
 import base64, codecs, PIL
 from PIL import Image
 from io import BytesIO
 
 buffered = BytesIO()
-
-picture = PIL.Image.open('index2.jpg')
+argument=sys.argv[1]
+picture = PIL.Image.open(argument)
 
 picture.save(buffered, format="JPEG")
 img_str = base64.b64encode(buffered.getvalue())
