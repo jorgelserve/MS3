@@ -1,0 +1,251 @@
+Resampling audio 96000 -> 48000
+IQ DCR alpha: 1.04166e-05
+Using audio backend: auto
+BookmarksFile is /home/oscar/.config/gqrx/bookmarks.csv
+IQ DCR samp_rate: 1.024e+06
+IQ DCR alpha: 9.76562e-07
+Changing NB_RX quad rate: 96000 -> 1.024e+06
+No change in output device:
+  old: 
+  new: 
+IQ DCR samp_rate: 1.8e+06
+IQ DCR alpha: 5.55555e-07
+Changing NB_RX quad rate: 1.024e+06 -> 1.8e+06
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Resampling audio 96000 -> 48000
+IQ DCR alpha: 1.04166e-05
+Using audio backend: auto
+BookmarksFile is /home/oscar/.config/gqrx/bookmarks.csv
+IQ DCR samp_rate: 1.024e+06
+IQ DCR alpha: 9.76562e-07
+Changing NB_RX quad rate: 96000 -> 1.024e+06
+No change in output device:
+  old: 
+  new: 
+IQ DCR samp_rate: 1.8e+06
+IQ DCR alpha: 5.55555e-07
+Changing NB_RX quad rate: 1.024e+06 -> 1.8e+06
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Resampling audio 96000 -> 48000
+IQ DCR alpha: 1.04166e-05
+Using audio backend: auto
+BookmarksFile is /home/oscar/.config/gqrx/bookmarks.csv
+IQ DCR samp_rate: 1.024e+06
+IQ DCR alpha: 9.76562e-07
+Changing NB_RX quad rate: 96000 -> 1.024e+06
+No change in output device:
+  old: 
+  new: 
+IQ DCR samp_rate: 1.8e+06
+IQ DCR alpha: 5.55555e-07
+Changing NB_RX quad rate: 1.024e+06 -> 1.8e+06
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020504h0616.87N/07536.75WO232/000A1863B1763C2196D2198E3209f14G2H110I19J176K6L-2402M-4072N-4160
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020523h0616.87N/07536.75WO232/000A1863B1762C2234D2225E3173F7146G290H1127I4J509637K255683L2080817M308N562O2356P200Q81874
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4200   HI:4200 TW:1680   Taps: 137
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020534h0616.87N/07536.75WO232/000A1863B1761C2249D2239E3133f7G7H105I-222J898K-382L-2343M-3632N-4248
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020543h0616.87N/07536.75WO232/000A1863B1762C2252D2253E3112
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020553h0616.87N/07536.75WO232/000A1863B1762C2258D2268E3082F6993G290H1127I4J509637K255683L2080817M308N562O2425P216Q81874
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020604h0616.87N/07536.75WO232/000A1863B1762C2260D2284E3057f20G10H107I260J265K61L-2373M-3691N-4248
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020613h0616.87N/07536.75WO232/000A1863B1762C2273D2291E3016
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020623h0616.87N/07536.75WO232/000A1863B1762C2273D2296E2985F6866G290H1127I5J509637K255683L2080817M308N562O2449P216Q81872
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020847h0616.87N/07536.75WO296/000A1864B1761C2195D2187E4098
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020855h0616.87N/07536.75WO173/000A1863B1761C2218D2187E4103F7108G55H360I6J41920K30660L30686M54N125O2293P393Q81877
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020906h0616.87N/07536.75WO173/000A1863B1762C2241D2187E4113f13G-4H117I-357J1149K1243L-556M-4804N-3779
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020915h0616.87N/07536.75WO173/000A1863B1762C2264D2191E4123
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020925h0616.87N/07536.75WO173/000A1863B1762C2281D2193E4133F7062G56H366I7J42630K31100L32452M55N128O2356P414Q81870
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020936h0616.87N/07536.75WO173/000A1863B1761C2294D2180E4138f11G0H111I-405J-4K-499L-439M-4687N-3720
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/020945h0616.87N/07536.75WO173/000A1863B1761C2292D2178E4148
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021155h0616.87N/07536.75WO173/000A1863B1760C2369D2239E4209F6798G56H369I11J42630K31100L33367M56N129O2462P424Q81886
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021225h0616.87N/07536.75WO173/000A1863B1760C2371D2246E4219F6828G55H366I11J41920K30660L32452M55N128O2475P403Q81888
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021236h0616.87N/07536.75WO173/000A1863B1760C2389D2252E4225f39G-9H103I-92J3102K-232L-468M-4658N-4013
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021245h0616.87N/07536.75WO173/000A1863B1761C2390D2253E4230
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021255h0616.87N/07536.75WO173/000A1863B1761C2383D2248E4240F6820G56H369I12J43348K31545L33367M56N129O2481P419Q81877
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021306h0616.87N/07536.75WO173/000A1863B1760C2387D2246E4245f-7G-4H112I386J347K-137L-410M-4365N-3574
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021315h0616.87N/07536.75WO173/000A1863B1760C2373D2246E4245
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021325h0616.87N/07536.75WO173/000A1863B1761C2376D2227E4245F6878G55H366I12J41920K30660L32452M55N128O2487P403Q81878
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021336h0616.87N/07536.75WO173/000A1863B1761C2378D2212E4250f4G-3H111I547J-39K73L-146M-4013N-3662
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021355h0616.87N/07536.75WO173/000A1863B1761C2370D2203E4255F6951G56H366I13J42630K31100L32452M55N128O2468P408Q81883
+AFSK1200: fm 5K4MS3-11 to APZMDM-0 via WIDE1-1,WIDE2-2 UI  pid=F0
+/021406h0616.87N/07536.75WO173/000A1863B1761C2371D2202E4260f0G-8H109I9J326K-266L-175M-4042N-3750
+AFSK1200: fm HK2LS-1 to APOT30-0 via 5K4PRS-1,WIDE1-0,WIDE2-2 UI  pid=F0
+!0607.00N/07529.63W# 00.0V 117F CNT00000 
+AFSK1200: fm 5K6PRS-1 to APN391-0 via 5K4PRS-1,WIDE3-2 UI  pid=F0
+!0457.14ND07521.18W#PHG5260 DIGI Wn-N RUIZ. APRS_HK LCRA
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4200   HI:4200 TW:1680   Taps: 137
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Generating taps for new filter   LO:-4600   HI:4600 TW:1840   Taps: 125
+Generating taps for new filter   LO:-4700   HI:4700 TW:1880   Taps: 123
+Generating taps for new filter   LO:-4800   HI:4800 TW:1920   Taps: 121
+AFSK1200: fm HK4D-9 to P5PR3S-0 via 5K6PRS-1,WIDE1-0,HK4D-2,5K4PRS-1,WIDE2-0 UI  pid=F0
+`g9gl!>/"I$}Power 10W
+AFSK1200: fm HK6RM-1 to APN391-0 via 5K4PRS-1,WIDE2-1 UI  pid=F0
+!0504.58ND07531.70W#PHG5260 DIGI Wn-N CHIPRE, LIGA RADIO MANIZALES
+AFSK1200: fm HK2LS-1 to APOT30-0 via 5K4PRS-1,WIDE1-0,WIDE2-2 UI  pid=F0
+>ONLINE
+AFSK1200: fm HK2LS-1 to APOT30-0 via 5K4PRS-1,WIDE1-0,WIDE2-2 UI  pid=F0
+!0607.00N/07529.63W# 00.0V 117F CNT00000 
+AFSK1200: fm HK2LS-1 to APOT30-0 via 5K4PRS-1,WIDE1-0,WIDE2-2 UI  pid=F0
+T#006,000,000,000,000,000,00000000
+AFSK1200: fm 5K4MS3-11 to APZ-0 via WIDE1-1 UI  pid=F0
+/021709h0616.86N/07536.75WO215/000A1859B1732C2190D2018E187
+AFSK1200: fm HK4D-9 to P5PR3S-0 via 5K6PRS-1,WIDE1-0,HK4D-2,5K4PRS-1,WIDE2-0 UI  pid=F0
+`g9gl!>/"I$}Power 10W
+AFSK1200: fm 5K4MS3-11 to APZ-0 via WIDE1-1 UI  pid=F0
+/021718h0616.87N/07536.75WO215/000A1855B1733C2220D2021E187F8090G254H377I4J22893K18639L-29211M58N133O1093P920Q16624
+AFSK1200: fm 5K4PRS-1 to APN391-0 via WIDE1-1 UI  pid=F0
+!0619.83ND07538.89W#PHG5260 DIGI Wn-N BOQUERON. APRS_HK LCRA
+AFSK1200: fm 5K4MS3-11 to APZ-0 via WIDE1-1 UI  pid=F0
+/021755h0616.86N/07536.75WO282/001A1857B1732C2260D2041E187f-54G-24H-83I627J197K331L1113M4365N5068
+Generating taps for new filter   LO:-4700   HI:4700 TW:1880   Taps: 123
+Generating taps for new filter   LO:-4600   HI:4600 TW:1840   Taps: 125
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4200   HI:4200 TW:1680   Taps: 137
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3700   HI:3700 TW:1480   Taps: 157
+Generating taps for new filter   LO:-3600   HI:3600 TW:1440   Taps: 161
+Generating taps for new filter   LO:-3600   HI:3600 TW:1440   Taps: 161
+Generating taps for new filter   LO:-3500   HI:3500 TW:1400   Taps: 165
+Generating taps for new filter   LO:-3400   HI:3400 TW:1360   Taps: 171
+Generating taps for new filter   LO:-3400   HI:3400 TW:1360   Taps: 171
+Generating taps for new filter   LO:-3500   HI:3500 TW:1400   Taps: 165
+Generating taps for new filter   LO:-3500   HI:3500 TW:1400   Taps: 165
+Generating taps for new filter   LO:-3600   HI:3600 TW:1440   Taps: 161
+Generating taps for new filter   LO:-3700   HI:3700 TW:1480   Taps: 157
+Generating taps for new filter   LO:-3700   HI:3700 TW:1480   Taps: 157
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4200   HI:4200 TW:1680   Taps: 137
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Generating taps for new filter   LO:-4600   HI:4600 TW:1840   Taps: 125
+Generating taps for new filter   LO:-4600   HI:4600 TW:1840   Taps: 125
+Generating taps for new filter   LO:-4700   HI:4700 TW:1880   Taps: 123
+Generating taps for new filter   LO:-4800   HI:4800 TW:1920   Taps: 121
+Generating taps for new filter   LO:-4800   HI:4800 TW:1920   Taps: 121
+Generating taps for new filter   LO:-4900   HI:4900 TW:1960   Taps: 117
+Generating taps for new filter   LO:-4900   HI:4900 TW:1960   Taps: 117
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+Generating taps for new filter   LO:-5100   HI:5100 TW:2040   Taps: 113
+Generating taps for new filter   LO:-5100   HI:5100 TW:2040   Taps: 113
+Generating taps for new filter   LO:-5200   HI:5200 TW:2080   Taps: 111
+Generating taps for new filter   LO:-5200   HI:5200 TW:2080   Taps: 111
+Generating taps for new filter   LO:-5300   HI:5300 TW:2120   Taps: 109
+Generating taps for new filter   LO:-5400   HI:5400 TW:2160   Taps: 107
+Generating taps for new filter   LO:-5400   HI:5400 TW:2160   Taps: 107
+Generating taps for new filter   LO:-5500   HI:5500 TW:2200   Taps: 105
+Resampling audio 96000 -> 48000
+IQ DCR alpha: 1.04166e-05
+Using audio backend: auto
+BookmarksFile is /home/oscar/.config/gqrx/bookmarks.csv
+IQ DCR samp_rate: 1.024e+06
+IQ DCR alpha: 9.76562e-07
+Changing NB_RX quad rate: 96000 -> 1.024e+06
+No change in output device:
+  old: 
+  new: 
+IQ DCR samp_rate: 1.8e+06
+IQ DCR alpha: 5.55555e-07
+Changing NB_RX quad rate: 1.024e+06 -> 1.8e+06
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+Generating taps for new filter   LO:-5500   HI:5500 TW:2200   Taps: 105
+AFSK1200: fm 5K4MS3-11 to APZ-0 via WIDE1-1 UI  pid=F0
+/022711h0616.86N/07536.75WO297/000A1862B1734C2230D2030E218F8058G106H281I6J-18482K5406L12214M37N90O1112P906Q16618
+AFSK1200: fm 5K4PRS-1 to APN391-0 via WIDE3-3 UI  pid=F0
+!0619.83ND07538.89W#PHG5260 DIGI Wn-N BOQUERON. APRS_HK LCRA
+AFSK1200: fm HK2LS-10 to APWW10-0 via 5K4PRS-1,WIDE1-0,WIDE2-1 UI^ pid=F0
+>FJ26gc/IDX: 5K4PRS-1 18.2mi 324. 02:27 0619.83N 07538.89W 
+Generating taps for new filter   LO:-5400   HI:5400 TW:2160   Taps: 107
+Generating taps for new filter   LO:-5300   HI:5300 TW:2120   Taps: 109
+Generating taps for new filter   LO:-5200   HI:5200 TW:2080   Taps: 111
+Generating taps for new filter   LO:-5200   HI:5200 TW:2080   Taps: 111
+Generating taps for new filter   LO:-5100   HI:5100 TW:2040   Taps: 113
+Generating taps for new filter   LO:-5000   HI:5000 TW:2000   Taps: 115
+AFSK1200: fm HK2LS-1 to APOT30-0 via 5K4PRS-1,WIDE1-0,WIDE2-2 UI  pid=F0
+!0607.00N/07529.63W# 00.0V 117F CNT00000 
+AFSK1200: fm HK4D-9 to P5PR3S-0 via HK6RM-1,WIDE1-0,5K4PRS-1,WIDE2-1 UI  pid=F0
+`g9gl!w>/"I%}Power 10W
+Generating taps for new filter   LO:-4800   HI:4800 TW:1920   Taps: 121
+Generating taps for new filter   LO:-4800   HI:4800 TW:1920   Taps: 121
+Generating taps for new filter   LO:-4700   HI:4700 TW:1880   Taps: 123
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Generating taps for new filter   LO:-4500   HI:4500 TW:1800   Taps: 129
+Generating taps for new filter   LO:-4400   HI:4400 TW:1760   Taps: 131
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4300   HI:4300 TW:1720   Taps: 135
+Generating taps for new filter   LO:-4100   HI:4100 TW:1640   Taps: 141
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-4000   HI:4000 TW:1600   Taps: 145
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3700   HI:3700 TW:1480   Taps: 157
+Generating taps for new filter   LO:-3600   HI:3600 TW:1440   Taps: 161
+Generating taps for new filter   LO:-3700   HI:3700 TW:1480   Taps: 157
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3800   HI:3800 TW:1520   Taps: 153
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+Generating taps for new filter   LO:-3900   HI:3900 TW:1560   Taps: 149
+AFSK1200: fm 5K4MS3-11 to APZ-0 via WIDE1-1 UI  pid=F0
+/022805h0616.86N/07536.75WO297/000A1862B1733C2230D2027E228
+AFSK1200: fm HK2LS-7 to P6PV9Y-0 via HK2LS-1,WIDE1-0,5K4PRS-1,WIDE2-0 UIv pid=F0
+`g9[l"B[/`"Ld}_(
+AFSK1200: fm HK4D-9 to APTT4-0 via 5K6PRS-1,WIDE1-0,HK4D-2,5K4PRS-1,WIDE2-0 UI  pid=F0
+APRS_HK 
+AFSK1200: fm HK4D-2 to APN391-0 via 5K4PRS-1,WIDE2-1 UI  pid=F0
+!0618.31ND07526.76W#PHG5260 WIDI Wn-N GUARNE. APRS_HK
