@@ -22,8 +22,8 @@ global MatrizD, vectorTramas, cuentatrama, cuentadesconocida
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
 #La variable nombreArchivoSETLeerEscribir contiene las coordenadas iniciales de la estacion y de la gondola para setear el cero relativo
 
-nombreArchivoTramasLeer = "/home/oscar/Descargas/datosIterativos.txt"
-nombreVectorTrayectoriaGuardar = "vectordatosIterativosD24.txt"
+nombreArchivoTramasLeer = "lanzamientoSimple3.txt"
+nombreVectorTrayectoriaGuardar = "vectorLanzamientoSimple3.txt"
 nombreArchivoSETLeerEscribir = "SET.txt"
 
 MatrizD = []
@@ -271,6 +271,8 @@ def procesarTrama(lineas,set):
                     if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
                         tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                         voltajebater =  valores[3].split("E")[1].strip()
+                        presionbar = "0.0"
+                        humedadDHT11 = "0.0"
                         #print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                         #print("voltajebater: " + str(float(voltajebater)/1000))
                         print("trama corta completa")
