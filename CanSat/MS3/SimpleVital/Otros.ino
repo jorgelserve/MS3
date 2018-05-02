@@ -287,6 +287,7 @@ inline void revisarDesPaneles() {
 
     if (weight >= 2) {
       liberarPaneles(1);
+      liberarPaneles(0);
       revisarDespliegue();   // Solo poner en uno si realmente desplego (Deteccion de aumento del voltaje de la bateria?)
     } else {
       weight = 0;
@@ -391,14 +392,14 @@ inline void promedioBarometros() {
 float revisarPotencia(char comando) {
   // si comando = r revisamos estado ultimas peticiones, si comando es B, C o D enviamos el comando y cambiamos el estado
   if (comando == 'r') {
-    Serial.print("Revisando... ");
+    Serial.print("R...");
     if (ultimaSolicitud == 'B') { // Iluminacion leds
       // Veificamos que tengamos comando de respuesta de despligue panales
       if (Serial1.available() > 0) {
         char dato = Serial1.read();
         if (dato == 'B') {
           ultimaConexion = millis();
-          Serial.print("Leds Enecendidos... ");
+          Serial.print("Leds OK... ");
           Serial.println(dato);
         }
       }
@@ -491,33 +492,25 @@ float readVolt(){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 char LedOn(){
-  fall_time = millis();
-  if(band_weightLed == 0){
-    weightLed = (BarB_alti > alt_apogeo) ? weightLed + 1 : weightLed;
-    weightLed = (BarT_alti > alt_apogeo) ? weightLed + 1 : weightLed;
-    weightLed = (gps_altitude > alt_apogeo) ? weightLed + 2 : weightLed;
-  }else if(band_weightLed == 1){
-    weightLedDown = (BarB_alti < alt_apogeo) ? weightLedDown + 1 : weightLedDown;
-    weightLedDown = (BarT_alti < alt_apogeo) ? weightLedDown + 1 : weightLedDown;
-    weightLedDown = (gps_altitude < alt_apogeo) ? weightLedDown + 2 : weightLedDown;
-  }
-  
-
-  if(weightLed >= 3){
-    band_weightLed = 1;
-    if(weightLedDown >= 3 && fall_time >= apogeo_time){
-      band_weightLed = 2;
-      band_Led = 1;
-    }else{
-      weightLedDown = 0;
+  time_mission = millis() - fall_time;
+  //Serial.print(time_mission);
+  if ((BarT_alti > alt_apogeo && BarB_alti > alt_apogeo) || (gps_altitude > alt_apogeo && BarB_alti > alt_apogeo) || (gps_altitude > alt_apogeo && BarT_alti > alt_apogeo) || (time_mission > apogeo_time)) {
+    if (band_apogeo == 0) {
+      fall_time = millis();
+      band_apogeo = 1;
     }
-  }else{
-    weightLed = 0;
   }
-
-  if(band_Led == 1){
+  if (band_apogeo == 1) {
+    if ((millis() - fall_time) > apogeo_time) {
+      if ((BarT_alti < alt_apogeo && BarB_alti < alt_apogeo) || (gps_altitude < alt_apogeo && BarB_alti < alt_apogeo) || (gps_altitude < alt_apogeo && BarT_alti < alt_apogeo) || (time_mission > apogeo_time)) {
+        ban_apogeo_active = 1;
+      }
+    }
+  }
+  if (ban_apogeo_active == 1) {
     if(band_serial_led == false){
         Serial1.print('B');
+        pitar(1000);
         band_serial_led = true;
         comandoInicioLed = millis();
     }
