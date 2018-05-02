@@ -161,6 +161,11 @@ void setup() {
   }
 #endif
 
+  ///////////////////// Pruebas Leds Gondola
+  Serial.println("Prueba Leds gondola... ");
+  revisarPotencia('B');
+  delay(200);
+  revisarPotencia('B');
   // Pitido final
   pitar(100);
 

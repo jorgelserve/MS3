@@ -89,6 +89,7 @@ inline void revisarRadio() {
       Serial2.print("M");
       Serial2.print("Desplegando...");
       Serial.print("Comando Despliegue detectado, ");
+      liberarPaneles(0);
       liberarPaneles(1);
       Serial2.print("M");
       Serial2.print("Paneles Desplegados");
@@ -118,7 +119,7 @@ inline void revisarRadio() {
 
   //enviarTramasRadio(DatosRC + DatosRG + "----Alargado intencionalTrama");
   //enviarTramasRadio(DatosRC + DatosRG);
-}*/
+  }*/
 ///////////////////////////////////////// Trama Corta Ubicacion /////////////////////////////////////////////////////////////
 inline void generarTramaCorta() {
   // A - GPS - Tiempo

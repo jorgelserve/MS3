@@ -20,7 +20,7 @@
 ////////////////////////////////////////////// Declaraciones /////////////////////////////////////////////////////////////
 #define MS2Compatible 0   // (1)Hace el codigo compatible con el modulo MS2 (Solo radio analogo)
 #define RadioSerial 1     // Radio Serial(1) / analogo(0)
-#define Silencio  1       // Cambia el buzzer(0) por led(1)
+#define Silencio  0       // Cambia el buzzer(0) por led(1)
 
 // -> based on trackuino
 
@@ -182,11 +182,12 @@ int tempext3SD;
 
 // ----------------------------- Apogeo
 int alt_apogeo = 2000;      // altura por encima de la que inicia el conteo
-long int apogeo_time = 7200000;    // tiempo en mili-segundos desde que pasa altura
+long int apogeo_time = 7200000;    // tiempo en mili-segundos desde que pasa altura (2 horas *60 *60 *1000)
+//long int apogeo_time = 60000;
 long int fall_time = 0;
-int weightLed = 0;
-int weightLedDown = 0;
-int band_weightLed = 0;
+long int time_mission = 0;
+int ban_apogeo_active = 0;
+int band_apogeo = 0;
 int band_serial_led = 0;
 int band_Led = 0;
 unsigned long maximaEsperaComandoLed = 0;
@@ -199,8 +200,8 @@ unsigned long totalComandoLed = 0;
 //byte ban_apogeo_active = 0;
 
 // ----------------------------- liberacion Paneles
-unsigned long panel_time = 24000;     // Tiempo en milli segundos
-unsigned int alt_paneles = 5000;      // Altura en metros antes de despliegue 
+unsigned long panel_time = 2400000;     // Tiempo en milli segundos (40 * 60 * 1000)-> 40 minutos
+unsigned int alt_paneles = 15000;      // Altura en metros antes de despliegue 
 //---
 float weight = 0;                     // Permite desplegar teniendo presente datos de barometro, GPS y Tiempo
 bool panelesDesplegados = false;      // Permite saber si ya se corrio el despligue de paneles
