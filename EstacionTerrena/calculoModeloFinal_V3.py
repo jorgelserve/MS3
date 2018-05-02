@@ -16,7 +16,7 @@ import random
 import requests
 import string
 
-global band_altitudBAR, band_altitudGPS, MatrizD, vectorTramas, cuentatrama, cuentadesconocida
+global MatrizD, vectorTramas, cuentatrama, cuentadesconocida
 
 #La variable nombreArchivoTramasLeer contiene las tramas que el programa gqrx guardo al decodificar el AFSK
 #La variable nombreVectorTrayectoriaGuardar es donde se guardan los vectores de trayectoria calculados por el modelo
@@ -39,7 +39,7 @@ vectorTramas = ['/0/0/0']
 cuentatrama = 0
 cuentadesconocida = 0
 cuentaFusion = 0
-#arduino = serial.Serial('/dev/ttyUSB0',9600)
+arduino = serial.Serial('/dev/ttyUSB0',9600)
 time.sleep(2)
 
 def leerTrama():
@@ -61,6 +61,7 @@ def leerTrama():
         print("****ERROR LEYENDO TRAMA*****")
         print(e)
 def procesarTrama(lineas,set):
+    global tiempo,latitud_geo,longitud_geo,altitudGps,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar,presionbar,humedadDHT11
     try:
         returnedValues = lineas
         valores = returnedValues.split("/")
@@ -113,39 +114,39 @@ def procesarTrama(lineas,set):
                         print("velocidad: " + str(float(velocidad)))
                     if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
                         tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                        #print("temperaturaBar: " +  str(float(tempeBar)/100))
                     if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
                         tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                        #print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                     if bit == "f": #Si se cumple se garantiza existencia de trama hasta "f"
                         voltajebater =  valores[3].split("E")[1].split("f")[0].strip()
-                        print("voltajebater: " + str(float(voltajebater)/1000))
+                        #print("voltajebater: " + str(float(voltajebater)/1000))
                     if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
                         ACCX =  valores[3].split("f")[1].split("G")[0].strip()
-                        print("ACCX: " + str(float(ACCX)*9.8/100))
+                        #print("ACCX: " + str(float(ACCX)*9.8/100))
                     if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
                         ACCY =  valores[3].split("G")[1].split("H")[0].strip()
-                        print("ACCY: " + str(float(ACCY)*9.8/100))
+                        #print("ACCY: " + str(float(ACCY)*9.8/100))
                     if bit == "I": #Si se cumple se garantiza existencia de trama hasta "I"
                         ACCZ =  valores[3].split("H")[1].split("I")[0].strip()
-                        print("ACCZ: " + str(float(ACCZ)*9.8/100))
+                        #print("ACCZ: " + str(float(ACCZ)*9.8/100))
                     if bit == "J": #Si se cumple se garantiza existencia de trama hasta "J"
                         GIX =  valores[3].split("I")[1].split("J")[0].strip()
-                        print("GIX: " + GIX)
+                        #print("GIX: " + GIX)
                     if bit == "K": #Si se cumple se garantiza existencia de trama hasta "K"
                         GIY =  valores[3].split("J")[1].split("K")[0].strip()
-                        print("GIY: " + GIY)
+                        #print("GIY: " + GIY)
                     if bit == "L": #Si se cumple se garantiza existencia de trama hasta "L"
                         GIZ =  valores[3].split("K")[1].split("L")[0].strip()
-                        print("GIZ: " + GIZ)
+                        #print("GIZ: " + GIZ)
                     if bit == "M": #Si se cumple se garantiza existencia de trama hasta "M"
                         MX =  valores[3].split("L")[1].split("M")[0].strip()
-                        print("MX: " + MX)
+                        #print("MX: " + MX)
                     if bit == "N": #Si se cumple se garantiza existencia de trama hasta "N"
                         MY =  valores[3].split("M")[1].split("N")[0].strip()
                         MZ =  valores[3].split("N")[1].strip()
-                        print("MY: " + MY)
-                        print("MZ: " + MZ)
+                        #print("MY: " + MY)
+                        #print("MZ: " + MZ)
                         print("trama larga IMU completa")
             elif tramaGases == True:
                 #trama larga gases
@@ -185,49 +186,50 @@ def procesarTrama(lineas,set):
                         print("velocidad: " + str(float(velocidad)))
                     if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
                         tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                        #print("temperaturaBar: " +  str(float(tempeBar)/100))
                     if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
                         tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
-                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                        #print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
                     if bit == "F": #Si se cumple se garantiza existencia de trama hasta "F"
                         voltajebater =  valores[3].split("E")[1].split("F")[0].strip()
-                        print("voltajebater: " + str(float(voltajebater)/1000))
+                        #print("voltajebater: " + str(float(voltajebater)/1000))
                     if bit == "G": #Si se cumple se garantiza existencia de trama hasta "G"
                         humedadDHT11 =  valores[3].split("F")[1].split("G")[0].strip()
-                        print("humedadDHT11: " + str(humedadDHT11))
+                        #print("humedadDHT11: " + str(humedadDHT11))
                     if bit == "H": #Si se cumple se garantiza existencia de trama hasta "H"
                         NH3 =  valores[3].split("G")[1].split("H")[0].strip()
-                        print("NH3: " + NH3)
+                        #print("NH3: " + NH3)
                     if bit == "I": #Si se cumple se garantiza existencia de trama hasta "I"
                         CO =  valores[3].split("H")[1].split("I")[0].strip()
-                        print("CO: " + CO)
+                        #print("CO: " + CO)
                     if bit == "J": #Si se cumple se garantiza existencia de trama hasta "J"
                         NO2 =  valores[3].split("I")[1].split("J")[0].strip()
-                        print("NO2: " + NO2)
+                        #print("NO2: " + NO2)
                     if bit == "K": #Si se cumple se garantiza existencia de trama hasta "K"
                         C3H8 = valores[3].split("J")[1].split("K")[0].strip()
-                        print("C3H8: " + C3H8)
+                        #print("C3H8: " + C3H8)
                     if bit == "L": #Si se cumple se garantiza existencia de trama hasta "L"
                         C4H10 = valores[3].split("K")[1].split("L")[0].strip()
-                        print("C4H10: " + C4H10)
+                        #print("C4H10: " + C4H10)
                     if bit == "M": #Si se cumple se garantiza existencia de trama hasta "M"
                         CH4 = valores[3].split("L")[1].split("M")[0].strip()
-                        print("CH4: " + CH4)
+                        #print("CH4: " + CH4)
                     if bit == "N": #Si se cumple se garantiza existencia de trama hasta "N"
                         H2 =  valores[3].split("M")[1].split("N")[0].strip()
-                        print("H2: " + H2)
+                        #print("H2: " + H2)
                     if bit == "O": #Si se cumple se garantiza existencia de trama hasta "O"
                         C2H50H =  valores[3].split("N")[1].split("O")[0].strip()
-                        print("C2H50H: " + C2H50H)
+                        #print("C2H50H: " + C2H50H)
                     if bit == "P": #Si se cumple se garantiza existencia de trama hasta "P"
                         tempI2C =  valores[3].split("O")[1].split("P")[0].strip()
-                        print("tempI2C: " + tempI2C)
+                        #print("tempI2C: " + tempI2C)
                     if bit == "Q": #Si se cumple se garantiza existencia de trama hasta "Q"
                         tempADC =  valores[3].split("P")[1].split("Q")[0].strip()
                         presionbar =  valores[3].split("Q")[1].strip()
-                        print("tempADC: " + tempADC)
-                        print("presionbar: " + presionbar)
-                        print("trama larga Gases completa")
+                        enviarWeb(tiempo,latitud_geo,longitud_geo,altitudGps,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar,presionbar,humedadDHT11)
+                        #print("tempADC: " + tempADC)
+                        #print("presionbar: " + presionbar)
+                        #print("trama larga Gases completa")
             else:
                 #trama corta
                 #tiempo h latitud / longitud O curso / velocidad A altitud B alturaBar C tempbar D tempeSHT11 E voltajebater
@@ -265,14 +267,16 @@ def procesarTrama(lineas,set):
                         print("velocidad: " + str(float(velocidad)))
                     if bit == "D": #Si se cumple se garantiza existencia de trama hasta "D"
                         tempeBar =  valores[3].split("C")[1].split("D")[0].strip()
-                        print("temperaturaBar: " +  str(float(tempeBar)/100))
+                        #print("temperaturaBar: " +  str(float(tempeBar)/100))
                     if bit == "E": #Si se cumple se garantiza existencia de trama hasta "E"
                         tempeSHT11 =  valores[3].split("D")[1].split("E")[0].strip()
                         voltajebater =  valores[3].split("E")[1].strip()
-                        print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
-                        print("voltajebater: " + str(float(voltajebater)/1000))
+                        presionbar = "0.0"
+                        humedadDHT11 = "0.0"
+                        #print("temperaturaSHT11: " +  str(float(tempeSHT11)/100))
+                        #print("voltajebater: " + str(float(voltajebater)/1000))
                         print("trama corta completa")
-                        enviarWeb(tiempo,latitud_geo,longitud_geo,altitudGps,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar)
+                        enviarWeb(tiempo,latitud_geo,longitud_geo,altitudGps,curso,velocidad,alturaBar,tempeSHT11,voltajebater,tempeBar,presionbar,humedadDHT11)
             #Se debe guardar de manera recurrente las coordenadas de la estacion terrena y la gondola
             #para el caso en el que se reinicie la aplicacion y no se haya movido la estacion, poder
             #recuperar el tracking seteando nuevamente de manera automatica
@@ -334,7 +338,7 @@ def transformarTrama(latitud,longitud):
     except Exception as e:
         print("*****ERROR TRANSFORMANDO TRAMA*****")
         print(e)
-def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
+def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar,presBar,humeDht):
     try:
         tempoH=tempo[0:2]
         tempoM=tempo[2:4]
@@ -358,6 +362,8 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
             band_altitudGPS = 1
         altu = str(float(altu) - offset_GPS)
         temperabar = str(float(temperabar)/100)
+        presBar = str(float(presBar)/100)
+        humeDht = str(float(humeDht)/100)
         mqttmsg='"gps_time":"{}",' \
                 '"gps_latitude":"{}",' \
                 '"gps_longitude":"{}",' \
@@ -367,7 +373,9 @@ def enviarWeb(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar):
                 '"barometer_Altitude":"{}",' \
                 '"temperature_sht11":"{}",' \
                 '"voltaje_bateria":"{}",'\
-                '"barometer_temperature":"{}"'.format(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar)
+                '"barometer_temperature":"{}",' \
+                '"barometer_Pressure":"{}",' \
+                '"humidity_sht11":"{}"'.format(tempo,lati,longi,altu,curs,velo,altuba,tempera,volta,temperabar,presBar,humeDht)
         mqttmsg = "{" + mqttmsg + "}"
         #print(mqttmsg)
         r = requests.post("http://www.cansats3kratos.me/data/", data=mqttmsg,headers = {'content-type':'application/json'})
@@ -553,12 +561,12 @@ def estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue):
     Cu = DuNue - DuAnt
     Cv = DvNue - DvAnt
     Cw = DwNue - DwAnt
-    P_1u = (1/2)*Cu + DuNue
-    P_1v = (1/2)*Cv + DvNue
-    P_1w = (1/2)*Cw + DwNue
-    P_2u = Cu + DuNue
-    P_2v = Cv + DvNue
-    P_2w = Cw + DwNue
+    P_1u = (1/4)*Cu + DuNue
+    P_1v = (1/4)*Cv + DvNue
+    P_1w = (1/4)*Cw + DwNue
+    P_2u = (1/2)*Cu + DuNue
+    P_2v = (1/2)*Cv + DvNue
+    P_2w = (1/2)*Cw + DwNue
     return [P_1u,P_1v,P_1w,P_2u,P_2v,P_2w]
 def modeloVector(Du,Dv,Dw):
     divCero = 0
@@ -580,6 +588,24 @@ def modeloVector(Du,Dv,Dw):
     else:
         theta_prima_estimada = math.acos(Dw/math.sqrt(Du*Du+Dw*Dw))*180/3.141592653589793
     return [theta_prima_estimada,omega_prima_estimada]
+def estimacion():
+    DuAnt = MatrizD[len(MatrizD)-2][0]
+    DvAnt = MatrizD[len(MatrizD)-2][1]
+    DwAnt = MatrizD[len(MatrizD)-2][2]
+    DuNue = MatrizD[len(MatrizD)-1][0]
+    DvNue = MatrizD[len(MatrizD)-1][1]
+    DwNue = MatrizD[len(MatrizD)-1][2]
+    coordEstim = estimar(DuAnt,DvAnt,DwAnt,DuNue,DvNue,DwNue)
+
+    angulosEstim_v1 = modeloVector(coordEstim[0],coordEstim[1],coordEstim[2])
+    #print("theta_prima_estim_1: " + str(angulosEstim_v1[0]))
+    #print("omega_prima_estim_1: " + str(angulosEstim_v1[1]))
+    enviarArduino(angulosEstim_v1[0],angulosEstim_v1[1])
+
+    angulosEstim_v2 = modeloVector(coordEstim[3],coordEstim[4],coordEstim[5])
+    #print("theta_prima_estim_2: " + str(angulosEstim_v2[0]))
+    #print("omega_prima_estim_2: " + str(angulosEstim_v2[1]))
+    enviarArduino(angulosEstim_v2[0],angulosEstim_v1[1])
 def fusionar(AltG,AltB):
     try:
         global vectorAlturaGps, vectorAlturaBar, sumaAlturaBar, sumaAlturaGps, sumaVarianzaAlturaBar, sumaVarianzaAlturaGps, cuentaFusion
@@ -693,7 +719,12 @@ while (1):
             cuentadesconocida = 0
             coordenadas = procesarTrama(trama,True)
             angulos = modelo(coordenadas[0],coordenadas[1],coordenadas[2])
-            #enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            #print("theta_prima: " + str(angulos[0]))
+            #print("omega_prima: " + str(angulos[1]))
+            enviarArduino(angulos[0],angulos[1],False) #theta,omega
+            if len(MatrizD) > 1: #Estimacion
+                #estimacion()
+                continue
             print("__________________________________________")
         if trama == 0:
             if cuentatrama < 1:
